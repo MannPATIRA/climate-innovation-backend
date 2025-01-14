@@ -1,13 +1,7 @@
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
-# 1) Import load_dotenv
-from dotenv import load_dotenv
 import requests
-
-# 2) Call load_dotenv() to read .env
-load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
