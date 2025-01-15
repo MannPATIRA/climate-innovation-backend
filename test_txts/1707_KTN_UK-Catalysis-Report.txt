@@ -1,0 +1,3012 @@
+UK Catalysis: Innovation opportunities for an enabling technology1
+UK Catalysis:
+Innovation opportunities for 
+an enabling technology
+UK Catalysis: Innovation opportunities for an enabling technology21. Ex ecutive summary 4
+2. Introduction 8
+2.1. R eport background  8
+2.2. Wh y Catalysis? Why now?  8
+2.3. Ca talysis and the UK’s national strategy  9
+2.3.1.  Ne w catalyst development and the UK Grand Challenges  11
+3. Global and dome stic catalysis market 12
+3.1. Mark et overview 12
+3.2. UK mark et opportunities 19
+4. In tegrated catalyst and process design for industrial application and faster adoption 22
+5. Clean gr owth 24
+5.1. Clean gr owth Introduction  24
+5.2. Hy drogen generation  27
+5.2.1.  Blue h ydrogen  27
+5.2.2.  Gr een hydrogen  28
+5.3. CO2 utilisation  28
+5.4. W aste to chemicals and fuels  30
+5.4.1.  Gasifica tion of waste and upgrading of waste syngas  31
+5.4.2.  W aste plastic to chemicals and fuels  31
+5.4.3.  Utilis ation of biomass  33
+5.5. Clean air  33
+5.6. W ater treatment and catalysis  36
+5.7. Other opp ortunities  40
+5.7.1.  P olymer and rubber  40
+5.7.2.  Carb on efficiency  40
+5.8. Clean gr owth conclusion  40
+6. Health y ageing/pharmaceutical manufacturing 42
+6.1. In troduction to healthy ageing/pharmaceutical manufacturing  42
+6.2. Pharmac eutical manufacturing  42
+6.2.1.  Smar t manufacturing of pharmaceuticals  44
+6.2.1.1.  Con tinuous and pseudo-continuous manufacturing  44
+6.2.1.2.  Combine d chemo and biocatalysis  46
+6.2.2.  Ca talysts for new chemistries  47
+6.2.2.1.  Non P GM catalysed processes  47
+6.2.3.  F aster development cycles  49
+6.2.3.1.  Pr edictive modelling  49
+6.2.3.2.  High thr oughput experimentation (HTE)  50
+6.3. Health y ageing/pharma manufacturing conclusion  51Contents
+UK Catalysis: Innovation opportunities for an enabling technology37. UK and in ternational catalysis capability 52
+7.1. Ov erview of UK academia  52
+7.2. Ov erview of UK national catalysis capabilities  55
+7.3. In ternational capability  55
+7.3.1.1.  RealCat  56
+7.3.1.2.  C AT Catalytic Centre  56
+7.3.1.3.  CaRLa  57
+7.3.2.  Ex ample of International RTO capabilities  59
+7.3.2.1.  VTT  59
+7.4. Ca talysis capability conclusions  59
+8. UK ca talysis conclusions 63
+8.1. Mark et opportunity  63
+8.2. Driving v alue for the UK today  64
+8.3. UK Capabilitie s  65
+8.4. R ecommendations for catalysis innovation support  65
+8.4.1.  A ccess to UK catalysis capabilities  66
+8.4.2.  Collab orative Research & Development (cR&D)  66
+8.4.3.  Clean gr owth demonstrator projects  67
+8.4.4.  Expansion of UK ca talysis capabilities  68
+8.5. Clo sing remarks  68
+9. Appendices 70
+9.1. App endix 1:  Examples of UK capabilities  70
+9.1.1.  Ex amples of UK industrial catalysis capabilities (non exhaustive)  70
+9.1.2.  Ex amples of UK academic capabilities (non exhaustive)  70
+9.2. App endix 2:  Additional International capabilities  71
+9.2.1.  Ex amples of international organisation capabilities (non exhaustive)  71
+9.2.2.  Ex amples of international academic capabilities (non exhaustive)  72
+10. Acknowledgements 74
+UK Catalysis: Innovation opportunities for an enabling technology4
+This report covers work conducted by KTN 
+and sponsored by Innovate UK to explore the 
+innovation opportunities for UK catalysis. It incorporates the findings and recommendations of the Innovate UK/KTN sponsored UK Catalysis Special Interest Group (SIG) and an independent Catalysis Market Study.  
+This report was completed prior to the coronavirus pandemic but as 
+the UK and the world looks towards a green economic recovery it is thought that the trends discussed in this report can be accelerated.
+Catalysis is a critical key enabler requiring investment in innovation. 
+Advances in catalytic technology have a direct impact on the productivity of a significant number of chemical processes, often enabling the production of completely new products and materials for use in downstream manufacturing sectors. This enabling role of catalysis will impact multiple industries and supports the need for a cross-sector collaborative approach in order to accelerate and commercialise innovation. For innovation to be successful a systems approach is critical, including establishing strong collaborative relationships along relevant supply chains with life cycle and techno-economic analysis being essential to evaluate the impact of new capabilities. To drive and de-risk this activity, public funding will be needed alongside private investment to accelerate catalysis innovation through: 
+•providing access to catalysis centres of excellence;
+•the expansion of capabilities available (existing or new) in catalysis
+centres of excellence;
+•catalysis funding to support grand challenges and net zero;
+•clean growth demonstrator projects.
+The development of a catalyst is a complex and lengthy process and within the UK there are a few large manufacturers that cover the design of a catalyst through to production. A number of small companies are also involved in the manufacture of catalysts but beyond the internal capabilities of the large catalyst manufacturers, the UK has limited accessible capability to support the development, scale-up and integrated process design of catalytic technologies. A notable exception to this exists in the area of industrial biotechnology. However, the UK does have a strong academic catalysis research base focusing on lab-scale design, synthesis and testing of catalysts. 1.Executive summary
+UK Catalysis: Innovation opportunities for an enabling technology5
+
+UK Catalysis: Innovation opportunities for an enabling technology6
+UK industry does engage with thi s research base but 
+with the strong focus on fundamental science coupl ed 
+with the drivers  to publish work, the researc h can often 
+be too early stag e to be immedi ately industrially  relevant 
+or commercially  viable. As a result there is the need 
+for more effective  engagement and capability to drive 
+industry-focused  and commercially  viable projects 
+around catalyst design, synthes is and testing that  
+compliments the high quality fundamental research. 
+Furthermore, to fill the gap in UK  capability there is a 
+need for open access pilot and d emonstration-scal e 
+facilities for the up-scaling and integrated catalytic 
+process design for whole process systems.
+The UK has a relatively small but very signifi cant 
+domestic market for catalyst consumption within large 
+and small organisations. Building on the UK’s expertise 
+in catalysis, there is a huge potential for stimulating 
+growth in existing and emerging domestic markets, 
+such as hydrogen, while also generating income 
+growth from the export and licensing of catalysts 
+and catalytic technologies. A recent Market Study 
+commissioned by Innovate UK and KTN estimates 
+that in 2019, the global catalyst industry was worth 
+$34.1bn and is estimated to grow at 4.3% CAGR per 
+annum between 2019 and 2025, driving progress 
+and innovation that delivers over $15tn in revenue 
+for other downstream sectors. The UK domestic 
+1 Lynch, M. 2020. UK Catalysis Market Summary. Enabled Future Limited.catalyst consumption was estimated to be $433m and 
+forecasted to grow at 2.99% CAGR across the same time period. This domestic consumption of catalyst drives an estimated $188bn in revenue for downstream sectors in the areas of:
+•en vironmental (including  automotive, batteries, clean
+air and water);
+•refining;
+•p etrochemical/commodity chemicals;
+•fi ne chemicals (including pharmaceuticals);
+•p lastics and polymers.
+Additionally, in 2019 the UK produced nearly $1bn of catalysts covering some of the domestic consumption and the remaining being for export. Further revenue will be provided from the licensing of catalytic processes and technologies.
+1
+Through the market study and consultation with industry, academia and other key stakeholders strategic areas for UK growth in catalysis have been identified as:
+•c atalyst and process design;
+•lo w carbon hydrogen;
+•c arbon Capture Utilisation and Storage (CCUS);
+•w aste (including biomass and polymers) to
+chemicals;
+•environmental;
+UK Catalysis: Innovation opportunities for an enabling technology7
+•fi ne chemicals (including pharmaceuticals);
+•n ew high functionality polymers and rubbers;
+•c arbon efficiency, which includes coal-to-chemicals
+(CTC), gas-to-chemicals (GTC) and crude oil-to-
+chemicals (COTC).
+Catalysis will be critical in supporting the move to net zero carbon emissions and enabling the UK’s energy intensive chemicals sector to decarbonise. Innovation for catalysis and integrated process design in the clean growth areas of vital importance to the UK are:
+•lo w carbon hydrogen;
+•c arbon capture and utilisation (CCU) to chemicals;
+•w aste to chemicals.
+Other areas for clean growth opportunities in the UK also exist around advancing the use of catalysis for clean air and water.
+A current area of strength for the UK is pharmaceuticals 
+and new catalyst technologies can provide solutions to increase the productivity of pharmaceutical manufacturing by:
+•m inimising the amount of product work-up;
+•a ccelerating the production of personalised medicines
+in small scale distributed and continuous/pseudo-continuous manufacturing.The pharmaceutical industry can also drive changes in 
+•t he use of non-precious group metal chemistries;
+•t he use of new techniques around hybrid catalysis;
+•t he adoption of newer approaches to catalyst
+development, for example, high throughputexperimentation and predictive modelling.
+There are also additional opportunities to encourage pre-competitive collaborations within the pharmaceutical industry alongside the related agrichemicals, flavours and fragrances sectors. 
+Along with the investment and opportunities outlined 
+above, advances in catalysis capabilities will also need to be supported by changes to policy and regulations within the relevant manufacturing sectors to drive adoption.  All these factors together should help to shape public perception to ensure that wider society supports the investment outlined above.
+Catalysts and the associated technologies are used 
+somewhere within the majority of chemical production pathways and with respect to net zero, without catalysts it will be impossible to achieve. 
+UK Catalysis: Innovation opportunities for an enabling technology82.1. Report background
+Catalysis has been an ongoing focus area for research and development within the chemical-using industries due to its potential to improve the productivity of manufacturing processes while enabling new smart chemistries and products to be developed. This report details the outcomes of a body of work that has been investigating the opportunities for accelerating innovation in UK catalysis and has been engaging in cross-sector activities covering bulk chemicals, fine/speciality chemicals, pharmaceuticals, energy, oil and gas, agrichemicals, materials and water. The work was conducted by KTN and sponsored by Innovate UK and incorporates the outputs of the Innovate UK/KTN sponsored UK Catalysis Special Interest Group (SIG) and an independent Catalysis Market Study. 
+2.2. Why catalysis? Why now?
+Within a rapidly changing global picture there is a need for sustainable chemistries to be developed to respond to environmental challenges and the impacts of an increasing and ageing population. Catalysis is a key underpinning and enabling technology (Figure 1) that can significantly impact the productivity of manufacturing processes and enable access to new chemistries and products.  Innovation and advances in this core technology, as highlighted in the Chemistry Council’s strategy are needed to address challenges in
+2: 
+•clean growth;
+•healthy ageing;
+•future of mobility.
+Within these challenge areas catalysis will be a critical enabler in the shift towards the 2050 net zero target, allowing reduced energy consumptions, increased process efficiency and enabling better use of alternative feedstocks, such as utilising CO
+2, leading to more 
+sustainable products and processes. As an enabling technology catalysis should not be considered in isolation, but as part of a larger system to ensure optimal and commercially viable solutions are generated that add significant value to the UK economy. 
+Industrial 
+DecarbonisationPlastics
+Depolymerisation
+Hydrogen
+Catalysis
+CCU
+CCS
+Figure 1: Catalysis is an underpinning and enabling technology2.Introduction
+Carbon Capture 
+& Utilisation (CCU)
+Carbon Capture 
+& Storage (CCS)
+2. Chemistry Council. 2018. "Sustainable Innovation for  a better world. " Chemistry Council. Nov. 
+https://ukchemi strygrowth.com/ wp-content/uploa ds/2019/02/ Chemistry-Coun cil_v17_lr.pd f
+UK Catalysis: Innovation opportunities for an enabling technology9However, catalysts are complex materials requiring 
+a combination of multidisciplinary science and engineering to design, manufacture and commercially scale. Catalysts need to be characterised and tested to produce a commercially viable, robust and functional structure that can operate at full scale and withstand real world process conditions. To produce a commercially viable catalyst it needs to be designed as part of the entire production system with a defined feedstock and end product. Hence it is important to develop a solution that solves the right problem at the right time utilising a systems approach that would include:
+•c omplete supply chains;
+•l ifecycle analysis;
+•t echno-economic analysis;
+•en vironmental assessment;
+•r eaction engineering and process design covering
+unit operations, single/multiple processes and massand energy balances.organisations now need to rely on outsourcing and collaborative approaches to develop underpinning and enabling technologies. 
+For these reasons there is now a need to have a 
+collaborative research and development programme in catalysis which will bring together stakeholders across all disciplines throughout the supply chain. The opportunity is for the UK to create cheaper, cleaner, more efficient and effective processes, this will require de-risking faster discovery, screening and development of commercially viable catalysts and enabling quicker routes to market.
+2.3. Catalysis and the UK’s national strategy
+The UK’s current industrial strategy is centred around the four grand challenges of
+3:
+•Cl ean growth
+M aximising the advantages for UK industry from the
+global shift to clean growth.
+•A geing society
+H arnessing the power of innovation to help meet the
+needs of an ageing society.
+•F uture of mobility
+B ecoming a world leader in shaping the future of
+mobility.
+•A I and data economy
+Pu tting the UK at the forefront of the artificial
+intelligence and data revolution.
+In parallel to the Industrial Strategy there are also the specific complementary government strategies: 25 Year Environment Plan
+4,  Clean Growth Strategy5 and 
+Clean Air Strategy6. Key features of the Clean Growth 
+Strategy are the drive for industrial decarbonisation in the UK and the need to increase the use of low carbon technologies. Since the publication of the Clean Growth Strategy the target for reducing greenhouse gas (GHG) emissions by 80% has been replaced by 
+the net zero GHG target by 2050. Catalysis will be an 
+enabling technology for Clean Growth, Healthy Ageing For companies developing end-to-end processes it is 
+not always clear what role catalysis can play, and for 
+those without catalysis expertise they can struggle 
+to access UK capability in a timely and appropriate 
+manner, for example, short feasibility studies with quick 
+turnaround times.
+Historically the UK chemical industry consisted of a 
+number of large organisations with significant in-house 
+research and development expertise and capability for 
+developing commercial scale catalysts. Today the UK 
+has fewer large organisations with this in-house 
+capability and a larger number of SMEs who may 
+not have a wide-ranging breadth of capability. With 
+recent advances in catalyst measurement, catalyst 
+characterisation, high throughput experimentation and 
+predictive modelling, understanding how best to utilise 
+and leverage methods and equipment is challenging. 
+This is especially true when technologies and expertise 
+is then housed across different organisations. As such 
+3 (Department for  Business, Ene rgy & Industria l Strategy 2017)
+4 https://www .gov.uk/government/publication s/25-year-env ironment-plan  
+5 https://www .gov.uk/government/publication s/clean-growth -strategy
+6 https://www .gov.uk/government/publication s/clean-air -strategy-2019
+UK Catalysis: Innovation opportunities for an enabling technology10and the Future of Mobility. For healthy ageing, two 
+reports that have fed into the strategy are Healthy ageing innovation and investment in the UK
+7 and 
+Developing the industrial strategy challenge fund healthy ageing: a technologically enabled ecosystem for healthy ageing
+8, in addition, there is also the Life 
+sciences: industrial strategy9 report which outlines the 
+need for growth in medicines manufacturing base in the UK.
+Catalysis and clean growth 
+A 2013 report by Dechema estimates that in 2050, catalytic and related processes could globally enable 1Gt CO
+2e/yr savings and a reduction of 20-40% in 
+energy requirements when compared with a 2050 business-as-usual scenario based on the manufacture of the top eighteen largest volume chemicals
+10.  Novel 
+catalyst technology will provide improved routes for the manufacture of low carbon hydrogen and utilising ‘waste carbon’ in its various forms, from carbon dioxide to plastic waste and converting it to higher value chemicals and materials. Catalysis innovation will lead to significant step changes in manufacturing that will be essential to reach the ambitious 2050 net zero, industrial decarbonisation and energy efficiency targets set by the Department for Business, Energy and Industrial Strategy (BEIS)
+11.  
+Catalysis and healthy ageing With an ageing population, chemo and biocatalysis has a role in the manufacturing of medicines. Catalysis could allow for new chemistries to be developed that produce fewer impurities and by-products whilst 
+minimising product work-up and delivering economic 
+value. For small molecules, catalysis will support the move towards smaller scale, agile and continuous/pseudo-continuous manufacturing for the production of personalised medicines. 
+Figure 2: Market opportunities for catalysis
+7 https://www.ageing-better.org.uk/publications/industrial-strategy-challenge-fund-iscf-healthy-ageing-innovation-and-investment-uk
+8 https://www.ageing.ox.ac.uk/publications/view/653
+9 https://www.gov.uk/government/publications/life-sciences-industrial-strategy
+10 I EA & Dechema. 2013. Technology Roadmap: Energy and GHG reductions in the chemical industry via catalytic processes. France: IEA Publications.
+11 D epartment for Business, Energy & Industrial Strategy. 2017. “Industrial decarbonisation and energy efficiency action plans.” GOV.UK. Oct 12. Accessed May 29,  
+2 020. https://www.gov.uk/government/publications/industrial-decarbonisation-and-energy-efficiency-action-plans.Clean growth Ageing society Future of mobility
+Decarbonisation/Defossilisation
+Renewables Waste
+H2 CO2 to Cn
+Reducing environmental pollution
+Ethical supply and use of catalysts and materialsWater Clean air TextilesAdvanced materials
+Advanced materials
+Advanced materialsPharmaceutical manufacture
+Catalytic sensors (point of care)
+Food preservationAdvances in catalytic 
+battery technology
+Carbon efficient  
+fuel supply
+Critical raw materials Lower toxicity Circular economy
+Artificial intelligence and data: digitisation, AI & ML
+Net Zero
+UK Catalysis: Innovation opportunities for an enabling technology11Catalysis and the future of mobility
+As part of the future of mobility challenge there have been investments in innovation that supports clean methods of powering vehicles. This has included electric and other ultra-low emission vehicles along with the associated infrastructure. Novel catalysts will enable the next  generation of batteries and fuel cells to function. Advanced catalysts can provide new cathodes with improved electrochemical performance producing faster charging batteries with greater  capacities along with increased discharge voltages and rates. 
+2.3.1. New catalyst development and the  
+UK Grand Challenges
+Figure 2 shows where UK industry and academia 
+have identified market opportunities for catalysis that support the UK grand challenges and the shift towards net zero while also having the potential to generate value for the UK economy. This value will be created through the manufacture of the catalysts, the consumption of catalysts during manufacturing of products and through the licensing of catalyst technologies.
+To leverage these opportunities, industry will need 
+to introduce substantial changes to existing and new processes utilising advances in all areas of catalysis, such as bio, chemo, electro and photocatalysis. However, a limiting factor in the translation of research has been the direct applicability of academic outputs to real world conditions and applications. This is in part due to there being limited capability in the UK to support the translation and scale-up of commercially viable research. The current speed of new catalyst development to overcome challenges is driving end users to look for solutions which are either commercialised or are very close to commercialisation and so there is limited horizon scanning for new innovations.
+Across all the market opportunities there is a need to 
+develop methods and capabilities that allow for the de-risking of technologies and enable faster scale-up of catalysts and associated processes.  
+To improve the uptake of new catalytic innovation industry faces challenges in:
+•U nderstanding the market opportunities fromfeedstock to product and the role of innovation.
+•G aining access to credible yet impartial commercial
+and technical know-how relating to catalystdevelopment and application of new catalysistechnologies for industrial manufacture.
+•H aving the ability to quickly scale-up and produce
+robust reliable data to enable the engineering andtranslation of research whilst also be able to learnquickly from any failures.
+•U nderstanding when the different types of catalysis
+would be best applied.
+These challenges reinforce the importance of techno-economic evaluations and whole system 
+design when translating innovative research towards 
+a commercial solution, something which can be overlooked in early and late stage research. This includes the need to have integrated thinking on the most advantageous, robust, economical and innovative catalysis solutions that can be scaled-up for real-world applications. As an underpinning capability, catalysts are only one vital part of an entire system, therefore, to develop and adopt new catalysts it requires a multidisciplinary, cross-sector approach enabling a holistic view of the entire supply chain and the existing capabilities. Any new approaches have to factor in its adoption when considering the existing assets and infrastructure within the supply chain. Catalyst design and development needs to balance specificity with conversion and yields. Paul Weisz’s ‘Window of Reality’ is a quantitative rule of thumb around the commercial viability of a catalytic process based upon achieving a desired conversion of feedstock to products within practical limits
+12. 
+During scale-up this factor takes into consideration the rates of mass and heat transfer as well as the manufacturing times and the scale of equipment. Within given processes there are also common 
+requirements for catalysts to be designed towards 
+optimal temperatures, balancing process energy and heat recovery requirements, whilst also extending the catalyst life-cycle (in-use, regeneration, reuse/recycling) and when required ensuring they are easily separated from products (e.g. active ingredients from biocatalysts). 
+12 D erouane E.G. et al. 2000. Combinatorial Catalysis and High Throughput Catalyst Design and Testing. Springer-Science+Business Media, B.V.
+UK Catalysis: Innovation opportunities for an enabling technology12
+3.1. Market overview 
+On behalf of Innovate UK and KTN, a full UK 
+Catalysis Market Study was conducted by Enabled Future Ltd. An associated UK Catalysis Market summary report has been made publicly available
+13. 
+(UK Catalysis Market Summary, 2020, Enabled Future Ltd). This report was completed prior to the coronavirus pandemic; as the UK and the world looks towards a green economic recovery, it is thought that some of the trends discussed in this report could be accelerated.
+The global catalyst industry is worth $34.1bn 
+and drives progress and innovation across other industries delivering over $15tn in revenue, which when including the licensing of catalytic technology increases the estimate to $16tn.  Figure 3 shows the breakdown of the global catalyst market by application, and Figure 4 shows the expected revenue growth per application area up until 2025. This is a market that is growing faster than GDP at a CAGR of 4.3% per annum. Refined products are expected to continue to grow due to demand of transport fuel coupled together with tighter emission regulations. Catalysis demand for refineries will shift as the main focus moves towards the production of chemicals. While catalysts will be required to cope with the diversification of vehicle powertrains towards other technologies, for example, fuels cells and plug-in hybrids. There will also be a need for catalysts to produce low carbon hydrogen.
+143.Global and domestic
+catalysis market
+13 Lynch M, UK Catalysis Market Summary, 2020, Enabled Future Limited.
+14 Lynch M, UK Catalysis Market Summary, 2020, Enabled Future Limited.
+UK Catalysis: Innovation opportunities for an enabling technology13
+
+UK Catalysis: Innovation opportunities for an enabling technology14
+Figure 4
+Expected catalyst market growth 2019 – 2025 
+(pre Covid-19 estimates)
+15 ( Lynch 2020)
+16 (Lynch 2020)6.85, 20%
+4.45, 13%12.67, 37%Figure 3Global catalyst revenue by market application 2019, $ bn
+15
+2.05, 6%
+Petrochemical Fine chemical Polymerisation
+Environmental8.11, 20%
+Refining
+Fine chemical
+CARG=8.1%Polymerisation
+CARG=4.1%Refining
+CARG=3.1%
+Petrochemical
+CARG=4.4%Environmental
+CARG=4.8%
+Figure 6
+UK catalyst market revenue, 2019-2025 (excluding exports), $mn (pre Covid-19 estimates)
+5,944: 17%
+2,367: 7%13,153: 39%Figure 5
+Catalyst revenue by geography 2019, $mn16
+9,816: 29%
+UK France Germany
+China696: 2%
+USA
+Fine chemical
+CARG=5.6%Polymerisation
+CARG=0.3%Refining
+CARG=1.1%
+Petrochemical
+CARG=2.5%Environmental
+CARG=4.5%CARG=4.5% (N.B. CARG from 2019-2025=4.3%)
+1,720: 5%433: 1%
+UK catalyst market $433m
+(domestic and imported)
+Japan Rest of the WorldCARG=2.99%
+UK Catalysis: Innovation opportunities for an enabling technology15Globally, the total chemical market revenue is set to 
+reach $3.9tn in 2020 and China has the largest market 
+at $1.4tn. The global chemical market has a forecasted 
+CAGR of 3.8% per annum and will reach $6.8tn by 
+2035. As a sector, the fine chemicals market, which 
+includes agrochemicals, consumer chemicals and 
+pharmaceuticals, is growing the fastest with a CAGR of 
+9.3% per annum up until 2025. Polymerisation catalysts 
+are projected to grow at a CAGR of 3.9% per annum 
+helping to deliver the increasing demand for new 
+polymers with higher functionality and those which are 
+chemically recycled.16
+In the UK for 2018 the manufacture of chemicals and 
+pharmaceuticals generated £18bn GVA and had a 
+total turnover of £48.5bn, whilst the manufacture of fuels 
+produced £2.6bn GVA and £27bn turnover17. 
+The chemical markets, which include petrochemical, 
+fine chemicals and polymerisation rely mainly on 
+heterogeneous catalysts, with a smaller amount being 
+homogeneous and biocatalysis predominately in the 
+fine chemical sector. This will continue to be the case for 
+the foreseeable future, however innovation in all forms 
+of catalysis will be needed. With the market trends and 
+the expected growth of both the chemicals and catalysis 
+markets there is a significant opportunity for the UK 
+to exploit. Catalysis being a key enabling technology 
+which is used in an estimated 80-90% of chemical 
+processes has a significant role to play in exploiting these 
+opportunities18, 19, 20. A comparison of the UK’s catalyst revenue with five 
+other countries, China, France, Germany, Japan and 
+USA is shown in Figure 5, with these six countries 
+being collectively 61.5% of the total catalyst market. 
+Even though within the countries studied, the UK has 
+the lowest catalyst demand, it is still of significant value 
+with an estimated $433m of direct consumption which 
+is forecasted to increase at CAGR of 2.99% between 
+2019 and 2025 reaching $5 17m (see Figure 6). The UK’s 
+$433m of direct consumption also drives the delivery of 
+an estimated $188bn of domestic revenue and Figure 
+7 shows a breakdown by market of the UK’s domestic 
+catalyst consumption and the associated additional 
+industry revenue generated. Furthermore, the total 
+value of catalysts produced and sold by the UK in 2019, 
+including for domestic use and for export, was worth 
+$944m (see Figure 8) which was 2.9% of the total global 
+market revenue, with the licensing of catalytic processes 
+and technologies providing additional revenue. In 
+the UK Johnson Matthey develops and manufactures 
+catalysts and INEOS produces catalysts to meet internal 
+production requirements whilst also licenses some 
+technologies. There are a few other large organisations 
+developing and manufacturing catalysts as well as a 
+number of small companies operating in the UK in the 
+area of fine chemicals and polymerisation. So even with 
+the UK having a relatively small domestic market, given 
+its expertise in catalysis, there is huge potential for 
+stimulating growth in existing and emerging domestic 
+markets, such as hydrogen, as well as income growth 
+from exporting and licensing of catalysts and catalytic 
+technologies.21 
+17  Office for National Statistics. 2020. “Office for National Statistics.” Non-financial business economy, UK: Sections A to S. May 15. Accessed May 29, 2020. 
+https://www.ons.gov.uk/b usinessindustryandtra de/business/businessser vices/ datasets/uknonfinanc ialbusinesseconomyannualb usinesssurveysectionsas.  
+18  Barroso, M, J H Bitter, B Broxterman, B de Bruin, F R van Buren, U Hanefeld, E J.M Hensen, et al. 2015. Catalysis - Key to a Sustainable Future: Science and 
+Technology Roadmap for Catalysis in the Netherlands. The Dutch Minsitry of Economic Affairs, The Netherlands Institute for Catalysis Research (NIOK), The 
+Industrial Advisory Board of NIOK (VIRAN), The Hague: Zalsman B.V.
+19  Catlow, C, M Davidson, C Hardacre, and G Hutchings. 2016. “Philisophical Transactions of the Royal Society A: Catalysis Making the World a Better Place.” The 
+Royal Society  Publishing. P hil. Trans. R. Soc. A 374:20150089. Jan 11. http://rsta.roya lsocietypubl ishing.org/c ontent/374/2061/ 20150089.
+20  Chorkendorff, I., and J. W. Niemantsverdriet. 2007. Concepts of Modern Catalysis and Kinetics. Weinheim: Wiley-VCH Verlag GmBH & Co. KGaA.  
+21  (Lynch 2020)
+UK Catalysis: Innovation opportunities for an enabling technology16
+Figure 7: UK domestic catalyst consumption and associated industry revenue 2019
+The results of a catalyst intellectual property analysis conducted on the six countries are summarised in Table 1. 
+The UK has the lowest number of patents out of the six countries. At 6 1%, it has a moderate level of granted patents 
+and a high global reach ratio of 11:1 when compared with the number of patent families. The global reach provides 
+an indication that British assignees consider catalyst innovations are worth protecting in other countries. Similarly 
+when looking at clean growth and healthcare there are again moderate levels of patent grants at 66% for both areas 
+and Table 2 shows the key topics for patents for each country. Across all patents the UK has a strong focus on UK 
+catalyst preparation, exhaust gases and fine chemicals. In the area of clean growth; fuels cells, membrane electrode 
+assemblies, Fischer- Tropsch, CO2 and syngas are shown as top areas. Although CO2 and syngas can be seen to be an 
+area of focus for all the countries included in the study, clean growth is still an emerging area for the UK which can be 
+seen from the number of businesses and projects being started in this area. For fine chemicals the key topics for the 
+UK are focused on therapeutics as opposed to personal care, cosmetics or food production. This is refl ective of the 
+strong pharmaceutical presence in the UK and the number of CROs (contract research organisations) and CDMOs 
+(contract development and manufacturing organisations) present.22
+Figure 8: UK catalyst market, 201923
+23 (Lynch 2020)UK catalyst  
+market $433mCommodity chemicals
+$94m enables $26bn
+Fine chemicals$18m enables $12bn
+Refining$100m enables $42bnEnvironmental*
+$181m enables $84bnPlastics and polymers
+$40m enables $5bn
+Pharmaceuticals^$20bn
+* Based on automotive industry data   ^ Not fully reflected in the catalyst figure
+$1,200
+$1,000
+$800$600$400$200
+0
+Consumption Import Export Total$433 $(359)$920 $994
+22 (Lynch 2020)
+UK Catalysis: Innovation opportunities for an enabling technology17Patent set Great Britain France Germany USA China Japan
+Families ‘000s ‘000s ‘000s ‘000s ‘000s ‘000s
+All patents 
+Families 8.1 11.1 30.0 47.9 227.1 47.5
+Grants 4.9 61% 9.2 83% 18.0 60% 30.5 64% 97.8 43% 26.1 55%
+GR 11.1 9.1 7.3 8.1 1.2 7.1
+Clean growth 
+Families 1.0 1.4 2.9 7.8 12.0 7.6
+Grants 0.7 66% 1.2 88% 1.8 63% 387.7 72% 5.2 44% 4.6 60%
+Healthcare Families 1.9
+2.0 3.9 8.3 10.7 4.3
+Grants 1.3 66% 1.7 86% 2.7 68% 5.3 64% 3.5 32% 1.6 37%Table 1: IP Comparison by country including clean growth and healthcare subsets24
+24 ( Lynch 2020)
+UK Catalysis: Innovation opportunities for an enabling technology18Key Topics
+All patents Clean growth Fine chemicals
+UKCat Prep
+Exhaust Gas
+Fine ChemCO2, Syngas,  
+Fischer-Tropsch
+MEA, Fuel CellsHeterocycles
+Protein Kinase Disorders
+Microcapsules
+FranceExhaust Gas
+Cat Prep & Colloids
+Personal CareCO2, Syngas
+Pyrolysis Oil
+Catalyst Prep
+ Catalyst Features
+Acrylic Acid - Absorbent
+Deodorising catalysts
+GermanyExhaust Gas
+Cat Prep & Colloids
+PolymersCO2, Syngas
+LC Biomass
+Process EfficiencyPersonal Care
+Cosmetics & Toiletries
+Detergents
+Superabsorbents
+Protein Kinase
+USACatalysts, sorbents,  
+FBR catalysts
+Nanotechnology
+Exhaust Gas CO2, Syngas
+Transportation Fuel, LC 
+Biomass
+Bio-OilPersonal Care
+Protein Kinase
+Anti-Cancer Drugs
+China Air & Water Purification
+Catalyst Preparation
+Specialty materialsCO2, Syngas
+Catalyst Prep
+Water splitting Food preservatives
+Animal feed
+Antimicrobials
+Soybean products
+JapanExhaust Gas
+Fuel Cells
+Catalyst Preparation CO2, Syngas
+LC Biomass
+Metal RecyclingPersonal Care
+AA/SAP
+CO2 AbsorbentsTable 2: Key topics comparison by country25
+25 (Lynch 2020)
+UK Catalysis: Innovation opportunities for an enabling technology193.2. UK market opportunities
+Table 3 provides more detail on the market opportunities for the UK in the areas of clean growth and healthcare, 
+highlighting the UK’s current position and future opportunities26.
+Theme  UK Position Opportunity
+Carbon efficiencyWell developed position on fossil fuels 
+to petrochemicals. Novel concepts on 
+reforming. Investigate integration with UK refineries. 
+Exploit novel reformers for natural gas 
+carbon efficiency.
+HydrogenElectrolysis technology available. Novel 
+reformers in development. World class 
+conventional technology. Fuel cell 
+catalysis.Support electrolysers, look at other 
+low-carbon opportunities e.g. methane 
+pyrolysis and reforming with CCS.
+CO2 CaptureVery little technology for CO 2 capture 
+at large scale. First UK project now 
+underway.Small-scale capture to facilitate CO 2U. 
+Need to develop or acquire technology for 
+CO2 sorbents. Possi-ble DAC plant.
+CO2 UtilisationSMEs with technology in a couple of 
+applications. Likely more technologies 
+which could be nurtured.Identify and support further UK 
+technologies.
+PolymerisationINEOS is strong on polyolefins; JM has 
+limited coverage. SMEs with successful 
+innovations. Catalysts for functional materials and 
+novel materials. Look at the green 
+innovations for converting waste food and 
+other waste streams.
+RenewablesJM technology for platform biobased 
+chemicals.HVO for UK refineries; combine with 
+biocatalysis for bulk specialties.
+Fine ChemicalsStrong IP position on small molecules. 
+Large number of CRO/CMO providing and 
+exporting technology.Identify and exploit CROs with catalyst 
+expertise.
+Water Treatment Not strong on innovative water treatment.Identify and support SMEs working in this 
+area in the UK.
+Catalyst FormulationsNew developments on polymer catalysts, 
+structured reforming catalysts, interest in 
+3D printing designs.Look at more opportunities, for example, 
+use of 3D modelling/printing.Table 3: UK market opportunities for clean growth and healthcare27
+Based on consultation with industry and academia then combined with the UK Catalysis Market Study, Figure 9 
+shows the main innovation areas where catalysis can enable the UK to grow domestically and lead internationally.
+26 (Lynch 2020)
+27 (Lynch 2020)
+UK Catalysis: Innovation opportunities for an enabling technology20
+Figure 9: Areas for UK to grow domestically & to lead globally
+The UK has a smaller catalyst market when compared to other countries however it will be still greater than $500m 
+by 2025 and will continue to drive benefits in downstream sectors. Through this and the licensing of technology, 
+catalysis will deliver significant value to the UK economy. As such the UK should aim to leverage increasing domestic 
+demand in new and growing UK markets, for example, in the areas related to clean growth and fine chemicals, which 
+will demand the need for new catalysts. In the area of clean growth the UK needs to deliver on more sustainable 
+manufacturing and to reach net zero by 2050 it will require a large amount of innovation leveraging current know how 
+and capability. Fine chemicals is the fastest growing market area, largely due to pharmaceuticals, where catalysis 
+technology plays a key role. Both areas will benefit from being underpinned by new and faster catalyst design, 
+upscaling and process design.Virgin 
+bio-based 
+feedstocks to 
+chemicals
+Environment
+Automotive catalysts, 
+fuel cells, air and 
+water treatmentCCUS to chemicals
+Carbon capture 
+utilisation and 
+storageNew high 
+functionality 
+Polymer & Rubber
+High functionality, 
+new materialsCarbon Efficiency
+Crude oil to chemicals 
+(COTC), coal to 
+chemicals (CTC),  
+gas to chemicals  
+(GTC)
+Fine Chemicals
+Agrichemicals, flavours 
+and fragrances, 
+pharmaceuticalsLow Carbon 
+Hydrogen
+Green and 
+blue H 2
+Waste (inc 
+biomass & 
+polymers) to 
+ChemicalsAll  Catalyst &  
+Process Design
+General, structured 
+catalysts, catalyst 
+reactor design13
+4
+56 789 2
+UK Catalysis: Innovation opportunities for an enabling technology21
+
+UK Catalysis: Innovation opportunities for an enabling technology22
+For all types of catalysis, hetero, homo, bio, photo and 
+electro catalysis, advances in design, discovery and 
+formulation are crucial for providing step changes 
+in activity, increasing operational performance and 
+giving access to new chemical pathways. Enhancing 
+capabilities to design and scale-up catalysts will provide 
+faster development cycles, quicker routes to market 
+and processes with increased productivity. Access 
+to advanced technologies such as high throughput 
+experimentation coupled with predictive modelling at 
+all stages of development can speed up product and 
+process development.
+However, from catalyst design and discovery through 
+to commercialisation (see Figure 10), it is important to 
+design, scale and test new catalysts while considering 
+the techno-economics and the industry application 
+along with the allowable processing conditions. For 
+a commercially viable process, the catalyst design 
+and development needs to balance specificity with 
+conversion and yields which are factors of process 
+plant design, for example, high selectivity may produce a by-product or impurity that makes separation and 
+purification of a product harder and more costly. 
+Hence, during the upscaling of the catalyst it becomes 
+more important to factor in the process and reaction 
+engineering associated with full-scale production. 
+Catalysts need to be designed to operate at optimal 
+temperatures based on the energy efficiencies and 
+heat recovery requirements of the scaled process. 
+The catalyst form/medium at full scale needs to be 
+proven to be robust structurally and kinetically with 
+acceptable rates of mass and heat transfer. In addition, 
+a key consideration should be how impurities from the 
+feedstock and by-products produced from the reaction 
+impact the performance of catalyst. Other factors 
+that need to be understood during scale-up relating 
+to the catalyst lifecycle are methods for regeneration, 
+separation (if applicable), re-use and recycling.
+An example of the importance of catalyst design and its 
+impact on production is the UK innovations of Johnson 
+Matthey and the CatacelSSR structured steam reforming 
+catalyst28. Murkin C et al  describe the modifications 4. Integrated catalyst and process design for  
+industrial application and faster adoption
+Figure 10: From new catalyst design to development
+28 Murkin , C, and J Brightling. 2016. “Eighty Years of Steam Reforming.” Johnson Matthey Technology Review (Johnson Matthey) 60 (4): 263-269.Catalyst 
+Design
+Catalyst design, synthesis 
+and characterisation
+Biocatalyst discovery, 
+screening and expressionCatalyst process 
+design and 
+integrationCatalyst 
+Design
+Catalyst Upscaling, incl. catalyst 
+forming and characterisation
+Biocatalyst process development 
+and scale-up
+Reactor and process design
+UK Catalysis: Innovation opportunities for an enabling technology23over time of the steam methane reformer (SMR) and 
+the catalyst used. The design of the reformer and the process has enabled improved efficiencies relating to heat integration, tube metallurgy and the actual number of tubes used. Whilst the changes to the catalyst shape and form, as seen in Figure 11, has provided higher productivity by increasing the voidage, reducing the pressure drop and increasing the space velocity. These improvements have been enabled with the improved mechanical integrity of the catalyst and its support. Supporting technologies such as predictive modelling has allowed for the improved design of the catalyst and reactor.
+Another example of the importance of catalyst design 
+and its industrial application is the BP/JM CANS™ modular catalyst and associated containers that offer a step-change in performance for Fischer-Tropsch reactions.
+30,31Both BP and JM had been working on 
+Fischer-Tropsch technology since the 1980s and formed a collaboration and partnership in 1996. In 2018 the innovative waste-to-fuels Fischer-Tropsch technology including the novel reactor and catalyst utilising BP/JM CANS™ technology was licensed to Fulcrum Bioenergy for the first commercial USA plant to be built to manufacture aviation fuel from municipal solid waste.
+32 Not only does this example show the importance of catalyst and reactor design it also highlights the benefits of collaboration. 
+These two examples show the timescales that can be 
+involved in the design and development of catalysts, reactors and processes. Therefore there is a significant opportunity to accelerate industry-led innovation in the scale-up of integrated catalyst and process design in order to reduce the time to market and achieve commercial success. Technologies such as high throughput experimentation and predictive modelling have a role to play; however, of particular importance is the requirement for collaborative approaches that remain focussed on the scale-up of catalysts together with the industrial processes and application.
+The UK has strong skills in the design of advanced 
+catalytic materials which should be leveraged further to accelerate development and scale-up of the better processes. To do this the UK needs to also focus on the scale-up of catalyst along with the reaction and process design. This will ensure the design of optimised catalysts and  processes which are needed to deliver the requirements of future opportunities. Figure 11: Changes to SMR catalyst shape over time29  ©Johnson Matthey Plc
+29  M urkin, C, and J Brightling. 2016. “Eighty Years of Steam Reforming.” Johnson Matthey Technology Review (Johnson Matthey) 60 (4): 263-269. Copyright Johnson 
+Matthey Plc, Image adapted and reproduced with permission from Johnson Matthey Plc.
+30  J ohnson Matthey. n.d. CANS novel reactors technology. Accessed May 2020. https://matthey.com/en/products-and-services/chemical-processes/core-
+technologies/cans-novel-reactors.
+31  J ohnson Matthey. n.d. CANS novel reactors technology. Accessed May 2020. https://matthey.com/en/products-and-services/chemical-processes/core-
+technologies/cans-novel-reactors.
+32  J ohnson Matthey. 2018. JM and BP license waste-to-fuels technology to Fulcrum BioEnergy. Sept. https://matthey.com/news/2018/jm-and-bp-license-waste-to-
+fuels-technology-to-fulcrum-bioenergy.1930 2014Changes to SMR catalyst shape over time
+Cube Cylindrical 
+pelletsCylindrical 
+pelletsCylindrical 
+pelletsCylindrical 
+foil supported 
+structureCross 
+sectionSquare Ring 4-hole Quadralobe™ CATACELJMSSR™
+Form  
+Productivity change over time
+UK Catalysis: Innovation opportunities for an enabling technology24
+5.1. Clean Growth Introduction
+The UK Government’s Industrial Strategy lays out clean 
+growth as one of the Grand Challenges. As the world 
+shifts towards cleaner greener technologies there is 
+an opportunity for the UK to lead the world in clean 
+growth technologies, through the development of low 
+carbon technologies, systems and services that are 
+more economical than traditional offerings. Identified 
+as the next industrial revolution the green transition 
+could significantly grow the UK economy with current 
+industries transformed and new ones created. The 
+UK was the first major economy in the world to lay out 
+plans to reach net zero by 2050, this provides different 
+industries with a clear target in the move to reduce 
+carbon emissions and highlights the commitment by the 
+UK Government to the area of clean growth.In order to achieve the net zero targets there will need 
+to be new technology developments and large scale 
+deployment of existing technologies across multiple 
+sectors. One of the critical steps on the journey to net 
+zero will be the availability of renewable energy, which 
+will be required for industrial processes to reach net 
+zero. There are a range of other technologies including 
+carbon capture and storage, hydrogen and the use of 
+non-petrochemical feedstocks that will need to be used 
+in combination to achieve net zero. The image below 
+(Figure 12) shows the vision of the South Wales Industrial 
+Cluster where multiple technologies are utilised across 
+the region. Catalysis can play a role in many of these 
+technologies. 5. Clean growth
+Figure 12: South Wales Industrial Cluster33
+33 SWIC (South Wales Industrial Cluster). 2020. Image reproduced with permission from SWIC. Accessed May 29, 2020. swic.cymru.
+
+UK Catalysis: Innovation opportunities for an enabling technology25The UK has capability in the 
+development of hydrogen from 
+methane processes and, alongside 
+deployment activities through the 
+ISCF Industrial Decarbonisation of 
+Clusters Challenges, this is deemed 
+a key UK strength. 
+UK Catalysis: Innovation opportunities for an enabling technology26
+The development of sustainable fuels and chemicals 
+will be an important factor in reducing emissions 
+across different sectors, for example transport. The 
+development of sustainable fuels and chemicals will 
+be reliant on several different factors including market 
+conditions, availability of feedstocks, required volume, 
+cost, policy and incentives. For catalysis development 
+in this area there are several priorities within two key 
+themes, alternative feedstocks and energy. These will 
+be covered in detail in later sections, however, there are 
+underpinning technology requirements and challenges 
+which also need to be considered. 
+Traditional homo- and hetero-geneous catalysts will 
+continue to play a significant role, however there is an 
+opportunity to access different reactions and routes by 
+employing different approaches through the adoption 
+of electrocatalysis, photocatalysis and biocatalysis. The 
+scale at which a catalyst operates at may also change, 
+as plants look to become more modular and flexible 
+also allowing different approaches to be considered. 
+As more alternative feedstocks like biomass are utilised 
+as raw materials there is also likely to be a need for the 
+development of deoxygenation catalysts.  Some of the important opportunities for catalysis also 
+present challenges in this area, for example the use 
+of combined waste streams and the consistency of 
+feedstocks. Challenges around changes in the content 
+of feedstocks, materials which may poison a catalyst 
+alongside the availability of renewable energy will all 
+impact the design of a new process and the catalyst of 
+choice. It is also of note that where possible companies 
+will utilise existing assets and re-engineer these as 
+required. Alongside this the rise of circular economy 
+approaches means that catalysts should be recyclable or 
+recoverable and this needs to be taken into account at an 
+early stage of the development process. 
+In addition to the net zero technology requirements 
+there is a growing trend to make products in a more 
+sustainable way. For example, the development of 
+new processes and technologies that use fewer toxic 
+materials, reduce the production of organic waste 
+or increase the use of natural products. These are 
+considerations that should be taken into account when 
+designing new processes. 
+Figure 13: Low carbon hydrogen
+Low Carbon Hydrogen 
+is the top area for clean 
+growth in the UKBlue Hydrogen 
+ProductionGreen Hydrogen 
+Production
+Catalysis Opportunity
+Steam Methane 
+Reforming (SMR), 
+Sorbent, Enhanced 
+Steam Reforming (ESR)Catalysis Opportunity
+Electrolysers
+
+UK Catalysis: Innovation opportunities for an enabling technology275.2. Hydrogen generation
+Currently the petrochemicals industry uses catalysts in 
+a wide range of applications including the production 
+of hydrogen (see Figure 13) which is utilised in many 
+different processes for example, refining. Hydrogen will 
+play a key role in the UK’s plans to meet the net zero 
+2050 targets, with the opportunity to help transport, heat, 
+energy, and industrial sectors decarbonise, consequently 
+the production of low carbon hydrogen will be critical. 
+In addition low carbon hydrogen will be one of the key 
+feedstocks for the production of chemicals and materials. 
+The UK has an opportunity to capitalise on energy 
+produced via offshore wind farms that could be utilised 
+to produce green hydrogen. Alongside this, natural gas 
+reserves allow for the production of blue hydrogen when 
+production is combined with a CCS network. This is the 
+basis of the vision for many large industrial clusters with 
+several different projects across the UK being planned. 
+For example, Pale Blue Dot Energy and Costain will 
+be building the UK’s first CCS plant serving the oil and 
+gas sector and the Acorn hydrogen project. It is the 
+combination of blue and green hydrogen production 
+deployed in appropriate sites that will enable key 
+transitions towards net zero. 
+5.2.1. Blue hydrogen
+Blue hydrogen is the production of hydrogen from 
+methane where the CO2 emissions are captured 
+and stored. There are several different reforming 
+technologies that have been developed for the 
+production of hydrogen these include steam methane 
+reforming, autothermal reforming, gas heated reforming. 
+Different reforming technologies offer different benefits 
+for example the fluidised autothermal reforming of 
+syngas does not require an external fuel source reducing 
+the associated carbon emissions. 
+Current understanding suggests that the limiting 
+factors in the deployment of reforming technologies are 
+related to economics and process engineering. In the 
+demonstration of reforming technologies there is a large 
+capital expenditure requirement which is a significant 
+barrier for many companies. Further catalyst and process design could improve efficiencies and decrease the 
+carbon emissions associated with the process. 
+Other technologies in this space include 
+dehydroaromatization which uses catalysts to produce 
+aromatics and hydrogen, the fermentation of methane 
+where hydrogen is a by-product of protein synthesis 
+and methane pyrolysis, a process which produces 
+graphite and hydrogen which removes the need for 
+carbon capture. These technologies tend to be at a lower 
+TRL level when compared with some of the reforming 
+technologies, however they do produce multiple 
+products which can add value to the process and alter 
+the economics.  
+The UK has capability in the development of hydrogen 
+from methane processes and, alongside deployment 
+activities through the ISCF Industrial Decarbonisation of 
+Clusters Challenges, this is deemed a key UK strength. 
+Delivery of blue hydrogen plants combined with CCS 
+will provide low-cost hydrogen, reduce CO 2 emissions, 
+improve the UK’s global competitiveness and enable the 
+decarbonisation of multiple sectors. At present there are 
+still low demand signals for hydrogen but as the energy 
+transition occurs and hydrogen begins to be utilised for 
+transport, heat and energy the volume requirements will 
+rise. 
+There are however challenges associated with the 
+development of blue hydrogen technologies, a particular 
+barrier is the capital investment required to demonstrate 
+the technology at scale. There are active projects 
+beginning to address these challenges including the 
+Hynet project, with £7.48m awarded to Gloucester-based 
+clean-energy company Progressive Energy Limited, in 
+collaboration with Johnson Matthey, SNC Lavalin and 
+Essar Oil. This will fund further project development 
+including the. engineering design to deliver a ‘shovel 
+ready’ project which will include the development of a 
+100,000 Nm 3 h-1 blue hydrogen production facility using 
+Johnson Matthey’s low carbon hydrogen technology 
+which enables carbon capture and storage. The 
+hydrogen plant will be owned and operated by Essar 
+UK Catalysis: Innovation opportunities for an enabling technology28Stanlow, using refinery fuel gas (RFG) as a feedstock. 
+Potential users of the hydrogen produced are identified 
+in the Phase 1 report. 
+Other challenges include accessing high-throughput 
+testing facilities, particularly for screening catalysts 
+under high temperature and high pressure conditions. 
+This would enable faster evaluation of catalysts under 
+close to operational conditions, shortening catalyst and 
+process development times. 
+In order for blue hydrogen to be one of the key 
+technologies in reaching net zero it needs to be 
+connected to a CCS network. In the initial stages the 
+large industrial clusters are likely to be the beneficiaries 
+of the CCS deployment; as such there will be a need 
+for smaller clusters to develop alternative hydrogen 
+technologies to reach net zero, which is where green 
+hydrogen will play an important role. 
+5.2.2. Green hydrogen
+Green hydrogen is the production of hydrogen using 
+electrolysis, it is of particular importance that the 
+electricity used for this is produced from clean low-cost 
+energy to take advantage of the reduced carbon footprint. 
+The UK has significant strengths in green hydrogen 
+production with companies producing electrolysers and 
+fuel cells, for example, ITM Power and Intelligent Energy. 
+There are a range of challenges both technical and 
+commercial associated with green hydrogen including 
+cost, scale and energy density. There are also associated 
+challenges for example hydrogen storage. These 
+challenges are beginning to be addressed through 
+a range of funded projects. For example funding of 
+£7.5m has been awarded to ITM Power Trading Ltd, in 
+collaboration with Orsted, Phillips 66 and Element Energy 
+for the second phase of the Gigastack project. This seeks 
+to demonstrate the delivery of bulk, low-cost and zero-
+carbon hydrogen through ITM Power’s gigawatt-scale 
+polymer electrolyte membrane (PEM) electrolysers, 
+manufactured in the UK.
+The project aims to dramatically reduce the cost of 
+electrolytic hydrogen. The funding will enable ITM Power to work towards developing a system that uses 
+electricity from Orsted’s Hornsea Two offshore wind 
+farm to generate renewable hydrogen for the Phillips 66 
+Humber Refinery. The company will also develop further 
+plans for large scale production of electrolysers. ITM 
+Power is also installing its technology internationally 
+including in Germany, Canada and Australia. This is 
+an example of a highly successful UK company and its 
+innovations, underpinned by the ability to develop, scale 
+and successfully deploy catalyst technologies.
+There is a significant opportunity for the UK to build on 
+current electrochemical strengths and utilise different 
+types of technology, for example photocatalysis or 
+biocatalysis to further develop the green hydrogen 
+offering. This also provides an opportunity to produce 
+hydrogen outside of the large industrial clusters, 
+and as such can be developed to meet the specific 
+requirements in a defined place allowing for local and 
+regional differences. The need for electrolysers and other 
+methods of producing low-carbon hydrogen is likely to 
+increase catalyst demand within the chemicals sector.
+5.3. CO 2 Utilisation
+As mentioned, carbon capture and storage will be 
+a critical technology for the UK to meet its net zero 
+targets and with networks planned within the large 
+industrial clusters there will be an opportunity to utilise 
+the captured CO 2 to produce low carbon products. This 
+offers a significant opportunity for catalyst and process 
+development over the coming years. Figure 14 shows the 
+catalysis opportunity in both the utilisation of captured 
+CO2 from a waste gas stream and in direct air capture. 
+It is also of note that, to lower the energy barrier for CO 2 
+utilisation, there will be key requirements for renewable 
+energy and low carbon hydrogen to be available for 
+companies looking to develop technologies in this field.  
+One of the key dependencies of any utilisation processes 
+will be the associated carbon capture process; this may 
+be incorporated into the utilisation process or may be 
+completely separate. Either route offers opportunities 
+and challenges, some of the key considerations in 
+developing a process are likely to concern the gas 
+mixture and the concentration of CO2. If utilising CO2 
+UK Catalysis: Innovation opportunities for an enabling technology29
+directly from a flue gas the different components, 
+concentration and flowrate need to be understood and 
+variations taken into account; if utilising CO2 from a 
+captured source understanding the different parameters 
+and contaminants will also be critical. As such there 
+is an opportunity to increase academic development 
+of CCU catalysts with industry providing information 
+on real-life flue streams so more appropriate testing 
+can be undertaken. This will enable understanding of 
+how impurities and reaction by-products impact the 
+catalyst kinetics and lifecycle. The CO2 quality and 
+catalyst performance should be evaluated alongside 
+the requirements for CO2 purification and the desired 
+specifications of the end product. Carbon capture 
+processes have been developed and there are UK-based 
+companies looking to deploy demonstration-scale plants.  
+This capture step, whether incorporated into utilisation 
+or a separate process, needs to be economically viable 
+and efficient, directly impacting the economic viability of 
+utilisation technologies.   
+There are a range of technologies under development 
+within this field each using a different approach - 
+however a challenge that impacts them all is the 
+identification of target products. Many academics and companies have noted that there is not enough 
+understanding or information to select target products. 
+Should the aim be to focus on high-value-low-volume 
+products or low-value-high-volume products? Full 
+techno-economic assessments would assist in this 
+regard. In addition, understanding the full life cycle 
+analysis impact of developed processes needs to be 
+included. 
+Currently there are different technologies in development 
+for CCU, one of these is carboxylation reactions which 
+have a relatively low energy requirement when compared 
+with other technologies. Products produced from these 
+processes include fertiliser products (CCm Technologies) 
+or metal carbonates (Carbon8, Carbon Capture Machine, 
+Cambridge Carbon Capture) which can be used in 
+construction. These approaches provide examples of 
+high-volume product production and with companies 
+active in these areas show commercial viability.
+A different approach would be to reduce CO2 to produce 
+fuels or chemicals, for example, methanol or diesel, 
+processes of this nature tend to require more energy 
+than carboxylation reactions. An example of current 
+technologies under development are the reverse water Figure 14: Catalysis CO2 opportunities
+Catalysis Opportunity 
+Sorbents for DACCatalysis Opportunity 
+Purification, Utilisation
+Catalysis Opportunity  
+Catalytic Capture, Processing and utilisationLow and Carbon Hydrogen 
+and Energy
+UK Catalysis: Innovation opportunities for an enabling technology30
+gas shift reaction which if coupled with a Fischer-Tropsch 
+reaction could be utilised in the production of fuels. At 
+present the economics and technical demonstration of 
+these technologies at scale is challenging.
+Beyond this there are other technologies that can be 
+developed for use in different applications. For example 
+electrocatalysis can be utilised to produce e-fuels and 
+other chemicals whilst bio-catalysis can be utilised to 
+access high chain carbon lengths or proteins. These 
+are areas with significant potential but require further 
+research. In addition there is an opportunity to develop 
+water tolerant catalysts that will be critical for this field 
+and clean growth in general. The UK has world-leading 
+academic expertise in reaction engineering, catalysis 
+research and scale up which would be applicable here. 
+In the development and deployment of CCU technologies 
+it is critical to consider how the process will fit into the 
+wider system for  example within an industrial cluster i.e. 
+carbon capture, hydrogen, energy or chemical production 
+so that the full economic costs and the full life cycle of the 
+process can be considered and optimised. As such there 
+is an opportunity to connect companies across future 
+supply chains; i.e. CO2 emitters, CCS process developers, 
+catalysis academics and end-users with product 
+requirements to ensure a full systems approach. 
+One of the challenges in this area is the market conditions and the investment required to demonstrate 
+technologies. For this reason, a technology that is 
+developed within a university is unlikely to be translated 
+into industry as the economics and investment required 
+are not favourable. The UK does however have the 
+potential to manufacture fuels and chemicals in the UK 
+by utilising our emitted CO2 and renewable electricity.  
+This will reduce our dependency on petrochemical 
+routes for products and help build more robust supply 
+chains.
+There is a need to inform the different communities along 
+the supply chain of the challenges and opportunities 
+that are available, identify key target molecules, share 
+information on real-life flue gases, required operating 
+conditions. Such information will inform and accelerate 
+the development of CCU technologies. 
+5.4. Waste to chemicals and fuels
+The utilisation and valorisation of waste will play an 
+important role in achieving net zero targets and the 
+transition towards a circular economy. As an alternative 
+feedstock different types of waste can be utilised to 
+produce fuels and chemicals. The different types of 
+waste will require different types of processing which 
+will have associated opportunities and challenges. 
+For catalysis there are multiple opportunities within 
+this field including thermocatalytic gasification, low 
+temperature gasification, gas clean-up and purification 
+Figure 15: Schematic of how gasification of waste and the upgrading of syngas can be used to produce chemicals 
+EnergyCatalysis 
+Opportunity
+Commodity and Fine ChemicalRefinery Products
+Thermochemical/
+Thermocatalytic processing
+UK Catalysis: Innovation opportunities for an enabling technology31and the upgrading of products to complex chemicals. 
+This section discusses different opportunities around 
+different feedstocks available including plastics, syngas 
+and biomass.
+5.4.1. Gasification of waste and upgrading of waste 
+syngas
+In a more circular economy the utilisation of different 
+waste streams will offer an important way to recover 
+chemicals and materials. Figure 15 shows a schematic of 
+how a range of different waste streams could be utilised 
+to make chemical or fuel products. There are multiple 
+different technologies that could be utilised, and many 
+will need to be coupled together in order to achieve the 
+desired chemicals. There are several catalytic processes 
+which could be applied in the production of chemicals 
+and fuels from waste. 
+In general, the first process when looking to utilise a 
+waste stream will be a thermochemical route to produce 
+syngas. However, the tars produced after gasification 
+can be a significant challenge providing opportunities 
+for catalytic tar removal systems. Thermocatalytic 
+routes are also possible and continue to be researched. 
+The process used will be dependent on the feedstock 
+being utilised, the target purity and the composition of 
+the syngas being produced. This is a key parameter. 
+as different grades and compositions of syngas will be 
+required in different downstream applications. Syngas 
+is generally a mixture of carbon monoxide, hydrogen, 
+carbon dioxide, methane and other gases, however the 
+exact composition is dependent on how it is produced 
+and what it is produced from. For example, syngas which 
+has a high hydrogen content can be used as an energy 
+vector for heat and there are UK-based companies active 
+in this area. Catalytic processes can be applied in the 
+production of syngas and in the cleaning of the gas prior 
+to use in other downstream transformations. 
+There is a significant catalytic opportunity in the 
+downstream transformation of syngas to chemicals or 
+fuels. Current incentives encourage the production of 
+sustainable fuel and several companies are developing 
+and deploying Fischer-Tropsch technology to produce 
+sustainable aviation fuel using syngas. Syngas can also be utilised in the production of low carbon methanol, 
+dimethyl ether and other products. 
+Some of the key technical challenges encountered 
+in this field include the deactivation of catalysts from 
+reaction by-products, the recyclability of the catalysts, 
+consistency in the purity and composition of the syngas 
+required and unknown poisons deactivating the catalyst. 
+This combined with a lack of understanding regarding 
+which chemicals to produce can slow the development 
+of low carbon products from syngas.
+The production and utilisation of syngas from municipal, 
+plastic or biomass waste offers an interesting opportunity 
+to consider more localised facilities which could produce 
+fuel for local use. Alongside the circular economy 
+benefits this would also reduce transportation and 
+energy requirements from waste management. The UK 
+has capabilities in gasification and, if this is coupled with 
+the UK catalysis strengths, it offers an opportunity to 
+accelerate research for local and regional development.
+5.4.2. Waste plastic to chemicals and fuels
+Catalytic processes can be used to deconstruct plastics 
+which can be readily re-used or mechanically recycled 
+into monomers and other molecules. The main options 
+for catalysis in the recycling of plastics are pyrolysis 
+(cracking), hydrocracking, depolymerisation and partial 
+oxidation. Pyrolysis requires high operating temperatures 
+of between 500-900ºC and produces a wide range 
+of hydrocarbons, with catalytic pyrolysis often having 
+issues around catalyst deactivation.34 Hydrocracking 
+is a catalytic process occurring in the presence of 
+hydrogen and operates at temperatures of around 
+300-450ºC and can produce a more selective range of 
+hydrocarbons.35,36 Depolymerisation converts a polymer 
+back into monomers while partial oxidation provides a 
+route to producing syngas. These different technologies 
+can utilise catalysis in different ways to upgrade the 
+products, increase process efficiencies and decrease 
+energy requirements. Monomers produced from 
+depolymerisation of polymers can be reincorporated 
+into the polymer supply chain, while chemicals produced 
+from the different approaches can be used to produce 
+polymers within other supply chains.  
+34 Akah, A., J. Hernandez-Martinez, and A. Garforth. n.d. “Hydrocracking of mixed polymer waste, NovaCrack.” The University of Manchester. Accessed 2020.
+35 Garforth, A. 2020. “Academic perspective:“The catalytic conversion of mixed polymer waste”.” KTN Workshop on Catalytic processing of mixed polymer waste. 
+London.
+36 Garforth, A., and J. Memandez-Martinez. 2017. “Enhanced Feedstcok Recycling of Plastc Waste.” Abstract from UK Catalysis Conference (UKCC). Loughborough.
+UK Catalysis: Innovation opportunities for an enabling technology32One of the biggest challenges associated with plastics 
+recycling in general is the separation of different polymer 
+types, a large number of products contain additives, for 
+example, carbon black, or are produced using multiple 
+polymers in different layers. For the development of 
+catalytic plastic pyrolysis and hydrocracking, one of 
+the key questions is whether the feedstock needs to 
+be separated. Is it possible to process mixtures of 
+polymer waste and separate products downstream or 
+do certain polymers require specific catalysts? These 
+questions have led to a range of academic activity 
+within the field to identify catalysts that can be applied. 
+In addition to the separation of polymers the treatment 
+or removal of additives from waste streams also needs 
+to be considered, for example carbon black used to 
+colour material and enhance performance can have a 
+detrimental effect on a catalyst and material processing. 
+Currently it is thought that different polymer types 
+should be considered in different ways, for example the 
+processing of polyamide and polyester materials could 
+be completed through depolymerisation or the use of 
+an acid base catalysis. There is an opportunity here to 
+improve current processes to produce higher quality 
+materials. There is however a need to understand how 
+newer polymers for example bio-based materials are 
+being incorporated and if these will impact processing or 
+introduce contaminants previously not encountered. 
+Another area of significant research is the processing 
+of polyolefins using pyrolysis and there are several 
+companies developing processes in this area for the 
+production of fuel. These processes are not just catalytic, 
+however there is an opportunity to enhance them by 
+introducing catalysis where appropriate. In some cases, a 
+level of separation is still needed to avoid deactivation of 
+the catalyst; this is of course dependent on the catalyst, 
+the feedstock and the process, so needs to be assessed 
+on a case by case basis. An added complication is that, if 
+separation is not used, the variation of material between 
+batches which may have different contaminants, colours 
+and rheologies which all affect the process. There is 
+also a need to investigate how spent catalysts can be 
+regenerated and how to reduce catalyst breakdown 
+for example by abrasion during operating conditions. All of these challenges indicate that there is a need to 
+bridge the industrial requirements and processes to 
+the academic catalysis research to ensure industrially 
+relevant catalysts are developed. Catalytic pyrolysis 
+could also be utilised to process tyre waste which 
+could increase efficiencies and produce products with 
+increased value. The introduction of pyrolysis processes 
+could offer additional opportunities for catalysis in 
+the upgrading of pyrolysis oils to chemicals and in the 
+cleaning of gases produced.
+For the processing of flexible films generally made from 
+polyethylene or polypropylene, current mechanical 
+recycling methods struggle to handle the films due 
+to their low density. Alternatives to pyrolysis methods 
+could result in the development of hydrolysis, glycolysis, 
+methanolysis or bio-catalysis routes for degradation. 
+The contaminants encountered within flexible film waste 
+streams could result in technical challenges, for example 
+if biological components or moisture is prevalent this will 
+impact the catalyst and process design. As such when 
+developing catalysts and processes both the feedstock 
+and target products need to be considered. 
+There are UK-based companies already developing 
+chemical plastic waste recycling routes and in addition 
+there is a strong academic base across different 
+technologies within the UK in this area. However one of 
+the challenges associated with the field is that the market 
+is not clear or well-defined at the current time. If a plastic 
+waste product is to be utilised within the plastics supply 
+chain, it will be competing with virgin feedstocks which 
+are currently less expensive.  Incentives to increase the 
+amount of recycled material in new products would help 
+address this. 
+There is also a challenge in demonstrating technologies 
+at pilot and demonstration scale. For the plastic waste 
+supply chain a coordinated effort across waste collectors, 
+waste separators, catalysis development and process 
+development will be critical to deploy chemically recycled 
+products into the current chemicals supply chain. 
+In addition the current public perception around plastics 
+is changing the field. It will be important for companies 
+UK Catalysis: Innovation opportunities for an enabling technology33and academics researching the chemical recycling of 
+plastic waste to understand how those waste streams are likely to change in the coming years. This may change the feedstock; the contaminants present and the volumes all of which will impact the technical and economical assessment of a process. As such keeping the community connected and collaborating will be important. 
+5.4.3. Utilisation of biomass
+One of the key feedstocks for the development of low carbon chemicals and fuels will be biomass. Any biomass used for the production of chemicals or fuels should not be grown on land that can be used for agriculture, however waste biomass can be utilised to produce low carbon chemicals and fuels. There are multiple different types of biomass which will require different types of processing before they can be utilised in chemical and fuel supply chains. Types of biomass could include lignin, cellulose, hemicellulose, vegetable oils and food waste.  
+One approach to utilise biomass is to de-functionalise, 
+i.e. remove oxygen from the materials, so that moreconventional chemicals can be obtained. Thedevelopment of robust catalysts for this without theneed for hydrogen has been identified as a key technicalchallenge in this area. Developing pyrolysis methods withhigher selectivity towards key products is a key technicalchallenge for catalysis in this area whilst minimisingthe number of products produced to avoid the need forcomplex separations downstream. Catalyst deactivationand recovery will also be important factors in thedevelopment of processes.
+An alternative approach is to break down the biomass 
+whilst retaining functionality to utilise the molecules for high-value applications. There is a significant amount of variability and functionality within different types of biomass that could be utilised to increase the performance of materials and products by providing new chemicals, for example increasing fire, smoke and toxicity performance of advanced polymers. One of the critical considerations for catalysis development in this approach is selectivity so that the target compounds can be produced.  Another challenge associated with catalyst development includes feedstock variability which may contain different impurities, all of which may be unknown. In addition, the quality and quantity of biomass feedstocks may not be consistent between batches which could be problematic. This selective deconstruction of biomass has been tried with little success but might be achieved in the future through bio-catalytic transformations. 
+There are issues that will impact both the pyrolysis and 
+breakdown of biomass, one of these being that biomass tends to have high moisture content. Therefore, catalysts developed may need to operate in aqueous conditions or remain active under humid conditions.  Separation technologies will also need to be incorporated into the process. The UK has significant capability around the development of industrial biotechnology processes and biomass utilisation, as such connecting this active community to the catalysis community could provide new routes to explore and exploit the potential of biomass for use in the chemical supply chain. 
+5.5. Clean air
+‘Clean air’ involves the removal of pollutants from the air which could be indoor or outdoor air, at point source or dispersed. The issue of air pollutants has become more important as the impact air quality has on public health becomes better understood. In 2019 the UK government released the Clean Air Strategy that identifies the key pollutants and sets targets for emission reduction for 2030 in order to protect human health.
+37 
+The UK Government has identified five key pollutants and has targets for their reduction, the pollutants include fine particulate matter (PM), ammonia (NH 3), nitrogen 
+oxides (NOx), sulphur dioxides (SO 2) and non-methane 
+volatile organic compounds (NMVOCs). One of the first steps in understanding the targets and how emissions might be reduced is the development of monitoring and sensing systems that are able to measure current pollutant levels. There is a significant amount of work in this area; however monitoring pollutants is only part of the story and there is a need to look at technologies that can remove pollutants from the air. Catalysis has for many years played a pivotal role in the reduction of emissions from the automotive sector and there is a 
+UK Catalysis: Innovation opportunities for an enabling technology34significant opportunity for catalysis to enable industries 
+to meet the 2030 emissions targets. Alongside catalysis, 
+different adsorption technologies will also be developed 
+and deployed to address the emissions targets, this will 
+be a challenge for catalysis as adsorbents tend to be 
+lower-cost materials and may be the preferred solution 
+for some sectors.
+The main sources of fine particulate matter can include 
+industrial combustion, domestic burning and road 
+transport and similar sources are identified for NOx with 
+road transport being the largest contributor and SOx 
+where energy generation and industrial combustion are 
+major sources of emissions. Different emission sources 
+will have different catalyst requirements in terms of 
+cost, operating conditions and performance. Catalysts 
+developed for the automotive industry which can remove 
+some PM, NOx and SOx emissions could be applied into 
+other sectors but further testing and development is 
+likely to be required. There are commercial opportunities 
+in the retrofitting of maritime and rail vehicles and 
+technical opportunities in the development of catalysts 
+for low temperature applications. Due to the nature of 
+these pollutant sources applications will generally be at 
+point of source however there is also an opportunity for 
+catalytic removal of these pollutants through direct air 
+capture. For example outdoor paints or other catalytic 
+coatings could be utilised in locations where there may 
+be higher concentrations, for example motorway road 
+signs or around school entrances. Standardised testing 
+for these materials will be important to ensure that 
+products perform in the expected way. 
+The main source of ammonia is agriculture. This 
+means the source is very diffuse and it can therefore 
+be challenging to reduce emissions. Whilst direct air 
+capture of ammonia requires investigation, another 
+(possibly simpler) approach may include identification of 
+point sources; for example, chicken houses are known 
+to be a concentrated source of ammonia emissions. 
+There are currently ammonia slip catalysts used in the 
+automotive sector which, with further development, may 
+be applicable under other conditions. There is also an opportunity to investigate catalyst selectivity for nitrogen 
+or identify alternative methods for fertiliser delivery. In 
+addition, ammonia is a potential energy vector of the 
+future; if this develops further pollution from ammonia 
+is likely to increase making research into removal or 
+abatement technologies more important. 
+Non-methane VOCs are a broad collective of different 
+compounds each with its own challenges and 
+opportunities, the main sources for VOCs are industrial 
+processes and household products. Identifying which 
+VOCs have the largest impact on public health, where 
+they are produced and understanding how they could be 
+catalytically removed is the initial step. The abatement 
+of VOCs to increase indoor air quality is already an 
+area where companies are operating and there are 
+paints which can be used to remove formaldehyde. The 
+removal of formaldehyde is a growing trend globally 
+with some countries looking at implementing legislation 
+in the area. Testing of products for indoor air quality 
+is challenging as real-world conditions are difficult to 
+mimic. For these products there is also likely to be a 
+movement towards base metal catalysts over PGMS due 
+to cost and recoverability. 
+Across all the pollutants there is a need to be able to test 
+catalysts under real-world conditions, this would increase 
+understanding of the catalyst mechanism, poisoning, 
+lifetime etc. Generally the catalyst development will 
+be dependent on the application i.e. the pollutant, the 
+operating conditions, the lifetime etc. It is also important to 
+identify the applications where catalysis adds value over 
+the use of an absorption system.
+In addition as more alternative feedstocks are utilised in 
+fuels there is a need to understand how this will affect air 
+quality. There may be as yet unidentified pollutants that 
+will require abatement or an increase in those known 
+pollutants. There is excellent UK capability within this 
+field which can be developed further with increased 
+collaboration across sectors which require emissions 
+control.  
+37  (Department for Environment, Food & Rural Affairs 2019)
+UK Catalysis: Innovation opportunities for an enabling technology35
+
+UK Catalysis: Innovation opportunities for an enabling technology365.6. Water treatment and catalysis
+Safe and reliable water and wastewater is essential for 
+everyday use domestically and industrially. So with the 
+increasing population and greater demands on water 
+usage coupled with the challenges of climate change, 
+then maximising the efficient use of this valuable and 
+essential resource is critical. At the end of 2019 Ofwat, 
+the economic regulator of the water sector in England 
+and Wales, announced a £200m innovation fund 
+providing opportunities for collaborative R&D projects38. 
+The water sector is now looking at how innovation and 
+new technologies can improve performance while 
+safeguarding water users and the environment from 
+source to tap.39 Catalysis can be a key enabler for 
+technologies that could help respond to the challenges 
+faced, and the water industries are willing to explore 
+collaborative catalysis projects. To aid the transfer of 
+innovation within the water industries there are facilities 
+for testing new technologies.  For example, Scottish 
+water has a clean water test facility, and Severn Trent 
+has a resource recovery and innovation centre at 
+which they are exploring the recovery of hydrogen from 
+ammonia using electrochemistry. Within academia 
+there is catalysis research and capability that would be 
+applicable to the water industries, for example, the UK 
+Catalysis Hub. 
+The scale and number of works for each water company 
+can vary and problem molecules differ between the 
+different catchment areas of each company. In addition 
+to the removal of harmful and unwanted molecules, 
+water companies also want to achieve energy and 
+resource efficient processes where additional value can 
+be derived from residual energy and platform molecules 
+that can be sold to the chemical and agrichemicals 
+industries. Examples could be to use a membrane 
+anaerobic bioreactor that could be an energy neutral 
+treatment plant, upgrading biomethane to ethane, using 
+an advanced oxidation process (AOP) with a combination 
+of catalysts and additives. An ideal solution would be to 
+achieve chemical-free treatment of water utilising small 
+scale modular systems to ‘pre-treat’ waste streams, 
+for example, hospitals at source. When designing catalytic solutions the challenges faced will include the 
+scaling-up to large volumes of water and providing fast 
+reaction times.  The technologies need to be tested on 
+‘real life’ water and consideration needs to be given to 
+degradation/by-products and if they are regulated, for 
+example the degradation of atrazine to hydroxyatrazine 
+by UV is still a problem. There are many challenges 
+where different catalysis types could be utilised. Table 4 
+gives a list of potential challenges and opportunities for 
+catalysis to be an enabler of new technologies. Other 
+challenges not in Table 4 include the need for solutions 
+around perfluorinated alkylsulfonates (PFAS), the 
+regeneration of active carbon and anti-fouling. Priority 
+areas for catalysis and water treatment to focus on are 
+the removal of microplastics from slurry, removal of 
+trace taste and odour contaminants and the recovery of 
+coagulants.
+38 Hailstone, J. 2019. WWT. December 16. Accessed April 27, 2020. https://wwtonline.co.uk/news/-200m-innovation-fund-confirmed-by-ofwat.
+39 Ofwat. 2019. Time to act, together: Ofwat’s strategy. Birmingham: Ofwat.
+UK Catalysis: Innovation opportunities for an enabling technology37
+
+UK Catalysis: Innovation opportunities for an enabling technology38Table 4: Potential challenges and opportunities for water treatment and catalysis
+Challenge area Challenge 
+Taste and odour treatment Obtaining the correct taste and odour is important and non-compliance can lead 
+to Ofwat charges. Geosmin, MIB (2-methylisoborneol), and Trichloroanisole are 
+detectable at trace amounts and need to be removed.
+Regeneration of ion 
+exchange resins and  high 
+ionicity water treatment Miex®️ resin is currently used as a water treatment and is a magnetic ion exchange 
+process where the resin is added to a coagulant. The coagulant is used to capture 
+large organics and the resin is used to capture light organics. After separation the 
+resin is regenerated using a brine wash. The brine wash then contains organics and 
+coagulant along with nitrates and phosphorus. High ionicity water from this process 
+and other sources need treating before reuse. 
+Coagulants and  
+waste sludgeCoagulants used to remove contaminants from wastewater treatment produce a 
+huge amount of waste sludge which goes to agricultural waste. There are three 
+requirements, firstly to recover the coagulants, secondly to reduce the volume of 
+sludge, for example, sludge can be 70-85% water. Thirdly is to derive additional 
+value from recovering Fe, Al, Pb, Zn, P and Humic substances so they can be utilised 
+in chemicals and agriculture, for example, catalytic pyrolysis or using the iron to 
+catalytically remove the organics whilst leaving the iron for repurposing or using 
+catalytic pyrolysis.
+Low concentration 
+pharmaceutical 
+contaminants removalThe selective and safe removal of pharmaceutical contaminant and antimicrobial 
+resistance (AMR) from wastewater is required and future regulations could lead to 
+charges if this is not achieved. Treatment of pharmaceuticals in wastewater could be 
+done using small scale modular systems to pretreat waste streams producing higher 
+concentrations which could make separation of problem molecules easier.
+Hydrogen productionWaste streams rich in ammonia can be used to generate hydrogen, for example, via 
+electrochemistry, for energy or other uses.
+Grey water treatment and 
+reuseAbstraction from the environment needs to be reduced and attention is turning 
+towards the reuse of greywater. However solutions need to overcome the public health 
+and social awareness implications with regards to treatment and interaction with 
+cleaned water. Opportunities are to look for the direct reuse of wastewater for potable 
+applications and using greywater reuse to move away from centralised models e.g. 
+move towards closed loop housing systems with localised, small scale wastewater 
+treatment.
+Removal of phosphorus 
+from waterThe water framework is forcing the acceptable level of phosphorus down. Ferric 
+sulphate is used to remove the phosphorus which new technologies could be used to 
+recover the Fe and reutilised. Alternatively can biocatalysis and algae bioreactors be 
+used to remove the phosphorus.
+UK Catalysis: Innovation opportunities for an enabling technology39Recovery of cellulose from 
+waterCurrent projects are exploring how to recover valuable materials from wastewater, 
+for example, cellulose, nutrients, lipids and bio-plastics. Within the paper and pulp 
+industry the option to recover cellulose from the process wastewater is being 
+explored. Some technology already exists, for example, Cirtec B.V., but is deemed not 
+to be suitable for all applications.
+Pesticide removalFor a large amount of pesticides the regulatory limit for wildlife is much lower than 
+the human toxic level, for example, metaldehyde is likely to be banned because of the 
+issue for wildlife while it isn't an issue for drinking water. Pesticides removal needs to 
+be selective and the technology needs to produce safe by-products.
+Treatment of microplasticsMicroplastics currently remain in the sludge which goes to landfill. This is another area 
+of opportunity to remove a component of wastewater to improve the environmental 
+impact but also to extract value by breaking down the microplastic to a platform 
+molecule that then can be reused.
+DiscolorationTechnologies are needed that will reduce the colour and minimise the use of 
+coagulants.
+Phenol removalPhenol removal has been used to give 60% reduction using Fe and Pd catalysts, but 
+challenges arise with catalyst stability.
+Disinfection by-productsDisinfection is used to kill viruses using chlorinated molecules. By-products from 
+disinfection can include trihalomethanes, Haloacetic acid as well as nitrogenated 
+and brominated products. Alternative technologies for disinfection are needed or 
+technologies for removal of the by-products.
+Algal toxinsClimate change is causing an increase in toxins from algae and generating more 
+organic matter that needs methods of treating. Geosmin and MIB (2-methylisoborneol) 
+are both generated by algae and can impact taste and odour of water.
+UK Catalysis: Innovation opportunities for an enabling technology40
+5.7. Other opportunities  
+5.7.1. Polymer and rubber
+Higher functionality polymers will be a key component of 
+clean growth as the need for lightweighting continues. 
+Polymers that are designed for end-of-life may include 
+integrated catalysts which are activated when required. 
+The production of new polymers which could be bio-
+based may require new polymerisation catalysts.
+Econic Technologies is an example of how strong 
+catalysis research and innovation is being leveraged in 
+this area. Breakthrough catalytic research conducted in 
+Imperial College London was being carried out on the 
+conversion of waste CO2 into the production of polyols for 
+polyurethanes. The novel catalytic technology enabled 
+Econic Technologies to be formed as a spin-out company 
+in 2011 and it has validated the work at pilot scale and 
+continues to secure additional investment.40, 41, 42
+5.7.2. Carbon efficiency 
+Alongside the larger system changes required for clean 
+growth there are also opportunities to increase carbon 
+efficiencies within current technologies and processes. With the aim of maximising the use of carbon from fossil 
+based sources and extracting value by focussing on 
+chemicals production. This has driven the shift towards, 
+gas-to-chemicals (GTC), coal-to-chemicals (CTC) and 
+crude-oil to chemicals (COTC), all of which have been 
+made possible by catalyst developments. Carbon 
+efficiency is not the strongest opportunity for the UK as 
+there is limited capability in refinery catalysts, however 
+the UK does have experience on natural gas and coal 
+conversions. Gaining carbon efficiencies in current fossil 
+based processes will be important especially for the 
+short to medium term.
+5.8. Clean growth conclusion
+There are multiple opportunities for catalysis within the 
+UK’s clean growth opportunity, these are in many ways 
+interconnected and fit into the wider net zero landscape. 
+Figure 16 shows a schematic of how different clean 
+growth technologies interact. One of the key enablers 
+that these technologies (hydrogen production, CCU, 
+waste to chemicals) all require is the need for renewable 
+energy; without low cost renewable energy many of the 
+CO2 emission reductions will be negated by the use of 
+energy which produces CO 2.
+Figure 16: Schematic showing the interaction of clean growth technologies
+40 Econic Technologies Ltd. 2019. About Us: Econic Technologies Ltd. March. http://econic-technologies.com/about-us/.
+41 Econic Technologies Ltd. 2019. Econic Technologies Ltd: News. March. http://econic-technologies.com/news/econic-wins-447000-tsb-grant/.
+42 University of Oxford. 2019. Charlotte Williams Research. March. http://cwilliams.chem.ox.ac.uk/home.CO2 EmmisionsDirect Air 
+Capture (DAC)Low Carbon 
+Hydrogen 
+ProductionWaste 
+(including 
+biomass & 
+plastics)
+Capture CO2 
+(CCS)Renewable 
+EnergySnygas
+Refinery Products/
+Commodity Chemicals
+Chemicals
+FuelsEnergy
+UK Catalysis: Innovation opportunities for an enabling technology41Low carbon hydrogen is one of the largest opportunities 
+for the UK and creating new catalysts. The two 
+main options for the UK are water hydrolysis and 
+novel reforming processes, but to make low carbon 
+hydrogen commercially viable at scale, capabilities in 
+carbon capture utilisation and storage (CCUS) must be 
+considered as part of the solution.  With the UK’s strong 
+position around the production of hydrogen, fuel cells 
+and electrolysers there is an opportunity to build on the 
+current capability and make advances in the area of low 
+carbon hydrogen. 
+Carbon dioxide utilisation and storage is another 
+opportunity for the UK and CCS networks are currently 
+under development within the large industrial clusters. 
+The identification of what products to produce from the 
+captured CO 2 is a key issue in order to develop catalysts 
+and processes which will be commercially viable. The 
+combination of renewable energy, low carbon hydrogen 
+and CO 2 conversion to produce chemicals, plastics and 
+fuels offers a significant opportunity. However the field is 
+large and challenging, innovations should target platform 
+chemicals with functional benefits.
+The utilisation of different waste streams to produce 
+fuels and chemicals offers additional opportunities for 
+catalyst development. The UK has large quantities of 
+biogas which can be converted to chemicals and an 
+area of exploration is catalysts for converting refineries 
+to utilise hydrogenated vegetable oil (HVO). There is 
+a lot of activity around polymers and the UK’s biggest 
+opportunities are around waste utilisation which would 
+accelerate the adoption of a circular economy. A 
+number of routes for the degradation of polymers are 
+being explored including, depolymerisation, pyrolysis 
+to bio-oils, gasification to syngas and the subsequent 
+downstream conversions to methane. Additionally 
+the UK should focus on innovations providing greater 
+functionality which can also utilise alternative feedstocks, 
+for example, biomass. Biotechnology is a particular 
+strength for the UK to leverage.Other areas of catalysis opportunities are in clear air, 
+water and high functionality polymers. In all these 
+areas there are collaboration opportunities which could 
+increase the use of catalysis in new areas and develop 
+new products for use in a range of applications and 
+sectors.
+The UK has catalysis strengths in a number of areas 
+within clean growth however most need collaborative 
+programmes in order to develop catalysts and processes 
+for specific feedstocks and products. 
+UK Catalysis: Innovation opportunities for an enabling technology426.1. Introduction to healthy ageing/pharmaceutical 
+manufacturing
+Globally, the fine chemicals market, which includes 
+pharmaceuticals, agrichemicals, flavour and fragrances, 
+and consumer chemicals is forecast to grow the 
+fastest with a CAGR of 9.3% per annum up until 2025. 
+This sector has greater focus on homogeneous and 
+biocatalysis, and key topics for patents in the UK 
+are focused on therapeutics and heterocycles for 
+inflammation and cancer treatments. This is reflective 
+of the strong pharmaceutical presence in the UK and 
+the number of CROs (contract research organisations) 
+and CDMOs (contract development and manufacturing 
+organisations) present. Pharmaceutical manufacturing 
+forms the focus for the rest of this chapter, although, 
+it is worth noting that some of the topics below will 
+be of benefit to the rest of the fine chemicals sector. 
+Figure 7 earlier in the report shows that the UK catalysis 
+market in fine chemicals is worth $18m and enables a 
+downstream benefit to the pharmaceutical industry of an 
+estimated $20bn and in the UK for 2018 the manufacturer 
+of pharmaceuticals generated £10bn GVA with a total 
+turnover of £35bn43. The UK’s strength in biotechnology 
+is particularly relevant for the pharmaceuticals sector. 
+Finally it is worth noting that to support the healthy 
+ageing grand challenge there are other niche but 
+important applications of catalysis, such as food 
+preservation. By using catalytic sensors on food 
+packaging where there is a requirement to control 
+the level of oxygen there is a low cost, need for non-
+toxic, food contact catalysts that can operate at 
+low temperatures. The sensors would need to be 
+incorporated into the plastic film packaging or whatever 
+packaging displaces it.  6.2. Pharmaceutical manufacturing
+For the manufacturing of medicines chemo and bio 
+catalysis has an important role. With an increasing and 
+ageing population, catalysis allows new chemistries 
+to be developed that produce fewer impurities and by-
+products, whilst minimising product work-up, hence, 
+balancing specificity, conversion and yields to deliver 
+economic value. There are many challenges that 
+innovation in catalysis can address to improve processes 
+for making pharmaceutical products and will support 
+the move towards smaller, more agile and continuous/
+pseudo-continuous manufacturing for the production of 
+personalised medicines. 
+Catalyst innovation and development in pharmaceuticals 
+is required to provide faster reactions, lower toxicity 
+and reduced impurities/by-products. This will need 
+developments in catalyst design including support 
+structures as well as the techniques and technologies 
+that will enable quicker scale-up times. However, 
+due to the long development phases and regulatory 
+requirements in the discovery, development and 
+commercialisation of pharmaceuticals, the selection of 
+key process parameters needs to be made as early as 
+possible. This can drive pharmaceutical companies to 
+select commercially available catalysts at an early stage 
+of synthesis development as flexibility tightens as the 
+scale increases. With a commercially available catalyst it 
+is easier to evaluate the security of supply along with the 
+materials cost, sustainability and viability at larger scales. 
+When determining the optimal synthetic route a widely 
+adopted industry approach to chemical synthesis and 
+developing APIs, is the SELECT criteria for evaluating a 
+process (see Table 5)44,45. To drive innovation, changes 
+need to be developed and implemented early, but any 
+change will need to meet the SELECT criteria.6. Healthy ageing/pharmaceutical manufacturing
+43 (Office for National Statistics 2020)
+44 Chem21. n.d. Chem21: Recap of the SELECT criteria. Accessed May 2020. http://learning.chem21.eu/process-design/-/route-selection/introduction-to-the-
+select-criteria/#citekey_1.
+45 Butters, M, D Catterick, A Craig, A Curzons, D Dale, A Gillmore, S P Green, I Marziano, J-P Sherlock, and W White. 2006. “Critical Assessment of Pharmaceutical 
+Processes - A Rationale for Chaniging the Synthetic Route.” Chemical Reviews, March 8: 3002-3027.
+UK Catalysis: Innovation opportunities for an enabling technology43
+
+UK Catalysis: Innovation opportunities for an enabling technology44Table 5: SELECT Criteria46, 47
+Example criteria
+Safety Thermal, reactivity, hazards, toxicity (e.g. of reagents), explosivity at the required scale.
+Environment Solvent/reagents used and impact on the environment. Volume and na-ture of waste.
+Legal IP, freedom to operate, legalities around chemicals compound use.
+Economics Cost targets.
+Control Achieving quality specifications. Process control e.g. O 2 control.
+Throughput Raw materials, manufacturing time, yields, amount of work-up.
+The catalysis priority areas for pharmaceutical 
+manufacturing are related to developing catalysts 
+for synthesising new chemistries and for smart 
+manufacturing processes, which includes continuous/
+pseudo-continuous processes and hybrid catalysis. 
+Opportunities exist in areas such as photocatalysis, 
+biocatalysis and acid catalysis with common challenges 
+that need addressing relating to solubility, slow reaction 
+rates, cross functionality, feedstock/substrate variability, 
+solvent compatibility, toxicity of catalysts, oxygen 
+sensitivity and the closed-loop recovery and recycling 
+of catalysts. The need for early development requires 
+methods for accelerating faster development cycles, 
+for example, high throughput experimentation and 
+predictive modelling of catalysts. Overall there is also a 
+need for open access and standardisation of data output, 
+including negative results, to feed into future predictions. 
+6.2.1. Smart manufacturing of pharmaceuticals
+ 
+6.2.1.1. Continuous and pseudo-continuous 
+manufacturing
+It is estimated that the overall benefits of transitioning 
+away from batch process to continuous pharmaceutical manufacturing are significant. The FDA are actively 
+promoting the modernisation of drug manufacture and 
+provide resources and information to help facilitate the 
+transition, for example, ‘Modernizing the way drugs 
+are made: A transition to continuous manufacturing’ in 
+May 201748 and ‘FDA supports critical research to spur 
+innovation for continuous manufacturing technology to 
+support and advance drug and biologics development’ in 
+Aug 201849. However regulation still needs amending to 
+compensate for changes in methodology. 
+In 2012, the Novartis-MIT Center for Continuous 
+Manufacture published a web article that ‘continuous 
+drug manufacturing offers speed and lower costs’ with 
+estimations that the total cost savings of switching to 
+continuous manufacturing range from between 15 
+to 50%50. A 2015 publication from the AMSCI project 
+Remedies (Reconfiguring medicines end-to-end supply) 
+also reports that most pharmaceutical companies operate 
+at levels of between 3 and 4 sigma with regards to the 
+quality and reproducibility of the manufacturing process 
+and right-first-time production, costing the global industry 
+$20bn annually51. Examples of benefits from switching 
+from batch to continuous processing range from52:
+46  (Chem21 n.d.)
+47  (Butters, et al. 2006)
+48  U.S. Food & Drug Adminstration. 2017. Modernizing the Way Drugs Are Made: A Transition to Continuous Manufacturing. May. Accessed May 29, 2020. https://
+www.fda.gov/Drugs/NewsEvents/ucm557448.htm.
+49  U.S. Food & Drug Administration. 2018. FDA supports critical research to spur innovation for continuous manufacturing technology to support and advance drug 
+and biologics development. Aug. Accessed May 29, 2020. https://www.fda.gov/NewsEvents/Newsroom/FDAInBrief/ucm615431.htm.
+UK Catalysis: Innovation opportunities for an enabling technology45• reducing manufacturing times from hours to minutes 
+giving opportunities for significant cost reduction 
+(capex and opex) by allowing a smaller equipment 
+footprint;
+• 16% economic gain when a system was completely 
+transformed to continuous production;
+• >30% higher net present value at the end of the 
+operating period.
+In this area there are options for either developing end-
+to-end continuous processes, a single stage continuous 
+process or even a pseudo-continuous process. However, 
+although the benefits of continuous manufacturing 
+are well stated, achieving this goal remains difficult, 
+especially for a complete process. Even in areas where 
+success may be achieved it still remains a challenge 
+to develop the business case when existing assets 
+and infrastructure are a factor. Additionally, along with 
+the requirement of new equipment there is a need for 
+upskilling of the workforce which makes the move away 
+from batch processing difficult. 
+An Innovate UK and EPSRC funded Knowledge 
+Transfer Partnership between Northumbria University 
+and Sterling Pharma Ltd provides an example of how 
+innovation can enable biocatalysis in flow53, 54. The 
+project aims for Sterling Pharma Limited, which is 
+a CDMO, to be able to expand their manufacturing 
+capabilities for fine chemicals and pharmaceuticals 
+by developing a novel biocatalytic process. Sterling 
+Pharma utilise biocatalysis reactions using reduced 
+quantities of a bound lipase and the project will develop 
+the understanding around enzyme screening, directed 
+evolution, immobilisation of enzymes and the use of 
+enzymes in continuous/semi-continuous processing. 
+This will enable the company to use enzymes for organic 
+synthesis and conduct initial screening, development, 
+scale-up and manufacture of tonne quantities of cGMP 
+product in flow conditions.
+ 
+For continuous manufacture, complete system design 
+that considers conversions and yields, is important when considering the requirements of the catalyst, for example, 
+the highest catalyst selectivity can result in impurities 
+which are difficult to separate and will increase work-up 
+costs. Furthermore the catalyst needs to be designed for 
+the purpose of continuous flow, with the correct catalyst 
+structure and support for the scale of the continuous 
+flow reactor, for example, it is difficult to find off the shelf 
+50-400µm heterogeneous catalysts and the required 
+catalyst supports to the correct particle to volume ratio. 
+Hence the forming and shape characterisation of the 
+catalyst is important.
+Furthermore it is important when regarding the system 
+to consider the separation and recovery of expensive 
+catalysts. The is exemplified in two collaborative 
+research and development (cR&D) Innovate UK funded 
+projects. The first is the 2012/13 project ‘Recyclable 
+Catalyst Technology for Cross-Coupling Reactions at 
+Manufacturing Scale’ which was a collaboration of 
+PhosphonicS Limited, Albany Molecular Research (UK) 
+Limited, AstraZeneca, CatSci Limited, Syngenta Limited 
+and the University of Edinburgh. The second was a 
+2015/16 project ‘Total Recovery of All Platinum group 
+metals (TRAP)’ which was a collaboration between 
+PhosphonicS Limited, Veolia ES (UK) Limited and the 
+University of Bath. Both of these projects consider the 
+recovery of the expensive precious group metal based 
+catalyst compounds from chemical processes used for 
+the manufacture of pharmaceuticals and chemicals. To 
+avoid expensive and energy-intensive processing, the 
+innovations aimed to recover compounds in a low energy, 
+novel semi-continuous ‘catch and release’ integrated 
+process. The technology catches the catalyst and is 
+separated then released in an active form for the next 
+reaction.55
+Opportunities for catalysis in continuous flow also exist 
+with redox, photoredox, base metals and a range of 
+atom inefficient processes where flow can provide gains 
+in efficiency. Problems arise with needing to ensure 
+the robustness and stability of the catalyst, physically 
+and chemically while also preventing deactivation and 
+50  Trafton, A. 2012. MIT News. March. Accessed May 29, 2020. http://news.mit.edu/2012/manufacturing-pharmaceuticals-0312. 
+51 Srai, J S, C Badman, C Krumme, M Futran, and C Johnston. 2015. “Future supply chains enabled by continuous processing - opportunities and challenges: May 20-
+21, 2014 continuous manufacturing symposium.” Journal of Pharmaceutical Sciences, March: 840-849.
+52 Srai, J S, T Harrington, L Alinaghian, and M Phillips. 2015. “Evaluating the potential for the continuous processing of pharmaceutical products – a supply network 
+perspective.” Chemical Engineering and Processing: Process Intensification, Nov: 248-258.
+53 Sterling Pharma Solutions. n.d. Collaborative Expertise in Biocatalysis. Accessed May 29, 2020. https://www.sterlingpharmasolutions.com/technologies/
+biocatalysis/.
+54 Innovate UK. n.d. Knowledge Transfer Partnership - Details. Accessed May 29, 2020. https://info.ktponline.org.uk/action/details/partnership.aspx?id=11726.
+UK Catalysis: Innovation opportunities for an enabling technology46poisoning of the catalyst over time. With the scale of 
+continuous manufacturing the volume of the catalyst 
+needed is small; as a result there is little to encourage 
+catalyst manufacturers to develop new catalysts 
+especially with the need for a 20-year guarantee of 
+catalyst supply. For example, for short runs (30 mins) 
+there may be a high catalyst loading but for longer 
+runs (14 hours) the catalyst loading can be as low as 
+0.01%. To overcome this there is the opportunity for the 
+pharmaceutical industry to conduct pre-competitive 
+cR&D with other fine chemical manufacturers such as 
+agrichemicals, flavours and fragrances. 
+The UK has good general capabilities in continuous 
+manufacturing and process design with a good mix of 
+disciplines covering chemistry, engineering, process 
+analytics, physical properties and modelling. There are 
+also companies able to supply flow equipment at lab and 
+production scale.  However for the area of catalysis there 
+is a need for increased kinetics capability in order to 
+understand flow reactions. Academically there are good 
+capabilities in flow, for example, CMAC (Strathclyde), 
+ROAR (Imperial College) and the IPRD (Leeds). 
+However CMAC does not focus on catalysis. ROAR 
+also has capabilities in kinetics and high throughput 
+experimentation (HTE). For industry, working with a 
+university can lead to issues with IP and the university 
+programmes can be prohibitively long.
+Exemplars are needed to help demonstrate the 
+successful business case for adopting change and to 
+accelerate innovation, while cR&D is needed with other 
+sectors such as agrichemicals, flavours and fragrances, 
+to support catalysis synthesis and up-scaling in catalyst 
+forming. Cross sector support would assist catalyst 
+manufacturers, especially SMEs, to develop catalysts 
+for continuous flow when the pharmaceutical demand 
+is for such small volumes. There is also a need to have 
+schemes that encourage fast turnaround of industry-led 
+projects as universities programmes take too long. Within 
+the UK there is also limited access to continuous flow 
+pilot scale equipment which focuses on catalysis and 
+provides the associated upskilling in both catalysis and 
+continuous flow capabilities.
+6.2.1.2.  Combined chemo and biocatalysis
+An area of growing interest is to have combined ‘hybrid’ catalysis which utilises multiple catalysts in a single 
+environment with each catalytic process influencing 
+the next56. The combination of biocatalytic and chemo 
+catalytic reactions in a one-pot process with an aqueous 
+medium represents an economically and ecologically 
+attractive concept in organic synthesis. Especially 
+with the potential to avoid the time-consuming work-
+up steps of intermediates whilst also reducing waste 
+and increasing overall capacity. Development of 
+chemoenzymatic one-pot processes in water, as the 
+solvent of choice, has emerged with proof of concepts 
+for the combination of biotransformations with metal and 
+organocatalysts and are well published. Identifying the 
+shortest and cheapest route from feedstock to actives is 
+one of the biggest challenges in catalyst development, 
+which makes hybrid catalysis solutions appealing. If 
+the catalysts could be optimised to cope with racemic 
+mixtures, then it could prevent a loss of up to 50% of the 
+starting material.
+Currently very little is known to be done in the UK in this 
+area and the UK is potentially lagging behind with most 
+R&D likely ranging from early to late stage research. It is 
+accepted that in a multistep sequence it is possible to 
+have these different catalysts in use, however combining 
+biocatalysis with chemo catalysis would have some 
+challenges to overcome. The main technical challenge 
+is that biocatalysts often favour ambient temperatures 
+and pressures along with mild pHs unlike metal catalysts. 
+To overcome this would require immobilisation of the 
+biocatalyst and biotransformation steps occurring first 
+in the process followed by the chemical transformation. 
+Identifying and developing immobilisation technologies 
+to allow multiple catalysts to co-exist in the same pot 
+will require consultation with experts in immobilisation 
+and encapsulation due to the potential fragility of the 
+biocatalyst.
+Advances in this area will require organisations who 
+can work at the interface between both disciplines. A 
+precompetitive catalyst library also needs generating 
+and would need to be collated and built by a community 
+of organisations working collectively to explore chemo/
+bio-catalysis. To be able to design the system it will be 
+necessary to ascertain what combinations of catalysts 
+could be combined and in what sequence. Selectivity 
+of the biocatalysts would require addressing as multiple 
+55 Innovate UK, UK Research & Innovation. . “Innovate UK funded projects since 2004.” GOV.UK. Accessed May 2020. https://www.gov.uk/government/
+publications/innovate-uk-funded-projects. 
+56 (Barroso, et al. 2015)
+UK Catalysis: Innovation opportunities for an enabling technology47bio-transformations can occur simultaneously leaving a 
+mixture that requires costly separations. For this reason 
+it will also be important to understand the impact on 
+impurities and contamination on such a system.  An 
+evaluation of the overall cost of a hybrid system will be 
+needed with a potential requirement to reduce the cost 
+of producing the enzyme or whole-cell biocatalyst. 
+Within the UK there are organisations with strong 
+capabilities in chem and biocatalysis, for example, UK 
+Catalysis Hub, Manchester Institute of Biotechnology, 
+Leeds University, Birmingham University, CatSci Ltd. 
+However, the UK is limited on the number of organisations 
+with hybrid catalysis. An example of an organisation that 
+has been successful with hybrid catalysis is Ingenza who 
+has used chemo and bio catalysis in a one-pot reduction 
+of oxidation for a pharmaceutical intermediate. Therefore 
+there is a need to ensure that experts and organisations 
+with capabilities in both chemo/biocatalysis work together 
+on a complete system to ensure compatibility of both 
+technologies.
+In order to address this challenge there is a need 
+for GMP infrastructure for scale-up. The current UK 
+infrastructure for bulk enzyme production is limited with 
+most support being for the food industry, home and 
+personal care products. Both CPI and Biocatalyst Ltd 
+have a 10,000-litre capability but neither operates to 
+GMP. For supply to pharmaceuticals, enzyme producers 
+would also have to be in a strong enough position to be 
+able to guarantee that the supply of enzymes could be 
+secured for numerous years. 
+A hybrid solution utilising chemo and biocatalysis in one 
+pot could provide some distinct advantages. It could 
+enable the shortest route from feedstock to actives while 
+minimising separation, work-up and waste. However UK 
+advances in this area are limited and a long way from 
+commercialisation. It would require conducting early 
+stage collaborative R&D led by the research councils to 
+collate potential compatible catalyst options. To support 
+this activity would also require additional capabilities for 
+scaling-up.
+6.2.2. Catalysts for new chemistries
+The pharmaceutical industry needs to use catalysts for 
+exploiting current and new chemistries to isolate new molecules to be used as active ingredients. Therefore 
+opportunities exist around the current transformations 
+and those that are likely to be popular in the future. There 
+are opportunities around using non-precious group metal 
+(PGM) catalysts, catalysts for CH activations and new 
+photocatalysts. With regards to catalytic transformations 
+then an initial starting point is to explore those 
+chemistries that are suited to faster development cycles 
+through the use of high throughput experimentation 
+(HTE). The paper by Mennen, S et al 2019, The Evolution 
+of High-Throughput Experimentation in Pharmaceutical 
+Development and Perspectives on the Future, ranks 
+the chemistries used by large pharmaceuticals and a 
+forecast for those likely to be the most popular in the next 
+3 to 5 years57. The catalytic reactions types which were 
+screened the most were:
+• Suzuki−Miyaura reactions;
+• Buchwald−Hartwig amination;
+• biocatalysis transformations include transaminases, 
+keto-reductases, and hydrolases;
+• Pd-Borylation;
+• asymmetric hydrogenation.
+The paper forecasts that in the future the reactions 
+above will still be the most favoured, but the reactions 
+below will see a significant increase in popularity:
+• Pd-mediated CH activation;
+• new photocatalysis;
+• catalytic amide formation;
+• Ullman coupling.
+6.2.2.1. Non PGM catalysed processes
+Precious group metal (PGM) catalysts rely on critical 
+raw materials which have limited availability. Although 
+PGMs are recycled, over the next twenty years there 
+will be an increasing demand and cost for extracting 
+more PGMs. With limited availability and safety related 
+issues when manufacturing with PGMs, then there will 
+be a need for non-precious metal catalysed processes. 
+These will provide the discovery of new chemistries 
+through the expansion of the chemical space available, 
+leading to new products with lower toxicity and better 
+pharmacokinetics, chirality and activity. These catalysts 
+can lead to a reduction in costs and a greater security of 
+supply with less exposure to raw material price volatility.  
+There are options to explore nature-inspired solutions 
+and green chemistries.
+57 Mennen, S M, C Alhambra, C Liana Allen, M Barberis, S Berritt, T A Brandt, A D Campbell, et al. 2019. “The Evolution of High-Throughput Experimentation in 
+Pharmaceutical Devleopment and Perspectives on the Future.” Organic Process Research & Devleopment (ACS Publications) 23 (6): 1213-1242.
+UK Catalysis: Innovation opportunities for an enabling technology48An ideal situation would be to develop a catalyst that 
+becomes the ‘Suzuki’ of non-precious metals. For a 
+broad topic there are numerous options for different 
+approaches; for example, Iron is under explored. An 
+approach to developing these catalysts could be to focus 
+on methods that use a data-led approach and favour the 
+use of high throughput experimentation. There also may 
+be options to learn from defining the nearest equivalents 
+for achieving the required chemistry/conversion. Ligands 
+maps combined with predictive modelling could also 
+help to focus on new chemistries. Utilising flow chemistry 
+could allow experiments with higher pressures during 
+discovery stages. A challenge with these reactions is that 
+the activity of the catalyst can be difficult to characterise 
+as they are used in such small amounts.
+Ullman reactions using copper have been used by 
+AstraZeneca to get successful results. However in other 
+areas the development is closer to early research. There 
+have been recent reviews on the use of Co, Ni and Mn 
+catalysts and a project in Lipshutz with Ni on charcoal. 
+LIKAT, Germany and German Catalysis Society (GeCatS) 
+are seen as leaders in this area and although it is still 
+academic research, they are likely to be the closest to 
+industrial applications. Within the UK there are several 
+groups researching Cu catalysis for example, Catalysis Hub, Leeds University, Bedford Catalysis (University of 
+Bristol). Capability within the UK to support research 
+is the ROAR centre for kinetic studies. To support this 
+work there needs to be an STFC Hartree high power 
+computing equivalent capability for homogeneous and 
+biocatalysis. In the chemicals sector there has been 
+more work on catalysis and critical raw materials, for 
+example, the NOVACAM EU project, but the conditions 
+are different than those of fine chemicals58.
+There are analytical challenges and a need for 
+mechanistic understanding that will require pre-
+competitive collaborative working to help focus and 
+narrow the number of choices to explore in a large 
+chemical space. Collaborative cross-sector activities 
+conducted with agrichemicals and other price-sensitive 
+industries to identify processes which are economically 
+at risk and could serve as a starting point for relevant 
+chemistries. Collaboration across sectors will be needed 
+to develop these catalysts for example, AI-informed 
+retrosynthesis.
+An obstacle to developing non-PGM chemistries is that 
+the PGMs are a well-established solution and can exhibit 
+superior selectivity. Non-PGM catalysts can be cheaper 
+but can have limited compatibility with functional groups 
+and longer development times making them unviable. 
+58 NOVACAM. n.d. Project Summary. Accessed May 2020. https://novacam.eu/project-summary/.
+UK Catalysis: Innovation opportunities for an enabling technology49The current justification for using a non-PGM catalyst 
+can be difficult when a ‘closed’ recycle loop exists for 
+PGM catalysts. However with increasing population 
+and demands on PGMs for other applications, then the 
+availability of supply could force the move towards non-
+PGM catalysed reactions. In the meantime, the uptake 
+of non-PGM catalysed reactions will likely be driven 
+by either a corporate driver towards sustainability or 
+because the reaction is more efficient than the PGM 
+route. The ideal position would be to develop the ‘Suzuki’ 
+reaction of the non-precious metal catalysts. Currently 
+AstraZeneca has been successful with using copper 
+in the Ullman reactions and there is room for further 
+exploitation. Iron catalysts are another opportunity but 
+are currently underexplored.
+6.2.3. Faster development cycles
+ 
+6.2.3.1. Predictive modelling
+Predictive modelling will provide a more informed 
+and successful catalysis design and will result in 
+accelerated discovery, faster development times 
+and less waste. This in turn would give a faster route 
+to market and therefore an economic advantage. 
+Predictive modelling can explore new experimental workspaces and find possibilities of new chemistries 
+or solutions for challenging chemistries, for example, 
+Taxol, an anti-cancer chemotherapy drug, that is 
+difficult to manufacture at larger quantities59. Overall, 
+this is a multiscale and multi-variant problem requiring 
+optimisation covering from molecule to manufacture, 
+which could lead to a more widespread adoption of 
+catalysis by making them easier to use while ensuring 
+catalysts are formulated and well characterised to 
+support the requirements of quality by design (QbD).
+To support advances in predictive modelling, the 
+models need to be based on large datasets including 
+both successful and failed/negative reaction results to 
+generate a quantitative understanding and approach. 
+From this a catalyst library can be generated to enable 
+the development of a toolbox that can be used for 
+modelling purposes, however, to develop this will require 
+open data sharing agreements to be established. The 
+outputs of this will be standardised and automated 
+methodologies which will be able to harness the benefits 
+of artificial intelligence (AI).
+For modelling purposes there are often too many poorly 
+defined variables with each catalyst having its own set of 
+59 Expósito, O, M Bonfill, M Onribia, M H Mirjalili, R M Cusidó, and J Palazón. 2009. “Biotechnological Prodcution of Taxol and Related Taxoids: Current State and 
+Prospects.” Anticancer Agents Med Chem 9 (1): 109-21.
+UK Catalysis: Innovation opportunities for an enabling technology50optimised conditions. The scenario then becomes more 
+complex when going beyond a single step and optimising 
+an entire process. Some current issues are that more 
+representative substrate challenges need to be defined 
+along with the process constraints. In addition to this the 
+automated software can have difficulties in differentiating 
+between different metal catalysts. Furthermore, for 
+reliable automated data the uptake of high throughput 
+experimentation will need to be greater. 
+Predictive modelling for different types of catalysts are 
+at different stages of development. Heterogeneous 
+catalysis has been developed the furthest, followed 
+by homogeneous and then biocatalysis. The UK does 
+have emergent data mining capabilities along with 
+multiple modellers and there is reasonable activity 
+occurring in academia, for example, the UK Catalysis 
+Hub and UCL, with some collaborations with industry. 
+More collaboration between industry and academia are 
+needed to develop proof of concept. Projects of various 
+lengths are needed to fit in with the required investment 
+cycles of the pharmaceutical industry. To tackle the 
+challenges will require a multiscale and multidisciplinary 
+approach to modelling that is integrating molecular 
+mechanisms with the engineering, for example, mass 
+transfer and process design. As well as the modelling 
+community, the array of skills required from both 
+academia and industry includes synthetic organic 
+chemists, data scientists/engineers, chemical/process 
+engineers and system engineers.
+6.2.3.2.  High throughput experimentation (HTE)
+High throughput experimentation (HTE) enables quick 
+learnings and the ability to fail fast and can therefore 
+provide cost and time savings. HTE needs to be coupled 
+with DoE (design of experiments) and other system 
+approaches to ensure maximum benefits can be realised.
+Chemo and biocatalysis have different HTE requirements 
+and different experimental set-ups which will require 
+expert knowledge and understanding to maximise its benefits. For biocatalysis there is equipment available to 
+deal with high throughput automated systems, however, 
+there is a lack of reproducibility and predictability when 
+working with biological systems. Chemical catalysis 
+equipment is available, but this can be expensive and is 
+not always set up for immediate user requirements, for 
+example, liquid handling can be too slow, and reactions 
+can be difficult to access due to a closed set-up. General 
+challenges exist around testing different temperatures, 
+pressures, addition of solvents and solids. Other issues 
+can be around sample taking, loss of solvents during 
+the process and purification/cleanup of the catalyst. 
+Also, achieving online analysis, especially for impurities 
+is challenging for chemo catalysis especially when 
+compared to biological reactions which are often 
+linked to easy measurable reactions, for example, using 
+fluorescence. Photocatalysis, especially photoredox, has 
+challenges with data collection and analysis as there 
+are limited screening capabilities and HTE challenges 
+around flexible light intensity with a need to control the 
+light intensity and internal temperature.
+The UK does have HTE capabilities, for example, CPI, 
+Liverpool (MIF), ROAR (Imperial), York, Liverpool and 
+Bristol (TECS CDT). However, better process and system 
+designs are needed which will require collaboration 
+between the end users, chemists and data scientists. 
+Easy to use and flexible equipment needs to be 
+developed to serve user and experiment requirements, 
+for example, high throughput immobilisation is needed 
+for biocatalysis. Robust systems for online and real-
+time measurements, for example, Raman for a 96 well 
+plate and including analysers, are needed with data 
+management and data analysis. Collating and being able 
+to correctly interpret the data are vitally important.
+HTE can meet the needs of different catalysis but with 
+lots of bespoke systems and methodologies there is a 
+need for standardisation and expansion of equipment 
+capabilities. There are further requirements to improve 
+the real-time data handling and analysis.
+UK Catalysis: Innovation opportunities for an enabling technology516.3. Healthy ageing/pharma manufacturing 
+conclusion
+Catalysis is an essential and complex technology 
+that will enable pharmaceuticals to be manufactured 
+economically and will require additional focus and 
+collaboration of multiple disciplines along the value 
+chain to be able to provide new catalytic solutions 
+and innovations. The pharmaceutical sector aspires 
+to move towards smaller scale, agile and continuous 
+manufacturing for the production of personalised 
+medicines, this creates further demands for more 
+efficient and selective catalytic performance when 
+compared with the current larger scale batch processes. 
+This will require the development of faster reactions with 
+reduced impurities and by-products whilst minimising 
+product work-up. Hybrid catalysis is at an early stage 
+of development but will be an exciting technology 
+option for the future. Beyond this the pharmaceutical 
+industry is constantly exploring the chemical space, 
+new catalysts will be an enabler to opening up new 
+chemistries and with the continued shift in societal 
+expectations then opportunities to explore non-PGM 
+options could increase. Underpinning the use of 
+catalysis in the pharmaceutical industry is the supporting 
+technology that will enable faster development cycles 
+and coupling HTE with predictive modelling could allow 
+the experimental workspace to be explored faster whilst 
+maximising the benefits from the data to develop better 
+catalysts.
+For all the areas of innovation noted here there is the 
+opportunity to enable pre-competitive collaborations 
+within a sector which is a UK strength. It would also 
+be possible to drive pre-competitive collaborations 
+with agrichemicals, flavours and fragrances to develop 
+advances in continuous manufacturing, high throughput 
+experimentation, predictive modelling and the use of 
+non-PGM chemistries. Pre-competitive collaborative 
+R&D across the sectors would combine skills and could 
+leverage the difference in scale and catalyst volumes 
+that the industries utilise. Therefore making it a more attractive option for catalyst manufacturers to support 
+these industries and able to commit to the guaranteed supply that is required.
+UK Catalysis: Innovation opportunities for an enabling technology52
+7.1. Overview of UK academia
+The UK has a strong academic base, with significant 
+investment in researching into the different types of catalysis. In July 2108, EPSRC had over £60m invested in its catalysis research area portfolio including the investment into the UK Catalysis Hub
+60. Figure 17 and 
+Figure 18 show the key funded themes and sectors of the EPSRC catalysis research area. The catalysis research spans across multiple sectors and themes and highlights 
+the reach of catalysis and that it is a key enabler. BBSRC, 
+Innovate UK and EPSRC have also previously co-funded the Industrial Biotechnology Catalyst programme and invested approximately £75m into projects where a number of them would have relied upon biocatalysis. 
+As an example of the UK’s academic focus on catalysis 
+there is the EPSRC funded UK Catalysis Hub which is a consortium of universities active in catalysis research led by the universities of Cardiff, Bath and Manchester. It has 20 researchers at the central Harwell facilities with a direct academic network of 25 UK universities and over 45 involved in the wider network. Main areas of focus for the Catalysis hub are:
+•opt imising, predicting and designing new catalysts;
+•c atalysis at the water energy nexus;
+•c atalysis for the circular economy and sustainable
+manufacturing.
+A sample of other UK institutes can be seen in Table 6 and a longer, yet non-exhaustive, list of academic institutes can be found in Appendix 1. From consultation with academia some examples of successful research areas from academia which are ready for translation to outside of academia are:
+•a utonomous repair and remodelling of structural
+composites;
+•n ew polymers from CO 2, beyond polyurethanes
+(styrene-butadiene-styrene);
+•CO2/H2 direct to fuels and chemicals;
+•G lycerol (biodiesel by-product) to H 2 and fuels.7.UK and international catalysis capability
+60 E PSRC. 2018. EPSCR Portfolio Research Areas - Catalysis. June. https://epsrc.ukri.org/research/ourportfolio/researchareas/catalysis/.Energy Manufacturing 
+the FuturePhysical 
+Sciences
+Engineering Non Theme 
+SpecificHealthcare 
+Technologies12%
+64%5%
+0%10%
+9%
+0%Figure 17:  
+Proportional value 
+assigned to EPSRC 
+themes within the 
+catalysis research area
+Research 
+Infrastrastructure
+Chemicals Electronics Energy
+Environment Food and Drink Healthcare
+Information 
+TechnologyManufacturing No sector relevance 
+identified
+Pharmaceuticals 
+& BiotechnologyR&D Transport Systems 
+and Vehicles
+Water12%15%1%
+13%29%
+7%
+0%Figure 18:  
+Proportional value 
+assigned to EPSRC 
+themes within the 
+catalysis research area
+2%2%0%18%0% 1%
+UK Catalysis: Innovation opportunities for an enabling technology53
+
+UK Catalysis: Innovation opportunities for an enabling technology54Table 6: Sample list of academic capabilities in the UK
+UK academic institutions, facilities and networks
+UK Catalysis Hub Heterogeneous, homogeneous, biocatalysis.
+Diamond Light SourceAnalytical techniques for material characterisation and in-situ study of processes 
+covering homogeneous, heterogeneous catalysis.
+STFC (ISIS, Central Laser 
+Facility)Analytical techniques for material characterisation and in-situ study of catalytic 
+processes.
+Biotechnology at University 
+of ExeterChemical synthesis and catalysis
+Manchester Institute of 
+Biotechnology (MIB)Biocatalysis.
+Cardiff University Heterogeneous, plasma, catalysis theory.
+University of Bristol Homogeneous, synthesis, electrocatalysis and photocatalysis.
+University of Oxford Synthesis, electrocatalysis and photocatalysis.
+University of Cambridge Electrocatalysis and photocatalysis, catalysis theory.
+UCL Heterogeneous, plasma, catalysis theory, enzymes, synbio.
+The University of 
+Manchester Heterogeneous, plasma, enzymes, synbio.
+University of Nottingham Heterogeneous, plasma, enzymes, synbio.
+University of Liverpool Homogeneous, heterogeneous, photo, electro-chemical and biocatalysis.
+Imperial College London 
+(including ROAR)Homogeneous and heterogeneous catalysis. Chemical synthesis and analysis 
+technologies.
+Norwich Enzymes, synbio.
+Criticat CDT Critical resource catalysis. Homogeneous, heterogeneous and biocatalysis.
+University of Bath Heterogeneous, homogeneous, biocatalysis.
+UK Catalysis: Innovation opportunities for an enabling technology557.2. Overview of UK national catalysis capabilities
+The UK has several large and small manufacturers 
+of catalysts with the most prominent being JM 
+whose catalysis experience covers hetero, homo and 
+biocatalysis for a vast array of industries including oil and 
+gas, chemicals, pollution abatement, battery materials 
+and pharmaceutical ingredients.61 Along with catalysis, 
+JM have core capabilities in characterisation and 
+modelling, chemical synthesis, electrochemistry, material 
+design and engineering, PGM and specialist metallurgy, 
+process optimisation, product formulation and surface 
+chemistry and coatings62. This enables JM to cover 
+the initial research through to the integrated catalytic 
+process design and testing of the commercial real-world 
+application of its catalysts. JM’s technologies are sold 
+through direct sales and through the licensing of their 
+technology. 
+INEOS is a major company and significant user of 
+catalysts. The organisation not only buys catalysts from 
+other manufactures but also designs and develops its 
+own catalysts to support the company’s production. In 
+particular cases INEOS will also license the use of its 
+catalysts to external companies for the production of 
+petrochemicals, speciality chemicals and oil products.63
+Examples of more catalyst manufacturers within the UK 
+are Luxfer MEL Technologies that produce zirconium 
+catalysts for industrial and automotive applications, CTL 
+which makes titanium catalysts and zirconium cross 
+linkers for polymer and oilfield applications, Molecular 
+Products that makes a range of catalysts for breathable 
+gas sorbents and Biocatalysts that manufactures 
+enzymes for fine chemicals including pharmaceuticals, 
+flavour and fragrances and food. Others include Stoli 
+Catalysts, Eurocats, PQ Corporation, Ames Goldsmith, 
+Sterling Pharma Ltd, PhosphonicS and Cleansorb which 
+make catalysts for a range of applications (see also 
+Appendix 1).64
+Outside of the large catalyst manufacturers, the UK has 
+limited capabilities to support the development, scale-
+up and integrated process design of catalysts, there 
+is however significant support in the area of industrial 
+biotechnology followed by pharmaceuticals. As part 
+of the UK governments, high-value manufacturing catapult, the Centre for Process Innovation (CPI) helps 
+companies develop, prove, scale-up and commercialise 
+new products and processes across the full range 
+of chemical using industries. In catalysis, CPI’s core 
+strength is biocatalysis and accelerating innovation 
+from design through to demonstration scale. Outside 
+of biocatalysis, CPI’s catalysis capability is limited, 
+although it does have capabilities in high throughput 
+experimentation that could be exploited further in the 
+future. Also in the biocatalysis space are the capabilities 
+of the Industrial Biotechnology Innovation Centre (IBioIC) 
+and Biorenewables Development Centre (BDC) which 
+supports the early scale of industrial biotechnology.
+Beyond dedicated biocatalysis capability there is 
+Drochaid Research Services with in-depth research 
+and commercial knowledge covering homo, hetero and 
+bio catalysis along with material science. As a contract 
+research organisation Drochaid design, synthesis and 
+characterise catalysts which are directly applicable to 
+industry. Supporting the pharmaceutical industry is 
+CatSci, a CRO that optimises design and development of 
+catalysts. For advanced capabilities in characterisation, 
+Finden, is an RTO that also provides expert analysis. 
+There is also C-tech Innovation an RTO that has 
+experience in electrochemistry.
+The UK has a good baseline of catalysis capabilities in 
+the UK for translating design to commercial projects, 
+however it needs to be made stronger to make the 
+technological advances necessary for domestic and 
+international benefit. Current strengths are in catalyst 
+design and manufacture and fine chemical (including 
+pharmaceuticals) synthesis. 
+7.3. International capability
+Although the UK has a strong catalysis research base, 
+other countries in Europe and the rest of the world are 
+also leading in research and particularly its translation 
+to industry. Key examples are the Fraunhofer’s (IGB, 
+IMM, IKTS) which between them cover biocatalysis, 
+electrocatalysis, chemocatalysis, and Sintef which covers 
+homogeneous and heterogenous catalysis. A non-
+exhaustive list of other international organisations working 
+in the field of catalysis can be found in Appendix 2.
+61 (Lynch 2020)
+62 Johnson Matthey. n.d. Core Capabilites. Accessed May 29, 2020. https://matthey.com/en/inspiring-science/core-capabilities.
+63 (Lynch 2020)
+64 (Lynch 2020)
+UK Catalysis: Innovation opportunities for an enabling technology56Innovate UK sponsored visits to RealCAT, The CAT 
+Catalytic Centre, CaRLa and VTT to specifically evaluate different approaches to industry-led research, and information on these organisations is below.
+7.3.1. Examples of international academic capability
+7.3.1.1. RealCat
+RealCat is a government-funded, high throughput technology platform for catalyst design located at the University of Lille. The platform is a collaboration of three laboratories; the Unit of Catalysis and Solid State Chemistry (UCCS), Charles VIOLLETTE Institute (regional laboratory in food and biotechnology), and CRIStAL (research centre in computer science, signal and automatic control of Lille), and first went into operation in 2015. As an academic platform with 80% of its research linked to companies it has strong industry involvement and a focus on conducting industry-led research. RealCat uses a multidisciplinary approach for the design, synthesis, characterisation, scale-up and translation of heterogeneous, homogeneous, bio and hybrid catalysis, predominantly in the area of biorefineries. The platform includes robots for automated synthesis, rapid characterisation tools and both continuous and batch reactors.
+RealCat utilises advanced high throughput 
+experimentation (HTE) coupled with a digital strategy and data treatment which includes advanced statistical methodologies and informatics. This provides a fast and efficient screening strategy utilising customised high end vendor-supplied equipment. HTE can have a significant impact on the time involved to synthesise, characterise and test a catalyst and the RealCat platform has proven that an HTE approach can reduce timescales from 72 days to 6 days. Since RealCat has been operating, approximately 80% of the effort has been on biomass valorisation and biorefineries, however research and development can be conducted in other areas. RealCat fits within a larger framework for catalysis research that provides support from research through to scale-up of chemistries. A new platform called UpCat has been funded that will focus on catalysis shaping/forming, characterisation and testing of the shape/form to better support catalyst design and scale-up for real-world processes.To maintain a company focus, RealCat is ring-fenced from standard academic activities, for example, it does not fund PhDs, and has adopted a patent first then publish approach. The platform is open to projects of variable length but typically is not looking for three-year projects. This is for two reasons; firstly, the platform recognises that industry can require solutions within a fast turnaround. Secondly, due to the high throughput nature of the platform and the sheer volume of digital data captured, a series of shorter projects of even one-to-seven-days, can be encouraged to then allow time to analyse and extract value from the datasets produced.  
+As the platform operates with the focus on industry the 
+cost of access is assessed on a project by project basis and is dependent on the level of confidentiality required. RealCat as a platform typically seeks to maintain IP. When the research is based on a collaboration or partnership and there are mutually agreeable benefits to both parties, for example, IP ownership and the opportunity to publish, then this would provide more favourable terms of access than when it is used as a direct paid-for service with full confidentiality and different IP agreements. Academia within the associated universities also have to pay to use the platform. RealCat is government-funded but at the end of its current funding cycling it has the requirement to become self-sufficient.  
+RealCat is fast, adaptive and responsive to industry 
+requirements utilising HTE and data management. The platform fits within a wider ecosystem which supports catalyst research and scale-up activities. RealCat and the associated framework are an example of how the UK could support industry to, technologically and collaboratively, overcome the translational challenges from late-stage research. The data RealCat’s approach will generate can lead the way towards the digital design of catalysis. RealCat is a platform that would also be a good partner for UK organisations to consider. 
+7.3.1.2.  C AT Catalytic Centre
+The CAT Catalytic Centre is located at RWTH Aachen University and is a catalysis research centre based on a co-funded partnership between Covestro and RWTH Aachen University. Being a joint collaboration between a single company and a university conducting fundamental research it provides high levels of engagement and a 
+UK Catalysis: Innovation opportunities for an enabling technology57strong industry lead. As Covestro is the industrial partner 
+the focus is on catalysis research, reaction engineering 
+and the development of novel polymeric materials. This 
+includes catalysts for CO 2 based polymers, synthesis 
+of sustainable building blocks for polymers, novel high 
+performance materials, multifunctional molecules and 
+tailor-made catalysts. 
+With a common interest in sustainability and carbon 
+dioxide utilisation RWTH Aachen University and Covestro 
+(formerly Bayer) established the centre 12 years ago and 
+the current agreement extends to 2024. Covestro wants 
+to utilise CO 2 as sustainable feedstock for polyurethane 
+production and the company recognises the strategic 
+relevance of investing in early-stage research that it could 
+lead and direct. Both parties believe in the purpose and 
+the advantage of the centre and so there is a mutually 
+beneficial relationship with an agreement around the 
+balance of patenting versus publishing. Part of the 
+agreement between the organisations is that there is 
+50% ownership of any IP generated with the option for 
+buy-out from Covestro if it is commercially successful. 
+The structure of the CAT Catalytic Centre means that 
+the work conducted is exclusively for Covestro with 
+dedicated equipment and lab space for the research. A 
+key output of this collaboration has been that 20-30% 
+of projects conducted have gone on to further process 
+development and commercialisation.  
+Although the structure of the CAT Catalytic Centre is 
+unlikely to be something that can be directly replicated 
+in the UK there are some interesting observations. The 
+centre highlights the need for strong industry-focused 
+research with robust relationships and an accepted 
+approach around patenting versus publishing, that is, 
+patent first then publish, that balances the requirements 
+of both the academic and industrial partner. This has led 
+to the successful translation of research into industry via 
+Covestro process development which also highlights the 
+need for known routes for progressing further catalyst 
+development before reaching commercial scale.
+7.3.1.3. CaRLa
+CaRLa is the Catalysis Research Laboratory situated 
+in Heidelberg and is an industry partnership between 
+BASF and the University of Heidelberg. The lab is 
+led by BASF which provides a strong industry focus. 
+Projects are industrially relevant problems for BASF covering transition metal based homogenous catalysis, 
+where traditional academic focus is rare. Other areas 
+of focus include photochemistry, oxidations, amination, 
+hydrogenation, hydroformylation, CO 2 chemistry, 
+quantum chemistry and modelling.
+This was BASF’s first satellite lab. Established in 2006 
+it originally received government funding and is now 
+based on a partnership between the two organisations 
+with BASF providing 70% of the funding. CaRLa’s has 
+produced 84 publications, 29 patent applications and 
+since 2015, 11 projects have been further developed by 
+BASF. The partnership has recently been renewed for 
+three years until 2022. For BASF, CaRLa fits under the 
+homogenous catalysis group which provides the ideas 
+and direction for the research conducted. It is a modest 
+lab that has a permanent onsite BASF management 
+presence and houses eight post doctorates. CaRLa is 
+focused on early-stage research of relevance to BASF 
+only and is not looking to conduct short projects with 
+both custom synthesis and pure screening projects being 
+out of scope. The research should be of high academic 
+interest and projects require a deep mechanistic 
+understanding of catalyst design, if a project is not 
+progressing well then it will be stopped early. The group 
+also looks for practical solutions, not just creative and 
+novel ones. Both parties have agreed to an IP sharing 
+arrangement and there is agreement to patent then 
+publish. The position of the lab ensures it is separate 
+from daily BASF research and manufacturing activities, 
+yet close enough to allow swift transfer of successful 
+research and technology into BASF for further process 
+development. 
+Similarly to the CAT Catalytic Centre the structure of 
+CaRLa is something that the UK is unlikely to be able 
+to adopt, however, there are still some things that the 
+UK should consider. CaRLa demonstrates that there 
+is a need for industry engagement in relevant early 
+stage research and there is benefit in having a mutual, 
+open and strong relationship working collaboratively on 
+projects that deliver benefit for all parties. This requires 
+an accepted balance of patenting and publishing with a 
+patent first then publishing approach. For CaRLa there 
+is a known route for successful projects, that is, they are 
+taken inhouse into BASF’s group for further research and 
+development, this again highlights the need for further 
+requirements in the upscaling of catalysts. 
+UK Catalysis: Innovation opportunities for an enabling technology58The UK has a range of 
+companies, large and 
+small, that can manufacture 
+catalysts and additional 
+companies that support 
+research and development 
+and scale-up of catalysts. 
+UK Catalysis: Innovation opportunities for an enabling technology597.3.2. Example of international RTO capabilities
+7.3.2.1.  VTT
+VTT is an RTO based across numerous sites in Finland 
+with research, development and scale-up capability and leverages strong industry involvement. The organisation is part of Finland’s innovation system and operates under the mandate of the Ministry of Employment and Economy. VTT has a model similar to the Fraunhofer model with a mixture of government, grant and private funding and although still owned by and reporting to the government it is now able to steer its own research interests which include bioeconomy and circular economy, health and wellbeing, digital society, low carbon energy, smart industry, sustainable and smart city. As an RTO of over 2,000 people, the services they cover includes technology and business foresight, strategic research, product and service development, IPR and licensing, technology and innovation management. Direct contract research with global industry counts for more than a third of VTT’s activities. 
+In the area of clean growth VTT have significant 
+experience and specialise in heterogeneous catalysts for SMR, gas ultra-cleaning, catalytic partial oxidation, methanation and Fischer-Tropsch utilising small to medium scale reactors. Catalysis is seen as an enabling technology and VTT has the capability to screen and develop new catalysts for new applications and the systems they are developing. Building on their expertise in heterogeneous catalysis research they have also focused on developing flexible pilot and demonstration scale plants with the ability to conduct gasification, fast pyrolysis, catalytic tar treatment, syngas ultra-purification, and Fischer-Tropsch enabling them to conduct power-to-x, biomass and CCU trials on real feedstocks to produce an end product. VTT also has a mobile unit that can be transported and connected to real processes for testing. This gives VTT a flexible approach with systems that can be modified for different activities. 
+The FT process can scale from lab to pilot and the 
+facility can be used for jet fuel, car fuel or chemicals, for example, aromatics, olefins and ethanol. Fast pyrolysis, both thermal and catalytic, can be utilised to make products like bio-oil, and can be taken from lab to pilot scale and integrated with other technologies. VTT themselves approach the pilot plant with a view to the entire process and system to design alongside considering commercial and economically viable solutions. Therefore, at pilot/demonstration scale it is about more than just the catalyst, albeit it remains an important underpinning part of the solution. Projects begin with the complete system in mind and with the identification of business needs around an available feedstock or a target product. In this area, VTT has a significant amount of learning around early stage catalyst research and its translation to larger scale therefore helping to de-risk and scale-up. In other parts of VTT they have expertise in fine and specialty chemicals with synthesis and scale-up utilising modern catalyst technology in organic synthesis. The organisation also has capabilities in biocatalysis and fermentation.
+As an organisation, VTT actively encourages the 
+generation and ownership of patents to provide additional funding through the selling or licensing of IP.  They have 1,368 patents and 363 patent families. The organisation continues to have a long term portfolio approach and are looking for the next opportunities in order to continue building its portfolio, for example, syngas to methanol and also syngas hydrogen to ammonia. 
+VTT is a large RTO that has had a long time to learn and 
+develop in-depth knowledge and skill in key areas. It is the skill, experience and long term vision of the organisation coupled with its equipment that makes it a good example of what it takes to translate catalysis research to demonstration scale. VTT would be a good organisation for collaborative interaction with UK academia and industry. Within the UK there is a gap in the capability available for pilot and demonstration scale facilities to enable the evaluation of the commercial viability of a complete system from a real feedstock to product.
+7.4. Catalysis capability conclusions 
+The market demand and catalyst capabilities currently in the UK are mostly centred around heterogeneous catalysts.  However the UK does have increasing capabilities in homogeneous and biocatalysis.  
+UK Catalysis: Innovation opportunities for an enabling technology60
+Figure 19: UK Catalyst and Process Design Capability
+Catalyst Design
+Catalyst design, synthesis, 
+characterisation and testing
+Biocatalyst discovery, screening 
+and expressionCatalytic process design 
+and integration
+Process and reactor design
+Catalyst upscaling (for example, 
+forming, characterisation and testing)Pilot and demonstration 
+scaling testingCatalyst Manufacturer*JM
+Ames Goldsmith
+Stoli
+PQ Corp
+Luxfer
+CTL
+Cleansorb
+PhosphonicS
+Biocatalysts
+Prozomix
+Sterling Pharma
+Econic
+Magma CeramicsAcademic Network*IPRD
+DMU
+ManchesterCatalysis Hub
+Cardiff/CTI, CSTC/Bath, Manchester, QUB, 
+Bristol, Oxford, Cambridge, Bradford, Leicester, 
+Aston, Durham, Aberdeen, Newcastle, York, UCL, Nottingham, Liverpool, Imperial College London/ ROAR, Norwich, Glasgow, Leeds/IPRD, Swansea, Southampton, Birmingham, Sheffield, Warwick, London South Bank, Edinburgh, St Andrews, Heriot Watt, DMURTO*CPI (Bio)
+CatSci (Pharma)
+BDC (Bio) DrochaidCatalyst Users*Ineos* (also a manufacture of own Catalysts with some licensed)
+BP
+Croda Strata AZ Sabic
+Carbon Capture Solutions GSK P&G
+BASF
+Unilever
+*non-exhaustive list for illustrative purposesFinden Finden
+ISIS/Diamond IBioIC (Bio) ISIS/Diamond C-tech (electro)Increase capability and expertise to cover 
+catalytic process design and integration 
+through to pilot and demonstration scale
+UK Catalysis: Innovation opportunities for an enabling technology61Figure 19 shows the UK catalysis capability covering 
+design/discovery, upscaling, pilot and demonstration 
+scale. UK catalysis has benefited from a sizable amount 
+of investment into the UK’s academic catalysis capability 
+which often has a reasonable level of industry support. 
+However, industry’s involvement to collaborate on the 
+translation of research beyond academia is weaker. The 
+UK has a range of companies, large and small, that can 
+manufacture catalysts and additional companies that 
+support research and development and scale-up of 
+catalysts. 
+Figure 19 shows that the UK’s current position needs 
+to be made stronger to translate catalysis design 
+from research to commercialisation so it can leverage 
+technological advances for domestic and international 
+benefit.  For the UK to take a leading position in catalysis 
+technology for fine chemicals synthesis, the hydrogen 
+economy, CCUS and waste valorisation, then it needs 
+to strengthen its open access capabilities and expertise 
+in the upscaling of catalysts and the integrated catalytic 
+process design at pilot and demonstration-scale. As part 
+of strengthening capabilities there is a need to ensure 
+the use of deep knowledge and understanding of the 
+industrial use of catalysts. 
+Comparing models of other catalysis centres (VTT, 
+RealCat, CAT Catalytic Centre, CaRLa) highlights that 
+catalyst is recognised as an important and valuable 
+underpinning technology. This is emphasised by BASF 
+and Covestro both identifying the need to specifically 
+fund CaRLa and the CAT Catalytic Centre respectively. 
+Both CaRLa and the CAT Catalytic centre focus on early stage research with both BASF and Covestro having 
+their own inhouse process development capabilities 
+for further translation. Many chemical manufacturers 
+in the UK would not have this type of in-house catalysis 
+development capability and there is a gap in the UK’s 
+translational capabilities. All centres showed a long 
+term strategic focus on developing industry-led catalysis 
+research and development and the importance of 
+strong relationships and collaboration. As a result of an 
+industry-led approach, all centres had recognised the 
+need to patent first then publish and have agreed win-
+win approaches between the industrial and academic/
+research partner. RealCat and the future platform of 
+UpCat showed the importance of high throughput 
+experimentation, digitisation and the need for industry 
+process development in catalysis characteristics and 
+the subsequent upscaling, for example, including shape 
+and form. VTT brings to the foreground the need for 
+upscaling, pilot and demonstration capabilities that 
+utilise a systems approach to catalysis based on real 
+world feedstocks and products.
+Both VTT and RealCat are excellent opportunities for 
+collaboration.
+UK Catalysis: Innovation opportunities for an enabling technology62
+
+UK Catalysis: Innovation opportunities for an enabling technology638.1. Market opportunity 
+The global catalyst industry is worth $34.1bn and enables the delivery of $15tn to downstream markets. This is expected to grow to 2025 at a CAGR of 4.3% per annum. The UK catalyst market is worth $433m catalysis consumption and $188bn of revenue which is directly enabled by catalysts in the downstream markets.
+Figure 20 shows the market areas for innovation and 
+growth for catalysis. Based on market analysis, fine chemicals are predicted to be the area for higher growth in the UK on its current trajectory and those labelled 1–4 indicate the areas of highest innovation with the potential for driving higher growth.
+The UK has a smaller catalyst market when compared to 
+other countries, but it will still be greater than $500m by 2025. This will drive accrued benefit in the downstream sectors and generate greater value for the UK economy. The UK will need to stimulate increasing domestic demand in new and growing UK markets, for example, in the areas of hydrogen and fine chemicals, both of which will need new catalysts. In the area of fine chemicals there is an opportunity to support this leading sector to 8.UK Catalysis conclusions
+Figure 20: UK market areas for innovation and growth
+Virgin 
+bio-based 
+feedstocks to 
+chemicals
+Environment
+Automotive catalysts, 
+fuel cells, air and 
+water treatmentCCUS to chemicals
+Carbon capture 
+utilisation and 
+storageNew high 
+functionality 
+Polymer & Rubber
+High functionality, 
+new materialsCarbon Efficiency
+Crude oil to chemicals 
+(COTC), coal to 
+chemicals (CTC),  
+gas to chemicals  
+(GTC)
+Fine Chemicals
+Agrichemicals, flavours 
+and fragrances, 
+pharmaceuticalsLow Carbon 
+Hydrogen
+Green and 
+blue H 2
+Waste (inc 
+biomass & 
+polymers) to 
+ChemicalsAll  Catalyst &  
+Process Design
+General, structured 
+catalysts, catalyst 
+reactor design41
+2
+3
+UK Catalysis: Innovation opportunities for an enabling technology64ensure it maintains its leading and competitive edge in 
+the catalyst market. For clean growth, hydrogen coupled with CCU is the largest opportunity for creating new catalysts in the UK.
+8.2. Driving value for the UK today
+Catalysis is complex and is a critical and enabling key technology for the chemical industry. Making catalysis work in real processes and to ensure market success will require a mix of skills working in collaboration along the value chain. Accelerating innovation will provide the benefits of delivering new process and products and an increase in UK productivity. These advances in catalysis innovation can support the nation’s Grand Challenges especially clean growth and healthy ageing. For clean growth the UK should strategically focus on areas of increasing domestic demand such as hydrogen, CCUS and waste valorisation. In the area of healthy ageing and pharmaceutical manufacturing, catalysis can enable access to new chemistries and smarter manufacturing processes. Overall, catalysis is an enabling technology that will help the shift towards net zero and innovation will enable faster prediction, testing and scale-up of new catalysts for real industrial systems. 
+For the acceleration of catalysis innovation, a systems 
+approach is needed that incorporates the supply chain and considers the real-world application and operating conditions of each process step from feedstock to final product. Therefore catalysts need to be designed, scaled and engineered to deliver commercial value by working on the right problem at the right time. However, for companies developing end to end processes it is not always clear what role innovation in catalysis can play. With a gap in capabilities for catalysis upscaling and pilot/demonstration scale testing then these companies can struggle to demonstrate the viability of their processes. Access to catalyst capabilities is needed where there is an industry-led approach to solving problems in a timeframe to suit business needs while also providing the right balance between patenting and publishing.  Projects in the clean growth space should also evaluate the environmental impact and consider full life cycle analysis. For all the sectors where catalysis can be an enabler the role of regulation and policy coupled with public perception will also need to be considered when evaluating solutions. Catalyst design and upscaling can have long development times which requires industry led collaborative working. During design and upscaling it is important to consider the reaction and process engineering associated with full scale production and to balance catalyst selectivity with process conversion and yields. Other factors to be considered are:
+•le vels of impurities and by-products and the impact on
+the overall process;
+•f eedstock and end product specifications;
+•t he catalyst’s lifecycle including its overall toxicity,
+the tolerance to poisoning, its structural andkinetic robustness, its regeneration and end-of-liferequirements.
+To improve catalyst design and upscaling timeframes then accelerating the uptake of high throughput experimentation and advancing the development of predictive modelling can provide the faster development cycles. 
+For the clean growth challenge, it will be crucial for the 
+UK to remain globally competitive as sectors become more energy-efficient and reduce greenhouse gas emissions to net zero by 2050. Catalysis will be an enabling key technology to be developed that will contribute to the required reductions whilst maintaining the production of competitive chemicals. 
+•Hydrogen
+Lo w carbon hydrogen is one of the largest catalyst
+innovation opportunities for the UK with two mainoptions being electrolysis or novel reforming. Howeverto make low carbon hydrogen economically viable itneeds to be coupled with CCU capabilities.
+•CO2 Utilisation
+A s ystems approach is required when considering
+CCU. It needs to be coupled with hydrogen andrenewable energy in industrial clusters where thecarbon and energy balance matches thermodynamicand commercial needs. Catalyst technology for theproduction of fuels exists but is not economicallyviable. For chemicals there are a lot of research optionsand it will require collaborative working and a systemsapproach to determine the commercially viable routesthat can utilise the large volume of CO 2 emitted.  A
+challenge for catalysis is understanding the assayof real-life flue gases and the impact on the catalystperformance.
+UK Catalysis: Innovation opportunities for an enabling technology65•W aste to chemicals and fuels
+U sing waste (MSW, biomass, polymers) in the
+production of syngas and subsequently chemicals and
+fuels is another key catalysis opportunity for the UK.Biotechnology and biogas are UK strengths that can beleveraged for this purpose. Environmental and socialresponsibility is also driving the recycling of polymersto make higher-value products. This is an area wherethere is considerable industry and academic focus, forexample, utilising pyrolysis or hydrocracking. Advancesin this area for both bulk and niche applications can beleveraged with collaborative R&D.
+I n the area of clean growth it is important to have
+collaborative R&D and access to catalysis expertiseand capability in design and upscaling.  There isalso a need for pilot scale and demonstration testingcapabilities to optimise the process and provide robustkinetic data proving consistent quality prior to movingto full-scale production.
+In the area of healthy ageing and pharmaceutical manufacturing there are opportunities to encourage pre-competitive collaborations within a sector which is a UK strength. Catalysis can be an enabler for advances in continuous/pseudo continuous manufacturing and gaining access to new chemistries. Advances in high throughput experimentation and predictive modelling of catalysis can lead to faster development cycles of catalyst design and development which could be leveraged by other industries. Pre-competitive collaborations could occur with the agrichemicals, flavours and fragrances sectors to increase the uptake of technologies. 
+The opportunity for catalysis in the UK is significant and 
+it will require a range of different organisations along the supply chains and across sectors working collaboratively. To achieve a difference there is a requirement to have access to impartial yet commercially relevant knowledge and capability. Overall there is a need to develop optimised techno-economic solutions that evaluate a whole system to define a commercially viable catalytic solution. Commercial value will be derived from direct catalyst manufacture while also driving additional value from the products made by the downstream sectors manufacturing with the catalysts. Additional value will also be gained from the domestic and international licensing of the technology and the processes.
+8.3. UK Capabilities
+The UK has a strong academic capability in catalysis research and development and has been supported by significant investment. For catalyst manufacturers the UK is in a reasonable position, most notably, with Johnson Matthey having a wide portfolio covering chemicals to environmental catalysts. There is also an array of other large and small companies in the UK producing catalysts for a range of industries, also see Figure 19. The UK also has a selection of companies that support catalyst R&D, but this is stronger in biocatalysis. Hence, within the UK there is a need to support and strengthen the capabilities for open access, industry led catalyst design, upscaling and pilot and demonstration testing. There is also a need to advance capabilities in supporting technologies that speed up catalyst design, development and upscaling, for example, high throughput experimentation coupled with predictive modelling. Further benefit can be derived from industry-led collaborations between all parties along the supply chain. Adopting an integrated, collaborative, multidisciplinary and holistic systems approach can ensure market pull and enable the best translation of catalytic innovations. 
+To leverage future catalysis opportunities in fine 
+chemicals, the hydrogen economy, CCUS and waste valorisation then the UK should increase its open access capability and expertise in catalyst upscaling through to demonstration scale. There is also an opportunity to strengthen the open capabilities and technologies available for industry-led catalyst design.
+8.4. Recommendations for catalysis innovation 
+support Catalysis is a key underpinning and enabling technology requiring investment to support the acceleration of innovation to enable technologies that help deliver on the Grand Challenges of clean growth and healthy ageing. Support is required for the faster design and upscaling of catalysts alongside programmes that accelerate innovation and technology adoption. Catalysis innovation in clean growth is vitally important for the UK in the areas of hydrogen, CCU-to-chemicals and waste-to-chemicals. For healthy ageing/pharmaceutical manufacturing 
+UK Catalysis: Innovation opportunities for an enabling technology66the importance of catalysis is to enable smarter 
+manufacturing, provide access to new chemistries and faster development cycles. The recommendation is for funding investment to provide:
+•A ccess to UK catalysis capabilities.
+•C ollaborative research and development (cR&D).
+•C atalysis funding to support Grand Challenges/
+net zero.
+•C lean growth demonstrator projects.
+•E xpansion of UK catalysis capabilities.
+8.4.1. Access to UK catalysis capabilitiesFunding aims are to:
+•I ncrease company access to current open access and
+impartial facilities.
+•E nable access to capabilities in Europe, for example,
+RealCat, if no UK capability exists and providing theproject’s output are for the UK’s benefit.
+•S olve industry-led and owned problems within
+appropriate timescales and with appropriate levelsof confidentiality. Projects should solve an industryproblem and the funding does not cover fundamentalresearch.
+•P rovide industry access to equipment and knowledge
+at a reasonable cost.There is significant knowledge of catalysis across universities and other facilities. However, it is not always accessible to companies who may not have a direct interest in catalysis, this results in reduced translation of research into a commercial environment. This programme would lower the barrier to entry and allow companies access to impartial and world leading catalysis expertise for industrial projects with short to medium timelines. It would provide an opportunity for companies to evaluate their interest in catalysis. Funding would answer specific questions about the design, assessment, testing, analysis or upscaling of catalysts. Knowledge exchange would be encouraged to allow for the upskilling of companies personnel. The impact would be to increase the translation of research into commercial applications and would lead to higher adoption of catalytic processes in a range of applications. Beneficial outputs would be an increase in process efficiency and productivity, reduced energy consumption and improved sustainability of processes. 
+8.4.2. Collaborative research and development 
+(cR&D)Catalysis funding to support grand challenges/net zeroFunding aims to:
+•P rovide ring-fenced cR&D catalysis funding to
+
+UK Catalysis: Innovation opportunities for an enabling technology67accelerate adoption of catalytic processes across the 
+grand challenges.
+•A dopt a portfolio approach, with funding available to
+support industry-led catalysis projects which supportGrand Challenges.
+•O vercome the issue that catalysis as a critical enabler
+for many processes can be overlooked in many of theGrand Challenges.
+•P rovide brokerage and networking to develop project
+consortia.
+•E nsure a systems approach by having collaborations
+that include the supply chain.
+Throughout this project the importance of catalysis within a large number of processes has been identified. As the production of chemicals and materials becomes more sustainable catalysis is likely to play an increased role. The project has also identified the need for catalysis development to be incorporated into the process/system design and development. As such, a need for a cR&D catalysis funding has been identified. Calls must align to active programmes of work where catalysis can act as an enabling technology with the potential to unlock new opportunities, for example, clean growth and medicines manufacturing. A portfolio approach should be used to ensure prioritisation towards the biggest catalysis opportunities that accelerating innovation could solve, for example, net zero. In this way catalytic processes can be developed and will play a significant role in resolving the Grand Challenges by accelerating the deployment of catalytic technologies. 
+8.4.3. Clean growth demonstrator projects
+Funding aims to:
+•P rovide companies with access to existing clean
+growth demonstrator projects in the UK or Europe, forexample, VTT.
+•E valuate the potential to co-fund with existing or future
+funding streams to maximise potential impact and scale of delivery e.g. IDC, TFI.
+Companies and especially SMEs require access to demonstration-scale equipment to further develop processes. In particular there is a need to develop complete systems and processes around alternative feedstocks to enable the decarbonisation of the chemicals and materials sectors, for example, plastic waste, biomass, H 2 and CO 2 to chemicals. If the 
+programme can be co-funded with other initiatives, then there are opportunities to have a bigger impact with large 
+
+UK Catalysis: Innovation opportunities for an enabling technology68whole system projects. With the UK having limited open 
+access and impartial demonstrator capability then the funding should allow cR&D projects to access existing facilities in the UK or Europe to demonstrate clean growth processes. This would accelerate the commercial deployment of clean growth technologies that support industrial decarbonisation by initially demonstrating processes and subsequently deploying successful technologies. 
+8.4.4. Expansion of UK catalysis capabilities
+Funding aims to:
+•E xtend current UK catalysis capability to provide
+impartial open access and industry-led upscaling ofcatalysts.
+•E xtend current UK capability in technology that
+enables fast catalyst development cycles.
+•S upport an increase in industry-led, open access
+catalysis design and synthesis.
+•P rovide new open access, industry led, flexible pilot
+scale and demonstration facilities for clean growth.
+To continue to provide companies without a direct interest in catalysis the support that is needed to translate new innovations into a commercial environment then the existing UK catalysis capability should be extended. The access to leading expertise needs to cover the upscaling of catalyst which incorporates the prototyping of the reactor and process design. Technologies that enable faster catalyst development, such as high throughput experimentation, data management and analysis and predictive modelling for all catalysis will also be a critical requirement. The possibility to support an increase in open access and impartial expert knowledge and capability in catalysis design and synthesis would also provide more options for companies to solve problems in all the different types of catalysis. Funding for capital investment for companies to demonstrate their clean growth processes at an appropriate scale is needed to accelerate the commercial deployment of clean growth technologies. The expansion and integration of these capabilities will support the UK’s position and provide companies with the ability to fast track innovation in catalysis and solve commercial problems.
+8.5. Closing remarks
+For the UK’s chemical using industry to remain globally competitive and able to support the delivery of the UK’s Grand Challenges and net zero, catalysis is a vital, enabling technology. Catalysis has a global market of $34.1bn and drives progress and innovation delivering over $15tn. While the UK has a catalysis market of $433m it drives the delivery of $188bn in downstream sectors. The acceleration of catalysis innovation should be supported in key areas of importance and strength for the UK domestically which can be exploited internationally, delivering increased productivity and value.
+UK Catalysis: Innovation opportunities for an enabling technology69The funding for the expansion of UK 
+catalysis capabilities aims to: 
+•E xtend current UK catalysis capability
+to provide impartial open access andindustry-led upscaling of catalysts.
+•E xtend current UK capability in
+technology that enables fast catalystdevelopment cycles.
+•S upport an increase in industry-led,
+open access catalysis design andsynthesis.
+•P rovide new open access, industry led,
+flexible pilot scale and demonstrationfacilities for clean growth.
+UK Catalysis: Innovation opportunities for an enabling technology709.1. Appendix 1:  Examples of UK capabilities
+9.1.1. Examples of UK industrial catalysis capabilities (non exhaustive)9.Appendices
+Non-exhaustive example list of companies with catalysis capabilities
+JM PhosphonicS
+Ames Goldsmith Biocatalysts
+Stoli Sterling Pharma
+PQ Corp Magma Ceramics
+Luxfer Cleansorb
+CTL Prozomix
+Non-exhaustive example list of RTOs with catalysis capabilities CPI (Biocatalysis) IBioIC
+Drochaid CatSci
+Finden C-tech (electrochemistry)
+9.1.2. Examples of UK academic capabilities (non exhaustive)
+Non-exhaustive example list of academia with catalysis capabilities
+University of YorkThe University of Manchester (including EPSRC CDT in 
+Integrated Catalysis)
+University of Cardiff University of Nottingham
+UK Catalysis Hub University of Liverpool
+Diamond Light Source Imperial College London (including ROAR)
+STFC (ISIS, Central Laser Facility) Norwich
+Dial-a-Molecule Grand Challenge Network EaSI-CAT/CRITICAT CDT
+Biotechnology at University of ExeterCentre for Sustainable Technology CDT, University of Bath
+Manchester Institute of Biotechnology (MIB) University of Glasgow
+University of Bristol University of Leeds
+University of Oxford Swansea University
+University of Cambridge University of Southampton
+Queen’s University Belfast Birmingham University
+University of Bradford Sheffield University
+University of Leicester Warwick University
+Aston University Southampton University
+University of Bath London South Bank University
+Durham University Heriot Watt University
+Aberdeen University St Andrews University
+University of Newcastle Edinburgh University
+University College London De Montfort University
+UK Catalysis: Innovation opportunities for an enabling technology719.2. Appendix 2:  Additional international capabilities
+9.2.1. Examples of international organisation capabilities (non exhaustive)
+Examples of companies can be seen by looking at the members of the EU Clusters on Catalysis project65:
+Cascat GmbH, Germany Studio di Consulenza Scientifica (SCSOP), Italy
+DexLeChem GmbH, Germany Avantium, The Netherlands
+Umicore AG&Co KG, Germany DSM Ahead R&D bv, The Netherlands
+eni S.p.A. – Research & Technological Innovation 
+Department – Downstream Process Technologies, ItalyOrrion Chemical Metalchen, France
+Repsol, Spain
+Solvay, Belgium
+Examples of Catalysis RTO’s, institutes and associations can be seen by looking at the members of the EU Clusters 
+on Catalysis project66:
+CNR Istituto di Chimica dei Composti Organometallici 
+(CNR-ICCOM), ItalyCentro Singular de Investigación en Química Biolóxica e 
+Materiais Molecula-res (CiQUS), Spain
+CNR Istituto di Chimica della Materia Condensata e di 
+Tecnologie per l’Energia (CNR-ICMATE), ItalyIMDEA Energy Institute, Spain
+CNR Istituto per i Processi Chimico-Fisici (CNR-IPCF), 
+ItalyInstitute of Chemical Research of Catalonia (ICIQ), Spain
+CNR Istituto di Scienze e Tecnologie Molecolari (CNR-
+ISTM), ItalyInstituto de Catálisis y Petroleoquímica, CSIC (ICP), Spain
+CNR Istituto per lo Studio dei Materiali Nanostrutturati 
+(CNR-ISMN), ItalyTecnalia, Spain
+CNR Istituto per la Tecnologia delle Membrane (CNR-
+ITM), ItalyCNRS Institut de recherches sur la catalyse et 
+l’environnement de Lyon (CNRS-IRCEL YON), France
+Italian Catalysis Society (GIC) of the Italian Chemical 
+Society (SCI), ItalyCNRS Unite de catalyse et Chimie du solide (CNRS-
+UCCS), France
+Consorzio Interuniversitario Nazionale per la Scienza e 
+Tecnologia dei Materiali (INSTM), ItalyCommissariat à l’énergie atomique et aux énergies 
+alternatives (CEA), France
+DECHEMA e.V. (German Society for Chemical 
+Engineering and Biotechnology), GermanyEuropean Materials Research Society (EMRS), France
+European Nanoporous Materials Institute of Excellence 
+(ENMIX), GermanyEuropean Association for Chemical and Molecular 
+Sciences (EuCheMS), Belgium
+European Research Institute of Catalysis (ERIC Aisbl), 
+BelgiumSusChem (European Technology Platform for 
+Sustainable Chemistry) Belgium
+Exzellenzcluster UNICAT, Berlin, Germany European Chemical Industry Council (CEFIC), Belgium
+Forschungszentrum Jülich (FZJ), Germany EUROKIN, The Netherlands
+Fritz-Haber-Institute of the Max-Planck Society (FHI-
+MPG), GermanyNetherlands Organisation for Scientific Research (NWO), 
+The Netherlands
+German Catalysis Society (GeCatS), Germany Heyrovsky Institute of Physical Chemistry, Czech 
+Academy of Sciences, Czech Republic
+Karlsruher Institut für Technologie (KIT), Germany Jerzy-Haber-Institute of Catalysis and Surface Chemistry, 
+Polish Academy of Sciences, Poland
+Catalonia Institute for Energy Research (IREC), Spain National Institute of Chemistry (NIC), Slovenia
+Center for Research in Sustainable Chemistry (CIQSO), 
+SpainNational Centre of Scientific Research (NCSR) 
+‘Demokritos’, Greece
+SINTEF Materials and Chemistry, Norway
+65 European Clusters on Catalysis. n.d. Cluster Participants. Accessed May 2020. http://www.catalysiscluster.eu/cluster-participants-2/.
+66 European Clusters on Catalysis n.d.
+UK Catalysis: Innovation opportunities for an enabling technology72Others RTOs, institutes and associations (non-exhaustive)
+Fraunhofer IGB, Germany Pacific Northwest National Laboratory (PNNL)/Institute 
+for Integrated Catalysis (IIC), USAFraunhofer IMM, Germany
+Fraunhofer IKTS, GermanyVTT, Finland
+9.2.2. Examples of international academic capabilities 
+(non exhaustive)Catalysis is prevalent in numerous international universities; below are some further examples of international academic capabilities. For a small selection there is a brief snapshot of the areas of research focus. 
+Leibniz Institute for Catalysis (Germany) 
+•Applie d sustainable catalytic processes
+(homogeneous, heterogeneous, renewable resources).
+Innovative methods and technologies in catalysis(in situ studies, discovery and reaction engineering,heterogeneous photocatalysis). Special (metal)organic syntheses and catalyses (coordination chemand catalysis, hydrogenation and hydro-formulation,bio-inspired and heterogeneous catalysis, polymerchemistry and catalysis, materials design, catalysisand organic synthesis, catalytic cycloadditions). Smallmolecule activation. Catalytic functionalisation. 
+67
+Netherlands Institute for Catalysis Research (NIOK) (Netherlands)
+•Bio catalysis, heterogeneous catalysis and sustainable
+chemistry, homogeneous, supramolecular and bio-inspired catalysis, industrial sustainable chemistry,synthetic organic chemistry. Created Dutch catalysisRoadmap.
+68
+Institute of Catalysis Research and Technology (IKFT) (Germany)
+•‘The Institut e of Catalysis Research and Technology
+was founded 2011. Its mission is to bridge the gapbetween fundamental and applied research and thedevelopment of new technologies and products in thefield of catalysis and process technology of catalysedprocesses. The focus of work is in the sustainableutilisation of alternative feedstocks and their conversioninto energy carriers intermediates. This includesthe development of new catalytic systems basedon a fundamental understanding of processes on a molecular level’.
+69 
+Boreskov Institute of Catalysis (Russia)
+•‘R efinery and petrochemistry. Utilisation of non-
+traditional feedstock (including natural gas, coal andrenewable organic feedstock) for synthesis of chemicals,liquid motor fuels and chemical energy carriers.Synthesis of semiproducts and monomers for organicand fine synthesis; synthesis of polymer materials.Large-scale synthesis of chemicals and fertilizers.Pharmaceutical industry: synthesis of drugs, vitamins,plant-protecting agents and other kinds of biologicallyactive substances. Environmental protection includingindustrial and motor waste treatment. Cutting-edgetechnologies for ecologically sound and self-containedpower systems and for utilization of non-traditional andrenewable energy sources’.
+70
+Institute of Research on Catalysis and Environment (France)
+•‘Ca talysis for energy, the environment and reuse
+of bioresources by researching model molecules,studying the transformation of complex environments,developing processes and reactors and understandingthe degradation and dispersion of pollutants. Researchteams include integrated thermodynamics, analyticaland reaction approaches, characterization andremediation of pollutants in air and water, sustainablechemistry from fundamentals to application, Energyfuels and intermediaries for sustainable development,engineering from material to reactor’.
+71
+TU Munich Catalysis Research Center (Germany)
+•Mo delling, ORR catalysts, metal oxide catalysts.72
+King Abdullah University of Science and Technology (KAUST), Saudi Arabia
+67 L eibniz Institute for Catalysis. n.d. Leibniz Institute for Catalysis. Accessed May 2020. https://www.catalysis.de/en/home/.
+68 NI OK. n.d. NIOK. Accessed May 2020. https://niok.nl/.
+69  I nstitute of Catalysis Research and Technology (IKFT). n.d. Institute of Catalysis Research and Technology (IKFT). Accessed 2020. https://www.ikft.kit.edu/
+english/index.php#:~:text=The%20Institute%20of%20Catalysis%20Research,process%20technology%20of%20catalyzed%20processes.
+70 B oreskov Institute of Catalysis. n.d. Boreskov Institute of Catalysis. Accessed May 2020. http://www.en.catalysis.ru/block/index.php?ID=22.
+71 I nstitut de recherches sur la catalyse et l’environnement de Lyon. n.d. Institut de recherches sur la catalyse et l’environnement de Lyon. Accessed May 2020. 
+https://www.ircelyon.univ-lyon1.fr/en/welcome-2/.
+72 C atalysis Research Center Technical University of Munich. n.d. Catalysis Research Center Technical University of Munich. Accessed May 2020.  
+https://www.crc.tum.de/en/home/.
+UK Catalysis: Innovation opportunities for an enabling technology73Further examples of international academic capabilities can be seen by again looking at the members of the EU 
+Clusters on Catalysis project73:
+Politecnico di Milano, Italy Universitatea din Bucureşti, Romania
+Politecnico di Torino, Italy Technische Universität Berlin, Germany
+University of Bari, Italy Rheinisch-Westfälische Technische
+University of Firenze, Italy Hochschule (RWTH) Aachen, Germany
+University of Cagliari, Italy Technische Universität Darmstadt, Germany
+University of Calabria, Italy Technische Universität München, Germany
+University of Bologna, Italy Humboldt-Universität Berlin, Germany
+University of Genova, Italy Ruhr Universität Bochum, Germany
+University of L’Aquila, Italy Ulm Universität, Germany
+University of Messina, Italy Universität Jena, Germany
+University of Milano, Italy Universität Leipzing, Germany
+University of Napoli ‘Federico II’, Italy University of Stuttgart, Germany
+University of Padova, Italy University of Alicante, Spain
+University of Palermo, Italy Universitat Autònoma Barcelona, Spain
+University of Parma, Italy University of Cantabria, Spain
+University of Pavia, Italy University of Huelva, Spain
+University of Perugia, Italy University of Navarra, Spain
+University of Piemonte Orientale, Italy University of Oviedo, Spain
+University of Roma ‘Tor Vergata’, Italy Universitat Rovira i Virgili (Tarragona), Spain
+University of Salerno, Italy University of Santiago de Compostela, Spain
+University of Torino, Italy University of Valladolid, Spain
+University of Trieste, Italy University of Nova Gorica, Slovenia
+University of Udine, Italy University of Lille, France
+University of Venice ‘Ca’ Foscari’, Italy Jagiellonian University Kraków, Poland
+University of Torino, Italy University of Varsavia, Poland
+University of Trieste, Italy Eindhoven University of Technology, The Netherlands
+University of Udine, Italy Norwegian University of Science and Technology, 
+NorwayUniversity of Venice ‘Ca’ Foscari’, Italy
+Charles University of Prague, Czech Republic
+73 European Clusters on Catalysis n.d.
+UK Catalysis: Innovation opportunities for an enabling technology74•Adjacency
+•Airlite
+•Anglia Ruskin University
+•Applied Emissions
+•Arcinova
+•Aston University
+•AstraZeneca
+•BASF
+•Big Atom
+•Biocatalysts
+•Biotech Consultants Limited
+•BP
+•BPE-DS
+•C-Tech Innovations
+•Cadchem Te chnology Limited
+•Cambridge Te ch Valley
+•Carbon Clean Solutions
+•Cardiff University
+•CaRLa
+•Catal International Ltd
+•Catalysis Consulting
+•CatSci
+•CDT
+•Centre for Process Innovation (CPI)
+•Chemoxy
+•C MAC
+•Croda
+•CT L
+•De Montfort University
+•Diamond Light Sour ce
+•Drochaid Research Services
+•Durham Univer sity
+•Dwr Cymru
+•EEN Swansea
+•Eminox
+•Enabled Future
+•Energy Safety Research Institute•EPSRC
+•Finden
+•GJE Intellectual Property
+•Green Lizard Technologies
+•Greenshift Innovations
+•GSK
+•Hoare Lea
+•Iconiq Innovation
+•Immaterial
+•Imperial College London/ROAR
+•Impact Global Emission Solutions
+•Innovate UK
+•Intensichem
+•Invista
+•JM
+•KBGL
+•KCMC
+•London South Bank University
+•Lo owat
+•Loughborough University
+•Lucite
+•Luxfer
+•Malvern Panalytical
+•Maturis Optimi Industrial Consulting
+•Mempro
+•Northumbrian Water
+•Omnagen Lt d
+•Oxford Biotrans
+•Phigenesis
+•PhosphonicS
+•Pladis
+•Plastic Energy
+•PolyCatUK
+•PQ Corporation
+•PV3 Technologies
+•Quantum Anvils
+•Queen’s University Belfast10.A cknowledgements
+The authors would like to thank: Innovate UK, Innovate UK/KTN Special Interest 
+Group (SIG), EPSRC, the UK Catalysis Hub, SIG Advisory Group, visit attendees 
+and host organisations, Enabled Future Ltd, one-to-one meetings and 
+interviewed organisations, workshop speakers and attendees. A list of 
+organisations involved is outlined below.
+UK Catalysis: Innovation opportunities for an enabling technology75•Rapid Inno vation Group
+•RealCat
+•R ecycling Technologies
+•R obinson Brothers
+•Sabic
+•Sainc E nergy
+•SCI
+•Se vern Trent
+•SH V Energy
+•SI No vation
+•SMC
+•St erling Pharma Solutions
+•St oli Catalysts
+•Str ata Technology
+•T ata Steel
+•The C AT Catalytic Centre
+•Thomas S wan
+•UCL
+•UK Ca talysis Hub
+•Ulst er University
+•Unile ver
+•Unit ed Utilities
+•Univ ersity of Bath
+•Univ ersity of Bristol
+•Univ ersity of Cambridge
+•Univ ersity of Edinburgh
+•Univ ersity of Glasgow
+•Univ ersity of Leeds
+•Univ ersity of Liverpool
+•Univ ersity of Manchester
+•Univ ersity of Nottingham
+•Univ ersity of Oxford
+•Univ ersity of Southampton
+•VT T
+Head Office 
+KTN
+Suite 218 Business Design Centre 
+52 Upper Street 
+Islington 
+London N1 0QH 
+Telephone: 03333 403251 
+Email: enquiries@ktn-uk.org 
+ktn-uk.org 
+@KTNUK

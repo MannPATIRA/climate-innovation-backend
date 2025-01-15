@@ -1,0 +1,1677 @@
+1
+Carbon13 
+Impact Report 
+2021/22Carbon13 
+Impact Report 
+2021/22
+Get in touch  
+hello@carbonthirteen.com
+June 2024
+2Carbon13 builds and backs ventures with a key focus on addressing the climate emergency. 
+Entrepreneurship is a powerful creative force in the economy and one that can spur 
+industrial transformation. This is exactly what we need to deliver against net zero at speed 
+and with innovation that unlocks new technological and commercial trajectories.
+We bring founders together in a programme designed to catapult climatetech into the 
+global companies of tomorrow. Moreover, Carbon13 fosters a community by connecting 
+startups with experts and like-minded individuals. This network enables knowledge sharing, 
+innovation, and collaboration, creating a positive social ecosystem which can accelerate 
+the development of climatetech solutions. With our origins in Cambridge, we were able to 
+leverage our existing connections within a world leading tech cluster.
+This report is for our activities in 2021 and 2022, when we launched and developed our 
+programme, and founders were selected to build ventures capable of mitigating 10 million 
+tonnes of carbon dioxide equivalents (MtCO2e) per year when at scale. We secured funds 
+which we deployed into promising ventures created in the venture builder programme and 
+built out a wide stakeholder group. 
+As a catalyst for problem solvers, Carbon13's impact on the environment, society, and 
+the economy is substantial. While our primary impact remains focused on mitigating 
+greenhouse gas emissions, we recognise the need to consider a broader range of impacts. 
+We also acknowledge that how ventures are built matters. Founders have the opportunity 
+to create the companies they wish existed and work inclusively with a broader range of 
+perspectives which sparks new opportunities and ideas.
+This is our first impact report and marks our commitment to sustainability and our mission 
+to address climate change.Carbon13 Impact Report 2021/22
+Introduction
+1
+The increased 
+prominence of 
+Carbon-13 (13C) in  
+tree rings from the 
+1850s was one of the  
+first proof points 
+that climate change  
+is anthropogenic. 
+This is why we are 
+called Carbon13.
+2
+Table of 
+contents
+Introduction 1
+01 Our beginning 4
+02 Carbon13 and our statement of additionality 6
+02a Additionality 8
+02b Our challenge to mitigate 10 million tonnes of carbon dioxide equivalents 10
+02c Training every founder 12
+02d Building and Pitching a Carbon Case 13
+03 Emissions boundaries at Carbon13 14
+03a Carbon13 Scope 1 & 2 Emissions 16
+03b Scope 3  18
+03c Carbon13 Employees and our programmes 19
+03d Investments 21
+04 Diversity in entrepreneurship 23
+05 Conclusion 28
+06 Methodology and Glossary 30
+07  Appendix 32
+In 2019, we developed the concept of 
+Carbon13. It all started with the Venture 
+Builder Programme, which is delivered 
+in three phases over eight months. 01  
+Our beginning
+4Built environment Materials and chemicals
+Cohort 1
+Cohort 2
+Cohort 3
+Phase 1 focuses on Teaming. 
+The selected cohort 
+participants have to find 
+the ideal co-founder match 
+to form a team capable of 
+building a game-changing 
+venture which can reduce 
+carbon emissions by millions 
+of tonnes. Only founders 
+on the programme who 
+successfully complete 
+Phase 1 by forming a team 
+will continue to Phase 2: 
+Validation. Phase 2 focuses 
+on building proof points 
+around the venture –
+especially its customers, 
+the problem being solved, 
+the value proposition and 
+impact. At the end of Phase 
+2, teams meeting our criteria 
+become eligible to present to 
+the Investment Committee 
+to decide which ventures 
+receive investment and 
+continue to Phase 3. Once 
+in Phase 3, the focus is to 
+help ventures build customer 
+traction and momentum, 
+including preparing a funding 
+strategy for post-Carbon13 
+life and helping in the next 
+round of finance. 
+We started our first Venture 
+Builder Programme in 2021 
+during the COVID pandemic 
+in Cambridge, UK. This 
+was a tough decision as 
+we knew that teaming and ideation are critical at the 
+very beginning of our Venture 
+Builder Programme and 
+yet are some of the most 
+challenging activities to do 
+in a fully virtual environment. 
+Nonetheless, with funding 
+secured and having already 
+delayed the start time due to 
+COVID, we felt we, and the 
+climate emergency, could 
+not wait any longer. We 
+came together at WeWork in 
+Cambridge with our team of 
+seven and worked together 
+to make our venture builder 
+for the climate emergency a 
+reality. This first programme 
+was an outlier, with some 
+in-person activities when permitted. With subsequent 
+programmes, we have 
+incorporated in-person 
+events in Phase 1.
+During 2021 and 2022 we 
+made 32 investments in 
+Cohorts 1 – 3.
+This is Carbon13’s first impact 
+report covering 2021 and 
+2022. It is the start of our 
+annual reporting process, 
+which will progress as we 
+develop more sophisticated 
+and comprehensive ways 
+of tracking impact in our 
+own organisation and our 
+primary source of Scope 3 
+emissions—our investments.
+4 5
+Energy Food system Enabling platforms
+
+02
+Carbon13 and our  
+statement of additionality
+While we have 
+seen huge 
+progress with 
+countries, 
+companies and 
+individuals making 
+commitments 
+to tackle climate 
+change, we are 
+not yet delivering 
+action fast enough. 
+We also know 
+that the type of 
+transformation 
+needed to achieve 
+net zero requires 
+disruptive and 
+radical innovation.In 2020, the International 
+Energy Agency (IEA) 
+quantified the need for 
+technological innovation and 
+investment for a cleaner and 
+more resilient energy sector 
+with net-zero emissions:
+“Early-stage technologies 
+play an outsized role. Around 
+35% of the cumulative CO 2 
+emissions reductions needed 
+to shift to a sustainable path 
+come from technologies 
+currently at the prototype or 
+demonstration phase. A further 40% of the 
+reductions rely on 
+technologies not yet 
+commercially deployed on 
+a mass-market scale. 2 ”Our 
+thesis is that innovation is 
+needed both to progress 
+early stage technologies 
+and to mainstream existing 
+technologies in energy and 
+other sectors. Some of 
+this innovation will occur in 
+products and processes, and 
+some will occur in business 
+models. We expect that a 
+transformation to net zero will 
+require radical and disruptive 
+ideas that will occur on a 
+scale that shifts industry and 
+the economy. 
+Joseph Schumpeter 
+reasoned that ‘in general it 
+is not the owner of stage-
+coaches who builds railways’3 
+We also expect that net 
+zero will prompt a new wave 
+of entrepreneurs who are 
+relatively unknown today but 
+will scale their ventures to 
+deliver globally recognised 
+solutions.
+1  Energy Technology Perspectives 2020: Special Report on Clean Energy Innovation, Accelerating technolig progress for a sustainable future. IEA.
+2 J. Schumpeter, Oxford University Press, Oxford, UK (1934) 6
+Figure 1 Global energy sector CO2 emissions reductions by current technology readiness category in the Sustainable Devel-
+opment Scenario relative to the Stated Policies Scenario (p.28, IEA 2020) Notes: Percentages refer to cumulative emissions 
+reductions by 2070 between the Sustainable Development Scenario and the Stated Policies Scenario enabled by technologies 
+at a given level of maturity.GtC02/yr2019 2030 2040 2050 2060 2070Emissions 
+todayNet-zero 
+emissions
+0
+-5
+-10
+-15
+-20
+-25
+-30
+-35
+-40Mature     25%
+Early Adoption        41%
+Demonstration        17%
+Prototype        17%Our mission is climate
+Our community is rooted in our mission to fight the climate emergency, 
+and driven by our scalability ethos. This is where climate tech startups 
+will succeed on a global scale.
+6 7
+02a  
+Additionality
+To deliver our 
+mission we need 
+to understand our 
+own additionality4 
+which is essentially 
+our theory of how 
+we create change 
+through our 
+activities.
+There are four main areas 
+where Carbon13 creates 
+additionality:1. Creating ventures that 
+otherwise would not exist 
+(relevant to our Venture 
+Builder Programmes)
+Bringing people together: 
+Carbon13 connects founders 
+that otherwise would not 
+have met, which sparks the 
+creation of new ventures.
+ 
+Entrepreneurial outreach
+Carbon13 engages potential 
+founders who were 
+unsure about becoming 
+entrepreneurs to join the 
+force to fight the climate 
+emergency through 
+entrepreneurship.
+Enabling founders to  
+find a team
+We connect founders who 
+wanted to team prior to 
+building a venture, to find 
+their ideal cofounder match.2. Supporting ventures to  
+be more impactful
+Accelerating growth  
+and scale
+•  Developing a scalable plan 
+with input from experienced 
+people from our support 
+network who have done  
+it before.
+•  Getting the right input at 
+the right time.
+•  Facilitate access to finance
+•  Support team effectiveness 
+and diversity (more diverse 
+teams perform better!).
+Embedding impact
+• We train every founder to 
+incorporate impact since the 
+ideation phase and manage 
+and communicate impact. 
+This is because we believe 
+this is the only way to embed 
+impact. Every founder should 
+be a catalyst for change.
+"When I turn up at Carbon13, 
+there’s this whole slew of CVs 
+and I was like ‘jeez, am I the 
+only one without a PhD?’ and 
+then I realised, it’s probably a 
+good thing because if we all 
+had PhDs, we’d all be doing 
+the same thing or bringing 
+the same things to the table." 
+Frankie Fox, 
+Founder FoodSquared
+3 Additionality is the extent to which something happens as a result of an intervention that would not have occurred in the absence of the intervention. 8
+3. Creating new knowledge 
+which benefits founders  
+who do not progress  
+with a venture
+We have anecdotal evidence 
+that founders who have not 
+progressed in Carbon13 still 
+value the experience and 
+can re-engage with work in a 
+more impactful way. One ex-
+founder re-joined her previous 
+company and spoke about 
+being able to engage with 
+startups and support them, 
+something she had not done 
+prior to Carbon13.4. Address the lack of 
+diversity in entrepreneurship
+•  Active outreach on 
+marketing to under-
+represented groups
+•  Programmatic design to 
+be more inclusive towards 
+varied founder types
+•  Active support to female 
+foundersThere could be counter 
+arguments to these points 
+of additionality. For example, 
+our original venture builder 
+programmes included some 
+early stage pre-formed teams 
+(two or three in a pool of 20 
+to 25 teams). Arguably, these 
+would have become ventures 
+with or without Carbon13. 
+However, the majority of 
+ventures in our venture 
+builder programmes were 
+created by teams that were 
+unknown to each other  
+before Carbon13.  
+"As a scientist on the Venture 
+Builder, yes it was great to 
+join a group which also had 
+lots of other scientists and 
+engineers, but I was also 
+taken out of my comfort 
+zone and challenged by 
+amazing entrepreneurs and 
+commercial founders. That's 
+what took it from an idea to  
+a business."   
+Dr Yubiao Niu,  
+Co-Founder & CTO @Nium "Joining Carbon13 was a 
+breath of fresh air as it 
+enabled me to execute much 
+faster than any other time 
+in my career. One of the 
+biggest parts of a company is 
+the team and finding others 
+with a similar vision has 
+transformed my business 
+from idea into reality." 
+Jonathan Bean,  
+Founder and CEO of  
+Materials Nexus
+8 9
+02b  
+Our challenge to mitigate  
+10 million tonnes of carbon 
+dioxide equivalents
+10
+
+We ask every 
+venture that 
+goes through 
+a Carbon13 
+programme to 
+work towards 
+mitigating net  
+10 million tonnes 
+of carbon dioxide 
+equivalents 
+(10MtCO2e) per 
+year when at scale 
+typically within 
+7-12 years of 
+incorporating. 
+To put this 
+differently, this 
+means mitigating 
+2% emissions 
+from a market or 
+sector emitting 
+0.5GtCO2e.We focus on 10MtCO2e 
+rather than the mitigation 
+potential as a hurdle rate for 
+our ventures as we know 
+there are hard to abate 
+areas where a venture with 
+a compelling and defensible 
+position will be able to secure 
+an unfair advantage and a 
+higher percentage of the 
+market.
+Working towards a plan to 
+mitigate 10MtCO2e demands 
+a growth mindset. Developing 
+a scaling mentality from day 
+one is essential to address an 
+urgent and sizable problem.This isn’t just about tackling 
+greenhouse gases for the 
+sake of impact. Commercial 
+drivers are emerging as a 
+result of the cost of inaction 
+on climate change being 
+more than the cost of action. 
+This commercial opportunity 
+will crystalise from the 
+technical, business model, 
+and regulatory experiments 
+currently being taken. Our 
+hypothesis at Carbon13 is 
+that tackling greenhouse 
+gas emissions is good 
+business, even if we don’t yet 
+understand which business 
+models and technologies 
+will win out. Engaging with 
+a climatetech community 
+on the forefront should help 
+give an edge. However, we 
+believe that the only way 
+to create an impact and a 
+commercial proposition is to 
+train entrepreneurs in both.
+11 10
+Dr Nicky Dee introduces 
+the 10MtCO2e to founders 
+of the Venture Builder UK 
+programme
+A core element of Carbon13 
+is training every founder 
+to understand and 
+communicate their impact 
+potential. 
+One of the unique things that 
+we are doing at Carbon13 
+is we are not expecting our 
+founders to outsource this 
+knowledge, we are very much 
+training all of our founders, 
+so they have access to the 
+latest tools and techniques, 
+so that they can assess 
+their carbon mitigation 
+potential, understand how 
+to communicate it and of 
+course be transparent in how 
+they are measuring it. As custodians of their 
+businesses, founders are 
+best placed to drive impact. 
+This isn’t isolated to just 
+understanding greenhouse 
+gas emissions and related 
+impacts across the 
+Sustainable Development 
+Goals (SDGs), but also how a 
+carbon proposition is tied to  
+a commercial proposition so 
+it is embedded in the  
+core business. 
+The rationale has a corollary 
+to the need for every founder 
+to understand their finances 
+and business model so they 
+can remain alert to internal 
+and external forces that 
+prompt the need to shift  
+or pivot the business.02c 
+Training every 
+founder
+13
+12
+Since starting Carbon13, 
+we have amended how we 
+tackle the evaluation of 
+impact within our ventures. 
+While we have remained 
+consistent with the need to 
+train our founders, we have 
+experimented with tools 
+and approaches that our 
+entrepreneurs can use.
+Cohort 1 and 2 were required 
+to incorporate their case for 
+impact within the Investment 
+Case. To support this, we 
+also provided signposting to 
+tools in addition to paying 
+for access to a Life Cycle 
+Assessment tool designed  
+for non-experts. As a result of the experiences 
+using these tools and 
+approaches, which didn’t 
+quite fulfil the needs and 
+circumstances of our 
+ventures, we developed our 
+Carbon Case as a parallel 
+requirement that each of 
+our ventures had to submit 
+alongside their Investment 
+Case, which was introduced 
+in Cohort 3 of our Venture 
+Builder Programme. While 
+the name of this document 
+infers a focus on greenhouse 
+gas emissions, the Carbon 
+Case prompts a much 
+broader view of impact as we 
+recognise the complexity and 
+interconnectivity of a range 
+of impacts. Reference points 
+include Planetary Boundaries 
+and the SDGs.02d 
+Building and 
+Pitching a 
+Carbon Case
+13 13
+
+03 
+Emissions boundaries 
+at Carbon13
+A venture builder 
+programme 
+typically takes 
+around eight 
+months. The 
+different cohorts 
+and phases 
+are mapped 
+below against 
+our 2021/2022 
+footprint.Phase 1 is focused on 
+teaming and some 
+climatetech building blocks, 
+with individuals progressing 
+to Phase 2 if they form a 
+venture team. In Phase 
+2, teams work to develop 
+their business concept 
+and validate their ideas 
+through customer discovery, 
+innovation development and 
+roadmap, and demonstrating 
+team effectiveness. 
+A critical element is building 
+out their Carbon Case 
+in conjunction with their 
+Investment Case. At the end 
+of Phase 2, the teams pitch 
+for pre-seed investment 
+from Carbon13 and access to 
+Phase 3 of the programme. Since we start with individual 
+founders and end with 
+ventures the way we attribute 
+emissions to Scopes changes 
+throughout the programme. 
+In Phase 1, participant travel 
+to our events is part of our 
+Scope 3 emissions, after 
+which founders account for 
+their travel emissions as part 
+of their venture’s Scope 3 
+emissions.
+14
+6The Venture Builder Programme
+Candidate Applications c.600 candidates
+Candidate 
+Selection
+ 
+A balanced  
+cohort c.8000
+Phase 1:  
+Teaming
+ 
+Complementary  
+co-founding  
+teams01
+Phase 2: 
+Validation
+ 
+Teams develop 
+carbon and  
+business  
+propositions02
+Investment 
+Committee
+ 
+The most  
+promising  
+ventures  
+selected for  
+initial investmentIC 03
+Phase 3: 
+Traction, 
+evidence, 
+footprint
+Ventures iterate, 
+create traction  
+and produce 
+evidence of  
+potentialShowcase  
+Day
+ 
+Ventures pitch  
+for investment  
+from our partnersSD
+Cohort 1 - Phase 1
+Cohort 1 - Phase 2
+Cohort 1 - Phase 32021
+16th Mar - 30th Apr
+7th May - 29th Jul
+2nd Aug - 1st DecCohort 2 - Phase 3
+Cohort 3 - Phase 1
+Cohort 3 - Phase 2
+Cohort 3 - Phase 3
+Cohort 4 - Phase 1
+Cohort 4 - Phase 22022
+31st Jan - 31st May
+26th Apr - 3rd Jun
+6th Jun - 29th Jul 
+9th Aug - 9th Dec
+19th Sep - 28th Oct
+31st Oct 2022 - 20th Jan 2023Cohort 2 - Phase 1
+Cohort 2 - Phase 220th Sep - 29th Oct
+1st Nov 2021 - 27th Jan 2022
+15 14
+03a 
+Carbon13 Scope  
+1 & 2 Emissions
+Carbon13 follows 
+guidance from the 
+Green House Gas 
+Protocol (GHGP) 
+but also strives 
+to take a forward 
+looking position 
+towards our 
+emissions.For example, in 2021, we 
+leased an office at WeWork 
+(Cambridge), later moving to 
+Eagle Labs. Carbon13 does 
+not own these workspaces, 
+and while we have control 
+over lights, sockets, kettle, 
+etc., we do not have 
+ownership and, therefore, 
+lack direct control over 
+electricity sourcing, fugitive 
+emissions, and efficiency. 
+This could mean that the 
+Scope 1 and 2 emissions 
+associated with this space 
+can be considered Scope 3, 
+but we have allocated them 
+to Scope 1 and 2. 
+In alignment with GHGP, 
+we have used standard 
+grid emission factors. 
+Barclays has a power 
+purchase agreement for 
+250GWh of Renewable 
+Energy Guarantees of Origin 
+(REGOs) certificates0 , which 
+is allocated to the Eagle Labs 
+and other facilities.There is a reduction in  
+Scope 1 and 2 emissions 
+in 2022 versus 2021 as a 
+result of taking on a smaller 
+office space and moving to 
+a remote first approach with 
+co-working opportunities and 
+company activities. Remote 
+working is moved into 
+Scope 3 but also represents 
+a reduction in per capita 
+emissions versus office  
+based working, which is the 
+principle cause for reduced 
+emissions despite an 
+increase in the number  
+of employees.
+4  REGO certificates are administered by Ofgem with a goal to provide greater transparency on the percentage of power generated from renewables. REGOs 
+are being continuously reviewed for their ability to drive additional renewables.  For more details on Barclays see here - https://home.barclays/news/
+press-releases/3133/13/barclays-signs- 10-year-power-purchase-agreement-for-uk-operation/ 16
+6Figure 2 Carbon13 Scope 1 & 2 emission for 2021 & 2022. Middle figures are used. For full range of figures see the appendix2021
+2022Scope 1 & 2
+tC02e0 4 8 12 16  Heat
+  Power
+  Fugitives
+17 16CH/four.dnom SF/six.dnom N/two.dnomO HFCs PFCs CO/two.dnom
+Upstream activities Reporting company
+Adapted for Carbon 13 from original source ghgprotocol.orgDownstream activitiesPurchased
+goods and
+servicesFuel &
+energy
+related
+activities
+Transportation
+& distribution
+Business
+TravelWaste generated
+in operationsEmployee
+commutingLeased
+assets
+Company
+facilities
+Company
+vehiclesCapital
+goodsPurchased electricity,
+steam, heating
+& cooling
+for own useTransportation
+& distribution
+Leased
+assetsUse of sold
+products
+End of life
+treatment of 
+sold productsProcessing of
+sold products
+FranchisesInvestmentsScope 2
+INDIRECT
+Scope 3
+INDIRECTScope 3
+INDIRECTScope 1
+DIRECTOverview of GHG protocol scopes and emissions across the value chain
+Scope 3 has the most relevant items for Carbon13 in yellow
+03b 
+Scope 3 
+To gather and 
+synthesise our 
+emissions, we use 
+xtonnes5 , a carbon 
+action software 
+developed in 
+Cohort 1xtonnes uses data research, 
+science and sustainability 
+expertise to assess an 
+organisation’s carbon 
+footprint. 
+Assets and activities data 
+provided by the organisation 
+are assessed using carbon 
+factors from government 
+sources, reputable third 
+party research, and xtonnes’  
+proprietary modelling, with 
+the most relevant factors 
+being applied to our business. Where proxy data exists for 
+how much an asset or activity 
+has been used or carried 
+out, this creates a “modelled” 
+footprint, giving the most 
+likely, lower and upper 
+case possibilities. Where 
+data exists that measures 
+the usage of an asset or 
+completion of an activity,  
+this creates a measured 
+footprint, which typically 
+receives a maximum quality 
+score, and produces a single 
+figure as opposed to a range.
+Key:
+Wastes: Emissions associated with the disposal of 
+waste generated by the organisation.
+Purchases: Emissions associated with the 
+production, transportation, and disposal of goods 
+and services purchased by the organisation.
+Water: Emissions associated with the organisation's 
+water consumption and wastewater treatment.Trips: Emissions associated with employee travel for 
+business purposes.
+Commutes: Emissions associated with employees 
+commuting to and from work.
+Investments: Emissions associated with the 
+organisation's investments.
+Remotes: Emissions associated with remote 
+operations that are carried out or situated away from 
+the organization's main location.Figure 3 Carbon13 Scope 3 emissions for 2021 & 2022. Middle figures are used. For full range see the appendix.2021
+2022Scope 3
+tC02e0 7.50 15.00 22.50 30.00  Wastes
+  Purchases
+  Water
+  Trips
+  Commutes
+  Investments
+  Remotes
+185  https://carbonthirteen.com/our-portfolio/platforms/xtonnes/ 
+03c 
+Carbon13 employees 
+and our programmes 
+Employees 
+A significant 
+difference 
+between 2021 
+and 2022 is 
+derived from 
+the difference 
+in how the 
+emissions per 
+employee are 
+calculated. Primarily the figures reflect 
+an increase in home-working 
+and the lower emissions 
+which are associated with 
+this according to new 
+guidelines:
+•   Every employee working at 
+home is assumed to use 
+energy only for laptop/PC, 
+monitor, phone, printer, and 
+(a small amount of) lighting.
+ 
+•   Home heating emissions 
+are only considered on 
+an 'incremental' basis. It is 
+assumed that one-third of 
+employees have at least 
+one household member 
+who would normally remain 
+at home during the day. As a result of these 
+assumptions, home energy 
+consumption is expected 
+to be lower than office 
+consumption. The logic 
+is that only two-thirds of 
+employees working from 
+home lead to heating-related 
+emissions that wouldn't 
+have already taken place (ie: 
+incrementally). Combined 
+with the assumption that no 
+air-conditioning takes place 
+at home, this likely leads to a 
+much smaller per employee 
+carbon.
+6  Office emissions include higher energy demands for air conditioning, increased number of electrical 
+appliances and lighting of communal and meeting spaces 19
+6Programmes
+We did a 
+baseline travel 
+survey of one 
+of our cohorts 
+to assess the 
+average travel 
+distribution and 
+frequency from 
+the cohort in 
+Phase 1 of the 
+programme.  
+Phase 1 is essential for 
+all founders and includes 
+three blocks of three in-
+person days in Cambridge  
+depending on the 
+programme. We also have some events 
+within our programme that 
+fall under Scope 3 emissions. 
+The most significant of 
+these are probably our 
+two Showcase Days, one 
+in Cambridge and one in 
+London. While the nature 
+of these events continues 
+to evolve, the Cambridge 
+showcase attracts the most 
+participants and is associated 
+with the most significant 
+emissions.Founders on the Venture  
+Builder programme in  
+Jesus College, Cambridge
+Phase 1
+Phase 2
+Phase 3Venture Builder
+3 X 3 day in-person events
+Garden Party
+Optional in-person investment pitches
+Showcase Days
+20 19
+03d 
+Investments 
+For 2021 and 
+2022, we are including investments from Cohort 1-3, totalling32 investedventures.
+Once ventures 
+leave the programme, we reach out to them as part of our portfolio management. This impact report includes data from Cambridge Cohorts 1 and 2 in 2022.Carbon13 is often the first-
+cheque investment, which means we are backing ventures at the very beginning of their journey. We assess impact as follows:
+•
+ Current impact – which is
+collected through gatheringda
+ta on the companies’
+Scope 1, 2, and 3 emissions.
+•
+ Planned impact – eachof the ventures in 2021& 2022 put together aproposition to achie
+ve
+10MtCO2e typically within 7– 12 years after launch.
+For current impact, the GHG Protocol Accounting and Reporting Standard provides unclear guidance on when an investment should be considered material. Since building, supporting and investing in climate ventures is Carbon13’s core business, we feel it is critical that we include these emissions. Carbon13 Limited has options in the companies in which we invest in addition to the equity held by our investments. We make the assumption that our options will convert and, therefore, include our potential share position within our Scope 3 emissions.We are currently developing our portfolio management system, including tracking investment and impact criteria. We expect to provide an update later this year.
+Planned Impact
+There are two crude measures of whether our ventures are on track to mitigate 10MtCO2e per year at scale:
+•
+ Are the
+y still operational?
+•
+ Have they secured followon funding?
+Within Cohorts 1 – 3, as of 
+December 2023, we knew 
+c.90% are still operational 
+and c.60% have secured 
+follow on funding. We expect 
+impact will follow a similar 
+trajectory to revenue, where  
+revenue can be non-existent 
+for pre-seed ventures as they  
+build their product or process 
+to underpin future growth. 
+For this reason, the planned 
+impact will significantly 
+exceed the current impact 
+for all ventures currently
+in our portfolio (Fig. 5). 
+Planned impact according 
+to the ventures that have  
+secured follow on funding, is 
+estimated at c.  180 MtCO2e 
+for Cohorts 1 – 3.
+21
+6Carbon Intensity
+As a growing organisation, 
+we need to review our 
+organisational boundaries 
+and what this means for our 
+target setting. We do need to 
+use carbon intensity figures 
+but are mindful of the over-reliance on carbon 
+intensity instead of focusing 
+on absolute reduction in 
+emissions. For this reason, we 
+will not use a single carbon 
+intensity measure but use a 
+basket of figures, which we 
+will continually review. For example, as we anticipate 
+opening new locations, 
+we expect a per-location 
+figure to help provide 
+learning opportunities on 
+decarbonisation.at the Climate Innovation Showcase 
+for Cohort 3 of the Venture Builder 
+UK at the Cambridge UnionMichael Langguth,  
+Co-Founder at Carbon13
+Figure 5 Illustration of planned vs current impact (not to scale)Planned
+Impact
+Current 
+Scope 1-3
+Current 
+Scope 1-2
+Figure 6 Carbon Intensity Measures 2021 & 2022GHG per location
+2021
+      2022GHG per founder
+GHG per programme
+GHG per employeeCarbon Intensity Measure
+tC02e0 7.5 15.0 22.5020212021
+2021 
+22 212022
+2022
+2022
+Carbon13 welcomes and values 
+diversity in its staff, programme 
+participants, mentors, investors, 
+board members, board advisors, 
+sponsors, and partners and 
+seeks to create an atmosphere 
+that is inclusive and respectful of 
+differences, and is fair. 
+We do this because, in addition to 
+its being the right thing to do, it 
+also contributes to high-performing 
+teams who can deliver valuable 
+insights to achieve our mission to 
+remove or reduce greenhouse gas 
+emissions at scale and fast.Carbon13 will:
+•   Ensure that policies and 
+processes reflect Carbon13’s 
+commitment to equality and 
+its aspiration to equality.
+•   Support an ethos of fairness, 
+courtesy and respect.
+•   Ensure that everyone is 
+treated fairly regardless of 
+their race, colour, nationality, 
+ethnic or national origin, 
+sex, family responsibilities, 
+disability, age, sexual 
+orientation, gender 
+reassignment, marriage or 
+civil partnership, pregnancy 
+or maternity, political or 
+religious beliefs, socio-
+economic group, trade union 
+activity or background.
+•   Ensure that members 
+of staff are trained and 
+promoted on the basis 
+of their abilities and the 
+requirements of the job and 
+are employed and retained in 
+a non-discriminatory manner.
+•   Monitor and review 
+regularly the operation of 
+this policy. Carbon13 will 
+aim to monitor all work to 
+ensure fair treatment and 
+identification of patterns 
+of under-representation. 
+Every reasonable effort 
+will be made to develop 
+appropriate strategies to 
+address patterns of under-
+representation. Carbon13 Summary of Principles
+Carbon13 is committed to equality of opportunity and fair 
+treatment both as an employer and as a provider of services. 
+We also work to understand the contribution we can make to 
+equality and to develop creative ways we can support it.04  
+Diversity in 
+entrepreneurship
+7 The_impact_of_business_accelerators_and_incubators_in_the_UK.pdf (publishing.service.gov.uk)
+8 clinton.pdf (un.org)
+9 https://www.kauffmanfellows.org/journal/female-founders-hire-more-women
+21 World Economic Forum Annual Meeting in Davos 2024Male
+69%Male
+69%Male
+68%Female
+31%Female
+25%Female
+28%Prefer not to say
+6%Prefer not to say
+1%Gender variant/
+Non-conforming
+3%
+Male
+75%Female
+22%Prefer not to say
+2%Gender variant/
+Non-conforming
+1%
+Cohort
+1Cohort
+2Cohort
+3Cohort
+4
+Figure 7 Founder gender split on the cohort
+23
+Male
+69%Male
+69%Male
+68%Female
+31%Female
+25%Female
+28%Prefer not to say
+6%Prefer not to say
+1%Gender variant/
+Non-conforming
+3%
+Male
+75%Female
+22%Prefer not to say
+2%Gender variant/
+Non-conforming
+1%
+Cohort
+1Cohort
+2Cohort
+3Cohort
+4
+Male
+69%Male
+69%Male
+68%Female
+31%Female
+25%Female
+28%Prefer not to say
+6%Prefer not to say
+1%Gender variant/
+Non-conforming
+3%
+Male
+75%Female
+22%Prefer not to say
+2%Gender variant/
+Non-conforming
+1%
+Cohort
+1Cohort
+2Cohort
+3Cohort
+4
+Male
+69%Male
+69%Male
+68%Female
+31%Female
+25%Female
+28%Prefer not to say
+6%Prefer not to say
+1%Gender variant/
+Non-conforming
+3%
+Male
+75%Female
+22%Prefer not to say
+2%Gender variant/
+Non-conforming
+1%
+Cohort
+1Cohort
+2Cohort
+3Cohort
+4
+Figure 7 Founder gender split on the cohort
+wishes to provide a 
+harassment-free experience 
+for everyone, regardless 
+of gender, gender identity 
+and expression, sexual 
+orientation, disability, 
+physical appearance, body 
+size, race, group, age or 
+religion. We will not tolerate 
+harassment in any form. 
+Tackling the Gender Gap: 
+Elevating Gender Diversity 
+as Our Primary Focus
+As all aspects of Diversity, 
+Equity, and Inclusion (DEI) 
+are fundamental pillars of 
+our organisation's ethos, 
+we acknowledge their web 
+of intersectionality and 
+understand the complexity 
+inherent in fostering an 
+inclusive space. 
+However, given our limited 
+resources as a small 
+organisation, we have 
+strategically prioritised 
+initiatives aimed at enhancing 
+gender diversity. We 
+recognise that mentoring, 
+resources, networking, 
+and funding opportunities 
+that venture builders and 
+accelerators offer can help 
+address the equity gap.7 
+Climate startups encounter 
+specific hurdles, like long-
+term return on investment and regulatory shifts, which 
+accelerators can assist female 
+entrepreneurs in navigating 
+with valuable guidance and 
+support. 
+This segment of the impact 
+report, thus, while underlining 
+our commitment to a broad 
+spectrum of social concerns, 
+particularly emphasises 
+our endeavours to reduce 
+gender disparities in startup 
+cofounding teams. 
+This approach is based 
+on the understanding that 
+addressing gender inequality 
+has a cascading effect, 
+positively influencing various 
+other social aspects, from 
+economic participation to 
+increasing innovative solutions 
+for problems that impact us 
+all. Investing more in female 
+entrepreneurs has the 
+potential to yield significant 
+societal benefits, as research 
+shows that women often 
+allocate a higher portion of 
+their income towards their 
+families compared to men.8 
+Female-founded businesses 
+could also provide more job 
+opportunities to women once 
+startups with at least one 
+female founder hire 2.5 times 
+more women than male-
+founded businesses.9 However, we are aware that 
+our commitment to DEI 
+extends beyond gender alone. 
+As we progress, we remain 
+dedicated to expanding our 
+efforts to encompass broader 
+diversity dimensions for a 
+more comprehensive and 
+equitable future. 
+Despite proof that 
+organisations with greater 
+gender diversity at the 
+governance and leadership 
+level outperform the 
+ones with less, female 
+representation in startup 
+founding teams ranges from 
+around 10% to 20%. In 2022, 
+women-founded companies 
+received just 2% of VC 
+investment, while only 15% 
+of VC’s ‘cheque-writers’ were 
+women. 21 Efforts to reshape 
+this reality and enhance 
+female representation 
+in our programmes, and 
+consequently in the startup 
+world, remains a core focus. 
+Across Cohorts 1 to 4, around 
+25% of the participants were 
+female, marking a positive 
+step forward. However, we 
+acknowledge the journey 
+toward gender parity is 
+extensive, and we have much 
+more to do to reach a female 
+critical mass in our cohorts.
+24 23
+While investment decisions are 
+made according to strict criteria,  
+it is interesting to note that around 
+60% of Carbon13’s invested 
+companies have women in the 
+founding teams, and 65% of those 
+have female CEOs.
+Our efforts to have more female representation, however, 
+have to go beyond the candidates’ selection process. Through 
+targeted initiatives, programme sessions, and partnerships, we 
+have concentrated our resources and energy on advancing 
+the cause of gender equality in all its dimensions. 04 
+Diversity in 
+entrepreneurship
+Tony To and Sarah Montgomery, 
+co-founder and CEO of Infyos 
+from Cohort 1
+Dr. Nimisha, CSO of Elaniti,  
+with co-founder Utkarsh Vaidya 
+from Cohort 3
+Kelly Price, co-founder and CEO 
+of Agreed Earth from Cohort 1
+Figure 8 Percentage of founding teams with womenCohort 1
+Cohort 2
+Cohort 3
+Cohort 4
+71%
+67%
+58%
+75%
+Figure 9 Percentage of invested teams with female CEOs40%43%
+78%
+ Cohort 2 100%
+ Cohort 4
+ Cohort 3 Cohort 1
+25
+Currently, the fight to reach 
+Net Zero is missing out on 
+some of the most desperately 
+needed solutions because 
+this industry is excluding 
+those who will be most 
+affected by climate change, 
+therefore, who should be 
+involved in building them. 22 
+This is why we’re working to 
+keep inspiring, supporting, 
+training, and funding female 
+founders and other under-
+represented groups.To make sure the much-
+needed support for female 
+founders is taking place, 
+Carbon13, as an organisation, 
+also has an important role to 
+play behind the curtains. In 
+2021, 73% of the company’s 
+employees were female. And 
+50% of the senior leadership 
+roles were occupied by 
+women. Furthermore, 25% 
+of our Entrepreneurs in 
+Residence (EiRs), 40% 
+of our board, and 15% of 
+our advisory board were 
+female. In 2022, 54% of the 
+company’s staff were female, 
+while 25% of the senior 
+leadership were women. 
+Female representation in 
+our EiRs was 40%, 20% on 
+our board, and 38% on our 
+advisory board. The gender 
+split of our Domain Experts, 
+will be made available in the 
+next report.EDI beyond gender 
+disparities: The importance 
+of having different 
+Ethnicities
+In Carbon13, besides our 
+efforts to fight gender 
+disparities in the climatetech 
+world, we recognise that 
+diverse ethnicities are vital 
+for fostering innovation and 
+holistic problem-solving. Each 
+different ethnic background 
+brings unique perspectives 
+and experiences, enriching 
+discussions and promoting 
+deeper exploration of issues. 
+Embracing this diversity 
+cultivates inclusivity, 
+understanding, and empathy 
+among all cohort participants, 
+leading to more robust and 
+equitable solutions that can 
+be overarching to climate 
+emergency solutions.
+22  https://www.bbc.com/news/science-environment-43294221 - Women are more likely than men to be affected by 
+climate change, studies show. UN figures indicate that 80% of people displaced by climate change are women.04 
+Diversity in 
+entrepreneurship
+26
+Programmatic Content 
+on Equity, Diversity, and 
+Inclusion
+At Carbon13, Equity, Diversity, 
+and Inclusion (EDI) isn't 
+just a checkbox to tick—it's 
+ingrained in every facet 
+of our activities. From the 
+initial selection of cohort 
+participants to the ongoing 
+support provided to invested 
+companies by our experts, 
+EDI principles guide our 
+decision-making process. 
+We prioritise inclusivity in 
+our interactions, ensuring 
+that voices from diverse 
+backgrounds are not only 
+heard but actively sought out 
+and valued. Throughout our programmes, 
+we incorporate EDI-focused 
+workshops, training sessions, 
+and resources to ensure 
+that cohort participants 
+and, consequently, invested 
+companies not only 
+understand the importance 
+of EDI but also actively work 
+towards its realisation. By 
+embedding EDI into the 
+fabric of our programme, we 
+empower our participants to 
+become agents of change 
+since the embryonic phase 
+of their ventures, fostering 
+inclusive cultures and driving 
+meaningful impact within 
+their future climatetech 
+endeavours. By promoting 
+spaces where everyone feels 
+welcome and respected, we 
+also drive innovation and 
+growth through the diverse 
+perspectives and experiences 
+embraced.Josephine Bromley,  
+with co-founders Ranjeet Bhalerao 
+and Ruggiero Guida from Cohort 3
+04 
+Diversity in 
+entrepreneurship
+Figure 10 Cohort EthinicityC3
+C2
+C1Cohort Ethnicity
+0 0.4 0.2 0.6 0.8 1.0C4
+  White
+  Asian/Asian British
+  Black/African/Caribbean/Black British
+  Mixed/Multiple Ethnic Groups
+  Prefer not to say
+27 26
+In 2021 and 2022, we are proud to 
+say that we invested in 32 ventures 
+that are inherently committed to 
+solving the climate emergency, and 
+created ground for many more to 
+emerge.
+Our startups and their bold 
+teams are already making 
+huge strides to decarbonise 
+our world by changing car 
+battery supply chains, helping 
+save forests that otherwise 
+would be destroyed, 
+contributing to minimising 
+emissions from fertilisers, 
+revolutionising how cement 
+is produced or how our water 
+systems are managed. It is 
+entrepreneurs, with their 
+innovative spirit and drive, 
+who are uniquely positioned 
+to make a significant impact 
+at scale and speed in these 
+and in many other areas.However, they can’t go very 
+far without the support from 
+a whole ecosystem. A phrase 
+we often use and believe in 
+deeply is: real transformation 
+doesn’t come from a single 
+individual but unencumbered 
+communities with original 
+thoughts. Throughout our 
+initial years, we introduced 
+more than 300 founders 
+who bravely took action and 
+faced a collective challenge. 
+We would like to thank all of 
+our stakeholders for trusting 
+us to find great people and 
+introduce a catalytic effect 
+through our programmes 
+to accelerate their missions 
+to introduce innovation and 
+effect change. 
+As stated previously, this is 
+our first Impact Report, and 
+we would like to acknowledge 
+that reporting and providing 
+transparency is an ongoing 
+path. As Carbon13 grows and 
+expands, and our ventures 
+grow with us, we strive to 
+gather more data and include 
+more information regarding 
+their impact. 
+We look forward to updating 
+you further as our portfolio 
+grows, our ventures scale, 
+and we deliver more than one 
+type of return. 05  
+Conclusion
+28
+29 28
+Methodology
+Assets and activities are 
+assessed using carbon 
+factors from government 
+sources, reputable third 
+party research, and xtonnes’ 
+proprietary modelling, with 
+the most relevant factors 
+being applied to your 
+business. Where proxy data 
+exists for how much an asset 
+or activity has been used or 
+carried out, this creates a 
+“modelled” footprint based on 
+the organisation in question, 
+giving the most likely, lower 
+and upper case possibilities. 
+Where data exists that 
+measures the usage of 
+an asset or completion of 
+an activity, this creates a 
+measure footprint, which 
+typically receives an 
+maximum quality score, and 
+produces a single figure as 
+opposed to a range.Glossary
+Additionality: Additionality in 
+climate-related matters refers 
+to ensuring that claimed 
+emission reductions are 
+extra to what would naturally 
+occur. This concept verifies 
+that these claimed emission 
+reductions wouldn't happen 
+otherwise, emphasising 
+their necessity in combating 
+climate change.
+Greenhouse Gas: 
+Greenhouse gases 
+(GHG) are gases that are 
+responsible for the so-called 
+greenhouse effect, which is 
+considered the main cause 
+of climate change. They can 
+occur both naturally and 
+anthropogenically (through 
+man-made causes). 
+Greenhouse Gas Protocol 
+Corporate Accounting and 
+Reporting Standards: GHGP 
+(Greenhouse Gas Protocol) 
+Corporate Accounting 
+and Reporting Standard is 
+traditionally considered the 
+“gold standard” in carbon 
+accounting methodologies. 
+Developed with the World 
+Resources Institute (WRI) 
+and World Business Council for Sustainable Development 
+(WBCSD), GHGP claims 
+to provide the accounting 
+platform for virtually every 
+corporate GHG reporting 
+program in the world. 
+Carbon Footprint: The 
+total of the greenhouse gas 
+emissions (both direct and 
+indirect) associated with 
+an organisation, product or 
+activity. 
+Carbon Dioxide Emissions 
+(CO2): Carbon dioxide 
+emissions or CO2 emissions 
+are emissions stemming 
+from the burning of fossil 
+fuels and the manufacture of 
+cement; they include carbon 
+dioxide produced during 
+consumption of solid, liquid, 
+and gas fuels as well as gas 
+flaring. 
+Carbon Dioxide Equivalent 
+(CO2e): Carbon dioxide 
+equivalent, or CO2e, is a 
+metric measure representing 
+all greenhouse gases by 
+converting them to the 
+equivalent amount of CO2. 
+There are six greenhouse 
+gases which contribute to 
+the greenhouse effect, and 
+thus to global warming, 06 
+Methodology and Glossary
+30
+according to the Kyoto 
+Protocol: carbon dioxide 
+(CO2), methane (CH4), 
+nitrous oxide (laughing gas, 
+N2O), hydrofluorocarbons 
+(HFC/HFC), perfluorocarbons 
+(PFC/PFC) and sulfur 
+hexafluoride /SF6). Each has 
+a different warming effect, so 
+CO2e compares this with the 
+effect of one unit of CO2. 
+Scope 1 Emissions: Scope 
+1 emissions are direct 
+greenhouse gas emissions 
+occurring from the 
+combustion of fuels owned 
+or controlled by the reporting 
+organisation. They are also 
+called direct emissions.There are three recognised 
+sources of Scope 1 
+emissions: 
+•   The burning of fossil fuels 
+in a building or facility, e.g. 
+a gas boiler or incinerator. 
+This is the buildings’ heat 
+and power submitted on 
+the xtonnes platform. 
+•   Refrigerants, or fugitive 
+emissions, from cooling 
+equipment such as fridges 
+or air conditioners at 
+installation, in use or in 
+disposal. 
+•   The burning of fossil fuels 
+in mobile sources (on-road 
+and non-road vehicles or 
+mobile machinery). 
+Scope 2 Emissions: 
+Scope 2 emissions are the 
+greenhouse gas emissions 
+that result from a reporting 
+organisation’s purchased 
+energy, usually electricity, 
+but also heating, cooling, 
+and steam. It includes the 
+emissions associated with 
+the transport and distribution 
+of this energy to a reporting 
+organisation. They are also 
+called indirect emissions. Scope 3 Emissions: Scope 
+3 emissions are “indirect” 
+emissions associated with 
+a business's upstream and 
+downstream supply chains. 
+They are the remainder 
+of greenhouse gas 
+emissions that the reporting 
+organisation must have to 
+carry out its activities. The 
+Greenhouse Gas Protocol 
+has 15 categories of Scope 3 
+emissions. 
+Baseline Year: A baseline 
+year is the year from which 
+emission reduction targets 
+are set, or benchmarked. 
+The percentage of the total 
+emissions in the base year 
+sets future reduction targets. 
+To meet Science Based 
+Targets, the baseline year 
+should be 2018, or for small 
+businesses, the closest year 
+for which there is good data. 
+31 30
+07 
+Appendix
+32Scope 1 & 2
+Scope 3Heat
+Power
+Fugitives
+Scope 1 & 2 TOTAL
+Wastes
+Purchases
+Waste Water
+Trips
+Commutes
+Investments
+Remotes (non- GHGP)
+Scope 3 TOTAL
+COMBINED TOTAL0.26 0.58 0.69 2.65 5.77 6.92
+0.03 1.76 6.21 0.02 1.29 4.550.23 0.28 0.40 2.27 2.83 3.99
+1.50 3.89 6.28 0.29 0.60 0.910.08 6.50 12.9
+0.18 0.20 0.23 0.13 0.15 0.170.49 0.86 1.09 5.00 15.10 23.81
+0.93 4.65 5.92 0.64 0.80 2.83
+0.26 0.48 0.76 0.38 0.70 1.12
+3.03 3.03 3.03 
+3.60 6.51 9.61 2.64 4.78 7.05
+9.53 20.52 32.05 4.10 8.31 16.63
+21.38  23.412021
+Low Middle High2022
+Low Middle High
+34
+Get in touch with us at hello@carbonthirteen.comAuthors: 
+Dr Nicola J. Dee, Marina Fontoura
+Contributors:
+Jordan Torch, Sara Jones, 
+Hattie Mellor, Simon Dierks, xtonnes

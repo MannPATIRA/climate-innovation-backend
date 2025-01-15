@@ -1,0 +1,211 @@
+2
+We live in times of unprecedented global 
+challenges - climate change is one of the greatest threats we face. Catastrophic heat waves, wildfires, floods, drought, storms and other natural disasters linked to climate and weather extremes are affecting millions of people around the world. 
+But we also live in times of unprecedented 
+opportunities. Innovative approaches and new and existing technologies combined with nature-based solutions and traditional knowledge can help respond to this threat and build a more sustainable world. 
+Many United Nations Entities are leveraging 
+innovative approaches ranging from data, artificial intelligence, drones and the internet of things, to low-carbon technologies, climate smart agriculture and nature-based solutions to help people around the world mitigate and adapt to climate change. This compendium explores these innovative approaches leveraged in the following areas: 
+AIR
+ENERGYFORESTSLANDWATERFOOD SYSTEMSCITIES & LIFESTYLESGREEN ECONOMYDISASTERS & CONFLICTSCAPACITY STRENGTHENINGADVOCACY
+UN CLIMATE CHANGE INNOVATION COMPENDIUM
+All innovations featured are also included in 
+a living Climate Change Innovation Library. We invite you to browse the compendium, be inspired, find synergies to your work and to add your innovative approaches to help us grow our shared knowledge base, inspire others and spark new collaboration!
+ADD YOUR CLIMATE CHANGE INNOVATION NOW
+INTRODUCTION
+
+3
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: AIRAIR
+Brick manufacturing contributes significantly 
+to air pollution in Delhi. Using satellite imagery and AI, UNDP India Accelerator Lab and partners developed a GeoAI platform to identify environmental non-compliance of brick manufacturing units (kilns) in two states. This approach reduces the effort to monitor compliance and helps improve oversight and adherence to compliance.
+Using participatory citizen science and self-built low-cost sensors, UNDP powered by its Accelerator Lab analysed differences in air quality across different parts of Buenos Aires, Argentina. Placing air sensors on bikes of volunteers, UNDP produced a city-level visualisation of air pollution and a primary data source about air quality in Argentinian cities. 
+In Mongolia, UNICEF is scaling a social innovation championing young people as climate changemakers by creating digital interactive policy scorecards and a teen parliament. The policy scorecards are co-created with young people to allow them to access, interpret, and compare policies related to children/youth, climate change and air pollution. More than 1.5 million young people have been reached through this initiative.
+Open burning of waste has devastating impacts on local air quality and the natural balance of ecosystems in Ukraine. Combining open satellite data with GIS and crowdsourcing, UNDP Accelerator Lab created an up-to-date map of open burning and composting in rural communities. This exploration of waste management has enabled discussion and inspired local action.UNEP
+World Bank
+INTRODUCTION
+
+4
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: ENERGYENERGY
+Activities like water pumping, post-harvest 
+processing, and transport often rely on diesel engines. An IFAD-supported solar renewal energy technology project set up more than 4,500 renewable energy units such as solar pumps, dryers and incubators throughout Cambodia. The project also seeks to expand to biodigesters.
+UNDP has supported the acceleration of equal access to renewable solar power in Vietnam, Indonesia and Cambodia. The programme aims to empower women to use solar energy generators to shift away from fuel-fired generators that emit toxic fumes that are bad for public health and the environment.
+The Seed Capital Assistance Facility (SCAF) aims to accelerate the deployment of and investment in renewable energy assets in developing countries by closing the early-stage financing gap. SCAF, managed by UN Environment, seeks to close this gap and unlock more private sector investment in low-carbon projects.
+ECOFRIDGES, a UNEP United for Efficiency (U4E) project in Ghana and Senegal, is a partnership with local banks who provide 0% interest rate loans to consumers for the purchase of new, energy-efficient and climate-friendly refrigerators and air conditioners, and they can earn a voucher by turning in an old appliance for recycling. A  WebApp is available for online loan applications and purchases.
+WFP’s Country Office in Lesotho introduced energy-efficient Electric Pressure Cookers (EPC4S) in schools. These cookers replace wood fuel, which has negative impacts on the health, environment as the demand for firewood results in deforestation and environmental degradation. EPC4S provides cleaner, faster, cheaper and more convenient cooking for school feeding programmes.
+In Haiti, 95 percent of schools cook with firewood or charcoal, resulting in toxic smokes, injuries, and increased deforestation. WFP is supporting schools in Haiti to transition to cleaner energy sources by introducing innovative low-cost Heat Retention Bags in school canteens that reduce energy needs by up to 70%.
+In Cabo Verde, UNDP is working to transform sludge in sewage tanks into gas, which can be used for cooking or other energy needs. The project also helps to reuse soapy or black waters for agricultural purposes in semi-rural, low-income communities. UNDP is analysing the quality of water and the amount of gas being produced.UN Photo/Eskinder Debebe
+INTRODUCTION
+5
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: ENERGYENERGY
+UNDP/BCTA
+Energy created by the air conditioning system at 
+the Vienna International Centre (VIC) is used to provide heating for 2.400 households in Vienna. The innovative energy recycling project helps to save 3.500 tonnes of CO2 per year.
+UN Environment developed a harmonised data collection tool that allows tourism businesses in developing countries and small island developing states to collect data about their resource efficiency and monitor the impact of interventions to increase efficiency over time. The tool also helps to produce an energy efficiency baseline for the tourism sector.
+Pollinate Group, a member of UNDP’s Business Call to Action Group, distributes affordable clean energy and household products to people in India and Nepal. So far, 900 Pollinate-trained women entrepreneurs have distributed over 200,000 clean energy products to 700,000 people living in poverty thereby offsetting over 1.5 million tons of CO2e emissions.
+Bluetown, a member of UNDP’s Business Call to Action Group,  uses solar power and rechargeable batteries to connect 200+ Wi-Fi hotspots. BLUETOWN’s solar-powered infrastructure allows communities to generate less carbon emissions and avoid local air pollution from diesel generators that are otherwise used for connectivity infrastructure.
+UN Photo/Eskinder Debebe
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: FORESTSFORESTS6
+UNDP, powered by its Accelerator Lab, is using 
+drones to combat desertification and support reforestation efforts in Cabo Verde. The drone is being used for sowing, soil fertilisation and pesticide spraying, as a cost-effective way to effectively and efficiently assist agriculture and reforestation in the country.
+UN-REDD’s Green Gigaton Challenge (GGC) is an innovative financing approach that aims to mobilise funds for transacting at least one gigaton per year of forest emission reductions by 2025. If successful, this would result in at least USD10-15 billion/year to pay for reductions by developing countries.
+FAO’s Forest Resources Assessment platform provides access to accurate data and metadata on over 60 forest-related variables; a user-friendly interface in all six UN languages; interactive data visualisations; and statistical summaries at country, regional, global levels. The platform also allows for custom groupings; ready-to-use tables and bulk data download.
+Supported by UNDP, Ecuador’s traceability system for deforestation-free coffee and cacao traces products from the farm to the port and monitors land-used change at the farm level. The first report on deforestation-free commodities was completed covering 1,500 hectares and 32 producers and identified one hectare as deforested.
+UNDP Mexico and partners developed a conservation strategy for subtropical forests, including better knowledge management, digital and local monitoring of illegal deforestation, and social reaction, including on mass media. UNDP also enabled resilient funding for financing low-risk recovery and adaptive measures, as well as negotiations with decision makers for creating higher climate standards.
+UN Photo/Logan Abassi
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: LANDLAND7
+An IFAD-funded project in Tajikistan promotes 
+rotational grazing, which restricts livestock to access small portions of pasture, which are grazed by the herd for short periods, thereby allowing plant regrowth and greater diversity of species. As a result, more than 80,000 ha of pastureland were improved in terms of productivity and pasture productivity and health increased significantly.
+An IFAD-funded project in the Gambia promoted mangrove restoration as part of watershed planning. This nature-based solution benefited both the environment and local communities and strengthened an ecosystem that plays a key role in terms of climate adaptation and mitigation, and biodiversity enhancement.
+An IFAD-funded project helps communities in Burkina Faso apply nature-based solutions to conserve soil and water at a large scale (e.g. agroforestry, half-moon structures, planting basins). It promotes sustainable extraction of non-timber forest products, and uses innovative digital methods to collect data for the monitoring and mapping of project activities. 
+In Lesotho, IFAD assists smallholder producers in climate-proofing their production by introducing climate-smart rangeland management. A decision dashboard holding information on predictive climate models and maps depicting soil condition, vegetation cover, land degradation and other risk factors informs land management decisions and assesses the effectiveness of rehabilitation measures.In Niger, an IFAD-funded project supported the rehabilitation of 22 watersheds through a combination of different nature-based solutions such as dune fixation by planting trees, assisted natural regeneration, or local-species tree nurseries run by women. This has also increased the productivity of agricultural lands and the resilience of small-scale producers.
+UN Photo/John Isaac UN Women/Joe Saade
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: WATERWATER8
+An IFAD-funded project in Bangladesh set up an 
+early warning system to predict pre-monsoon flash floods. Data collected at 25 upstream stations feeds into hydrological and forecasting models. The system complements bio-engineered climate-resilient infrastructure built to protect villages, roads and markets against waves and is complemented by reforestation efforts to recreate natural barriers.
+UNICEF and partners piloted a new approach to identify locations for boreholes, which combines remote sensing with on ground measurements to identify deep groundwater sources in drought prone countries. This innovative underground water mapping approach more than doubles the success of current borehole drilling to 92% accuracy and helps to provide climate-resilient water sources to communities in five African countries. 
+It is cheaper to prevent water problems at the source than to address them downstream. The Upper Tana-Nairobi Water Fund allows urban water users to invest in upstream watershed conservation and livelihoods improvements. The Fund established with IFAD’s support is a model for watershed conservation and payment for ecosystem services efforts across Africa.
+Malawi faces an increased risk to climate-induced disasters (e.g. floods, droughts) and associated impacts on food production, community resilience and displacement. UNDP’s M-Climes project strengthens Malawi’s capacity and access to weather and climate information and enhances its hydro-meteorological capacity for early warnings and forecasting.
+UNU’s Flood Mapping and Flood Risk Prediction Tools create affordable inundation and flood risk maps by using Earth data, AI models, open data, and cloud computing. Maps focus on the Global South, where the data and information gaps are prominent and annual losses due to floods are high.
+FAO/Luis Tato
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: WATERWATER9
+Reusing human waste saves water, reduces 
+greenhouse gas emissions, and provides a source of fertiliser. In Ecuador, World Bank-funded wastewater treatment plants incorporate co-generation facilities to transform biogas derived from sewage sludge digestion into electricity. This could generate up to 35% of the onsite power needed to run the treatment plants.
+In the Mekong, a World Bank Project is helping more than one million farmers transition to more climate-resilient and resource-efficient ways of living. The project encourages flood retention, adaptation to increasing salinity, protecting coast-lines and transition away from unsustainable farming practice by reducing farmers’ reliance on rice farming.
+In Ethiopia, watershed management is a nature-based solution to limited water availability and extreme weather events. Supported by IFAD, watershed management increases soil fertility and productivity and protects irrigation schemes from sedimentation. The project includes training, development of micro-watershed management plans, biophysical soil and water conservation measures, establishment and strengthening of tree nurseries.
+In Lao, UN Environment is implementing climate-resilient flood management including through Ecosystem-based Adaptation (EbA), to reduce the impacts of urban flooding. This includes removing invasive plants, planting indigenous vegetation, and removing barriers that impede natural water flow. The project recognises the economic value of ecosystem services.
+UN Photo/Mark Garten
+UN Photo/Albert González Farran
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: FOOD SYSTEMSFOOD SYSTEMS10
+In Uganda, UN Women equipped 1,400+ women 
+with the skills and technologies needed to run successful aquaculture operations. Over a quarter of a million tilapia fingerlings are being grown by the women, who received technical training, access to inputs including feeds, accommodation and business management skills.
+UN Environment piloted a living green wall system at UNHQ to demonstrate how food plants can be grown within controlled agriculture settings in urban environments. Besides providing fresh food, agricultural systems integrated into buildings also contribute other ecosystems services to urban environments, such as reducing urban heat and enhancing air quality. 
+WFP’s hydroponics initiative H2Grow brings low-tech and climate-smart hydroponic solutions to vulnerable communities. The soilless agricultural technique saves up to 90% of water, 75% of space and can enable faster food production all-year around. 2021 expanded to 21 countries including Chad, Ethiopia, Jordan, Kenya, Libya, Nigeria, Palestine, Uganda, Zambia, and Zimbabwe.
+In Pakistan, the World Bank’s SMART Punjab Program empowers small scale farmers to grow more climate-resilient, profitable and nutritious crops than wheat. The program enables farmers to buy improved seeds and switch to more climate-friendly fertilisers at reduced cost through e-vouchers redeemable at branchless banking operators. 
+In Vietnam, IFAD-funded sensors and a mobile app provide real-time data on the salinity, pH and alkalinity levels of water used for rice warning. The information is used as an early warning system informing them when to flash out salts with fresh water before the crop yields are affected and harvests spoilt.
+IAEA and FAO examined greenhouse gas emissions from agriculture and developed methodologies to measure them using isotopic techniques. Two new microbial processes of nitrous oxide (N2O) production were identified. The Entities also offer guidance on how to implement the methodologies to reduce emission of N2O from agriculture using high-tech and low-tech methods.
+In Malawi, 6,000 women farmers received support from UN Women in the use of high-yield and drought-resistant groundnut seeds; the implementation of modern farming methods that conserve moisture and maximise land use; use of weather forecast information for timely planting; use of market information and financial literacy sessions; and the adoption of modern farming technologies.
+Photo/UN Women
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: FOOD SYSTEMSFOOD SYSTEMS11
+One-third of food in the world goes to waste, 
+being responsible for 8% of global greenhouse emissions. WFP’s Country Office in Turkey is using a mobile application that connects local businesses and restaurants with food banks and households, thereby rescuing and redistributing quality food to people in need while reducing greenhouse emissions.
+Developed by IFAD, the Climate Adaptation in Rural Development (CARD) Assessment Tool explores the effects of climate change on the yield of 17 major crops. It supports the quantitative integration of climate-related risks in agricultural and rural development investments and strategies, including economic and financial analyses.The planting of shade trees in diverse cropping systems is a nature-based solution promoted by an IFAD-funded project in Nicaragua. It combines diversified agricultural systems and agroforestry system approaches. It benefits environmental conservation, restoration, food security, and wood availability.
+In Lao, IFAD promotes the use of effective microorganisms as a nature-based solution that improves soil fertility in vegetable gardens and reduces insect invasion. Blends of common microorganisms positively influence the growth of plants and have doubled farmers’ harvest per plot without the use of chemical fertilisers.
+FAO developed a digital Climate-Smart Agriculture tool for monitoring and evaluating farm sustainability, aiming to help farmers identify corrective sustainable interventions. The project is also developing new geospatial data layers and integrating them into national web platforms and mobile SmartApps in Laos, Bangladesh, North Macedonia, Tanzania and Zambia.
+The climate-smart village model supported by IFAD in Bhutan brings together villagers to agree on and adopt adaptation measures in key areas (water, weather, nutrients, pests, energy, markets). Information on climate projections, maps, innovations and markets enable communities to play an active role in decision making.
+UN Women/Ryan BrownFAO/ Sia Kambou
+INTRODUCTION
+12
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: CITIES & LIFESTYLESCITIES & LIFESTYLES
+Leveraging behavioural science, the “Little 
+Book of Green Nudges” is a quick guide to spark sustainability among students and staff on campuses across several behavioural categories. The book, launched by UNEP in 2020, has been translated in 6 languages and 136 pilot campuses worldwide have already joined the movement.
+The Philippines was ranked among the top contributors of marine litter in Asia. UNDP Accelerator Lab and partners built a remote sensing model to detect plastic litter in the Metro Manila river system using available satellite image data. Insights will inform better regulation, create policy harmonisation, and align implementation for impact and clean-up drives.
+UNDP Somalia Accelerator Lab is using satellite imagery and climate data to identify “positively deviant” pastoralist communities, which are able to sustain their way of life despite the impact of climate change (e.g. desertification). The project will identify factors that help pastoralists cope and design interventions to increase the sustainability of rangelands and resilience of communities.
+Coastal cities are on the frontlines of climate-related risks. UN-Habitat, Busan and partners plan to build the world’s first prototype sustainable floating city. The floating city is envisaged as a flood-proof infrastructure that rises with the sea and produces its own food, energy and freshwater with fully integrated zero waste closed-loop systems.UN Environment’s CityAdapt strengthens the technical capacities of municipalities and citizens in El Salvador, Jamaica and Mexico to analyse the impacts and vulnerabilities to climate change and identify appropriate nature-based solutions (NbS). These include incorporating NbSs in urban development planning, implementing interventions to reduce the vulnerability of communities and enhancing knowledge on urban NbS.
+UNDP, powered by its Accelerator Lab, developed a new tool for individuals and companies in Bosnia and Herzegovina to calculate their carbon footprint and identify and participate in ways to mitigate it. The tool is the first of its kind in South and Eastern Europe and has the potential for implementation in neighbouring countries.
+UN Photo/Kibae Park
+UN-Habitat /Julius MweluUNDP
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: GREEN ECONOMYGREEN ECONOMY13
+In Côte d’Ivoire, UNICEF is supporting the 
+development of the plastic recycling sector to transform plastic waste into sustainable building materials. The first plastic bricks factory in Africa was built in 2019 and since then the low-cost, durable and easy to assemble plastic bricks have been used to build 159 classrooms using 875 tons of plastic.
+UNOPS S3i Innovation Centres bring together expertise from various startups in S3i Startup Incubation programmes. A recent project aims to remove invasive Sargassum seaweed from the oceans and turn it into useful products by developing a new biorefinery process for extracting biomolecules from marine biomass and a prototype of biodegradable plastic.
+UNU is analysing the conflicting objectives associated with green transformation: Investment in green technologies requires strong intellectual property rights (IPRs), but if technologies are not widely diffused, they lose their public good nature and can do less good. The project analyses which policies foster better adoption of green technologies in developing countries.
+Based on a study conducted by UN Women, UNDP has helped the Government of Serbia to leverage financing to transition from a linear waste economy to a circular one. It has also created a challenge as a way of sourcing innovative projects that go beyond “business as usual models”
+ITC’s Resource Efficiency and Circular Production coaching programme supports SME processors in developing countries to enhance resource use and circular practices. Companies are sensitised to use resources efficiently and improve waste management. Data on resource consumption are collected and compared to efficiency sector-specific benchmarks. A company strategy is set and implemented.
+BlueDIGITAL is a pilot experiment from UNDP Accelerator Lab in Barbados and the Eastern Caribbean that applies digital tools and solutions to improve segments of the Blue Economy ecosystem and value chains and promote environmental sustainability. It is aimed primarily at fisherfolk, but also will involve the government, tourism industry partners and the public as consumers.
+UNICEF supports the “Clean Green Pakistan Champions” initiative, which seeks to inspire citizens to keep cities clean. The initiative aims to scale up a mobile application that encourages youth participation and engagement in climate-resilient Water, Sanitation, and Hygiene (WASH) as well as waste removal and plantation activities. To date the initiative counts 126,755 champions and countingPhoto/UNDP
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: DISASTERS & CONFLICTSDISASTERS & CONFLICTS14
+In Africa, Asia and the Pacific, UNDP supports the 
+development of Early Warning Systems (EWS) to help them respond to both short-term/rapid onset climatic hazards (e.g. cyclones, floods and storms), as well as long-term/slow-onset hazards (e.g. drought and long-term climate change).
+WFP’s analytical platform SHAPES (Shock and Assistance Platform for Economy-wide Simulations) simulates the impact of shocks, including climate shocks, on households and the local economy and assesses the direct and indirect benefits of assistance provided to households to offset these shocks. The solution is currently being tested in Afghanistan and Uganda.
+Access to communication is critical in the response to disasters. ITU and WFP’s Disaster Connectivity Maps help first responders determine the status of telecommunications network infrastructure, coverage, and performance. 
+ Real-time
+ 
+information on connectivity help to identify communication gaps to support decision-making on where and when to deploy resources to restore communication services.
+In Rwanda, UNDP is using the Internet of Things to collect early warning data for climate (e.g. temperatures, humidity and soil moisture) and disaster risk management. Data from these are converted into usable information and the project now focuses on facilitating better integration of and access to available data.
+Led by WFP, PRISM assesses the risk and impact of hazards on vulnerable communities to design risk reduction activities after natural disasters. PRISM combines remote sensing sources including satellites and data from national meteorological institutions with vulnerability data to create actionable information for decision-makers, prioritising assistance to those most in need.UNICEF’s Risk-Informed Response (RIR) initiative supports the development of inclusive, integrated multi-hazard early warning systems and interventions to manage climate and disaster risks in Somalia. By utilising big data and machine learning solutions, RIR aims to become an integrated platform on the potential impacts of climate change at sub-national level.
+UNDP is scaling-up multi-hazard early warning systems in Georgia and supporting the use of climate information to reduce the exposure of communities, livelihoods and infrastructure to climate-induced natural hazards. The project is also implementing community-based risk reduction measures.
+UN Photo/GMB Akash
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: DISASTERS & CONFLICTSDISASTERS & CONFLICTS15
+Developed by WFP, HungerMapLIVE’s new 
+Climate Insights and Key Trends is a daily downloadable report that analyses the latest data on climate and weather events, including vegetation and rainfall deficits, exploring the relationship between climate and food security, and how this interlinks with conflict in key hotspots around the world.
+UN - DPPA is exploring innovative ways to address climate security with the help of geospatial analysis. In partnership with a consortium of private sector technology collaborators and academic partners, the Department’s Water Security Project focuses on strengthening analytical capacities to address long-term climate change factors related to water insecurity and conflict.
+The African Risk Capacity (ARC) offers insurance products to African countries that are prone to extreme climate risks. ARC enhances the effectiveness of emergency response and provides risk financing for governments to manage climate risks. ARC Replica Plus allows WFP and other humanitarian stakeholders to purchase insurance policies that match and increase the insurance coverage purchased by ARC Member States. 
+Through its innovative integrated climate risk management approach, WFP’s R4 initiative enables the poorest farmers to access crop insurance by participating in risk reduction activities. The programme leverages four risk management strategies: Improved agricultural practices (risk reduction); microinsurance policies (risk transfer); microcredit (prudent risk taking); and savings (risk retention).
+UN Women and UNCDF leverage market-led innovation and digital technology for climate risk management and resilience-building services that are tailored to the needs of rural women in Haiti, Liberia, Malawi, Mali and Senegal. Innovative services piloted include mobile-enabled financial literacy, early warning systems and crop insurance solutions.UN Photo/Pronob Ghosh
+FAO/Sven Torfinn
+The Philippines incurs USD3.5 billion in asset losses each year from typhoons and earthquakes. To reduce this, the World Bank supported the Government in setting up a parametric insurance program, which paid out when predefined thresholds were exceeded. The program informed the Philippines Catastrophe bond, the first sovereign catastrophe bond in Asia.
+FAO/Sven TorfinnUN Photo/Eskinder Debebe
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: CAPACITY STRENGTHENINGCAPACITY STRENGTHENING16
+Hosted by UN Environment and UNDP, the UN 
+Biodiversity Lab provides decision-makers with the best available spatial data to put nature at the centre of sustainable development. The Lab democratises access to spatial data and analytic tools, supports decision-makers in leveraging spatial data for insight as well as monitoring and reporting. 
+UN Resident Coordinators in Small Island Developing Nations (SIDS) created a multi-dimensional vulnerability index (MVI), which measures economic, structural development, and environmental vulnerabilities. The index highlights that the SIDS are the most vulnerable nations to the climate crisis and facilitate access to  concessional financing, better national planning, debt servicing, financing instruments, and insurance schemes.
+Spatial analysis and GIS techniques can help to target the right areas and the neediest communities. The designers of IFAD-funded projects in Argentina, Honduras, Nicaragua and Peru used simple GIS techniques to overlay climate risks and impacts onto maps of the project country helping to decide the location of project activities.
+The UN Satellite Centre’s CommonSensing project enhances climate resilience for Pacific small island nations using satellite solutions. Tailor-made satellite-based information services (e.g. tools to access and visualise data) provide evidence for adaptation planning, decision making and accessing climate finance. Local stakeholders are trained in the use of geospatial technology applications.Identifying priority areas for adaptation investments can be expensive and time-consuming. The IFAD GeoAdapt method combines freely available geospatial datasets and indicators into a compound index that shows the vulnerability of people in different areas in a country. GeoAdapt also creates maps that quickly show which areas should be the focus of interventions.
+UN Environment/Natalia Mroz
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: CAPACITY STRENGTHENINGCAPACITY STRENGTHENING17
+Strata is an easy-to-use climate security data 
+platform for conflict-affected and fragile regions. Developed by UN Environment, the online mapping tool allows users to identify and track environment-security hotspots and streamline climate security data in their work. The pilot version focuses on Somalia.
+The IMF Climate Change Indicators Dashboard is an international statistical initiative to address the growing need for data in macroeconomic and financial policy analysis to facilitate climate change mitigation and adaptation. The Dashboard is a single platform that brings together experimental climate change indicators that allows comparison across countries.
+UN Environment’s Climate Action Note and Dashboard provides transparency and accountability about greenhouse gas emissions, critical information on land and water temperatures and extreme weather events, as well as commitments by countries. The dashboard brings together critical data in an easy-to-grasp narrative and accentuates the urgency to act.
+UNEP International Methane Emissions Observatory (IMOE) catalyses reductions in anthropogenic methane emissions at a scale and speed consistent with the global 1.5°C target by providing accurate data on the location, scale, and sources of emissions globally. IMEO’s initial focus is on the energy sector, with agriculture and waste to follow.
+InforMEA is a one-stop portal for information on Multilateral Environmental Agreements (MEAs) which can be searched by key terms across treaty texts, COP decisions, national plans and reports, laws, court decisions and more.
+In Uganda, displacement of vulnerable populations is often related to environmental degradation and climate change of their lands. IOM’s “Data for Development” initiative aims to collect data to illuminate the link between migration and climate change, with a view to influencing both long-term policy interventions and immediate humanitarian interventions.
+Unsplash/Naja Bertolt Jensen
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: CAPACITY STRENGTHENINGCAPACITY STRENGTHENING18
+UN Women/Amanda Voisard
+TRAINING
+Digital transformation has potential to accelerate 
+the green transition, but there is a lack of understanding and skills needed to apply digitally-enabled innovations. The interactive Digital4Climate Learning Programme offers insights on how digital technologies can be used to support sustainability and accelerate climate action. The programme is jointly offered by UNEP, UNFCCC and partners.
+The UN Technology Bank supports capacity-building of experts in LDCs to access and use geospatial data and information technologies for improved decision making for climate change adaptation, disaster risk management and natural resources management. The project was piloted in Mozambique, Gambia and Uganda with the UN Satellite Centre (UNOSAT), UNITAR.
+Earth School is an immersive nature-focused learning adventure to celebrate our planet and understand what we need to do to save it. Launched globally by UNEP and Ted-Ed, every lesson seeks to build an understanding of how our planet works, accelerate solutions and turn these ideas into action.
+In cooperation with adelphi, UNSSC offers a four-week long online training on how to incorporate climate-related security risks into peacebuilding activities. Participants gain in-depth knowledge of approaches and tools and benefit from lessons learned of UN staff working in the field, while also making use of the remote teaching approach.
+UN Women/Ryan Brown
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: CAPACITY STRENGTHENINGCAPACITY STRENGTHENING19
+FUNDING
+UN Environment’s Global Ecosystem-based 
+Adaptation (EbA) Fund provides grants to innovative approaches to EbA. The Fund helps ‘catalytic’ initiatives to overcome barriers for upscaling EbA and thereby increase scalability of EbA interventions, shift social or behavioural norms, expand the evidence base for EbA effectiveness, and integrate EbA into complementary climate adaptation strategies.
+The Adaptation Fund Climate Innovation Accelerator (AFCIA) offers USD10 million of small grants and technical assistance to foster adaptation innovation in developing countries. This includes new technologies, soft technologies or scalable technologies in sectors ranging from agriculture to water management. UNEP and CTCN also provide technical assistance for successful proposals (up to USD250,000)
+New technologies often solve some issues but also bring unexpected new problems, as is the case of e-waste from e-mobility. UNU’s project evaluates unintended negative consequences that new technologies bring to society and discusses how to better manage technologies in support of inclusive societies.
+A USD50 million UNEP-led Green Climate Fund (GCF) programme is establishing integrated climate and ocean services and multi-hazard early warning systems in five Pacific Small Island Developing States (Cook Islands, Niue, Palau, Marshall Islands, Tuvalu). It will ensure real-time access to essential observation data and support innovative disaster management through impact-based forecasting and Forecast-based Financing.
+In Timor-Leste, a USD21 million UNEP-led GCF project will strengthen climate information and multi-hazard early warning systems. It will build capacity to translate weather and climate information into impact-based forecasts, feeding into sector-specific decision support systems; and introduce Forecast-based Financing as an innovative mechanism for early action.  
+UN Photo/Kibae Park
+INTRODUCTION
+UN CLIMATE CHANGE INNOVATION COMPENDIUM: ADVOCACYADVOCACY20
+The Digital Public Goods Alliance (DPGA), ITU 
+and WMO undertook an assessment and call to action as part of the DGPA Climate Change Adaption Community of Practice whose efforts have focused on highlighting digital public goods that are relevant to the generation and use of high-quality and reliable open weather, climate, and hydrological datasets for climate change adaption.
+The “Playing for the Planet Alliance” (1 billion+ gamers) empowers video gaming companies to harness their platforms to take action on the climate crisis. Facilitated by UNEP, members committed to reducing emissions, integrating green activations (i.e. education content) into games, and initiatives such as planting millions of trees or reducing plastic in their products.
+As part of UN Environment’s “Playing for the Planet” Alliance, over 25 gaming studios from around the world - with a player base of over one billion - collaborated to implement green activations (i.e. educational content in video games) in and out of games around the theme of conserving and restoring forests and oceans.
+UNEP, WMO and others are collaborating with Facebook to establish the Climate Science Center, which helps users find validated information on climate change from reliable sources. The Centre, which looks different depending on whether users visit from a developed or developing country, follows a user-centred approach to drive engagement with the site and its information.
+Hosted by UNDP, the Business Call to Action Alliance recognises and advances inclusive businesses with a clear commitment to benefiting people in low and middle-income markets to help achieve the SDGs. Several member companies focus on environmental issues and find innovative digital solutions like using IoT, renewable energy, GPS-specific weather forecasts.
+UNEP has partnered with non-profit blue life to develop an innovative media model in support for climate action. ‘Media for Environment’ brings together advertisers, organisations and media groups to broadcast TV-spots in prime time and across mainstream channels thus reaching beyond the environmental space with climate positive messaging and Act Now asks.
+“Reach not Preach”, launched by the UN Envoy on Youth, is a knowledge platform and digital safe space for youth to support climate action. The platform, which hosts resources from interagency partners, Secretary-General’s Youth Advisory Group on Climate Change, climate youth movements and constituencies, engages young people in open dialogue and forms input to policy processes.
+The Coalition for Digital Environmental Sustainability (CODES) is a global, multi stakeholder alliance of governments, companies and civil society established as part of the implementation process for the UN Secretary-General’s Roadmap for Digital Cooperation. The aim of CODES is to harness digital technologies to accelerate environmental sustainability and climate action.
+UN Photo/John Isaac
+INTRODUCTION
+21
+Innovations showcased in this compendium were 
+submitted by colleagues from across the United Nations to an open call from the UN Innovation Network; all UN entities were invited to contribute. 
+All innovations featured are also included in a 
+living Climate Change Innovation Library. We invite you to add your innovation to help us grow our shared knowledge base, inspire others and spark collaboration!UNECE
+UNDCO UNDGCUN
+TECHNOLOGY
+UNITED NATIONS TECHNOLOGY BANK
+FOR LEAST DEVELOPED COUNTRIES
+United Nations
+Educational, Scientiﬁc and
+Cultural Organization
+UNOVADD YOUR CLIMATE CHANGE INNOVATION NOW!
+INTRODUCTION
+
