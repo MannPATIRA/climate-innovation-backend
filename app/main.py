@@ -15,7 +15,7 @@ if not HF_TOKEN:
     raise ValueError("No HF_TOKEN found in environment variables!")
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({"message": "Hello from the Hugging Face LLaMA backend from Mann Patira!"})
+    return jsonify({"message": "Hello from the Hugging Face LLaMA backend from Aaryan Purohit!"})
 
 @app.route('/api/ask', methods=['POST'])
 def ask_llama():
