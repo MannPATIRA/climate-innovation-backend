@@ -1,8 +1,10 @@
-import pinecone
+from pinecone import Pinecone, ServerlessSpec
+import os
+from dotenv import load_dotenv
 from typing import List, Dict, Any
 
 class PineconeStore:
-    def __init__(self, api_key: str, environment: str, index_name: str):
+    def __init__(self, index_name: str):
         """
         Initialize Pinecone client with API credentials and index information.
         
@@ -11,8 +13,34 @@ class PineconeStore:
             environment (str): Pinecone environment (e.g., "us-west1-gcp")
             index_name (str): Name of the Pinecone index to use
         """
-        pinecone.init(api_key=api_key, environment=environment)
-        self.index = pinecone.Index(index_name)
+        load_dotenv()
+        
+        # Get API key from environment variables
+        api_key = os.getenv('PINECONE_API_KEY')
+        if not api_key:
+            raise ValueError("PINECONE_API_KEY not found in environment variables")
+        pc = Pinecone(api_key=api_key)
+        print("about to creat")
+        if not pc.has_index(index_name):
+          index_model = pc.create_index(
+            name=index_name,
+            dimension=1536,
+            metric='cosine',
+            spec=ServerlessSpec(
+              cloud="aws",
+              region="us-east-1"
+            ),
+            deletion_protection="enabled"
+          )
+          print("created")
+          index_host = index_model['host']
+          # Initialize index using host
+          self.index = pc.Index(host=index_host)
+        else:
+          index_description = pc.describe_index(index_name)
+          index_host = index_description['host']
+          # Initialize index using host
+          self.index = pc.Index(host=index_host)
 
     def add_embeddings(self, vectors: List[List[float]], metadata: List[Dict[str, Any]], ids: List[str]) -> bool:
         """
