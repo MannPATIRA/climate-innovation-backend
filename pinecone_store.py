@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from typing import List, Dict, Any
 
 class PineconeStore:
-    def __init__(self, index_name: str):
+    def __init__(self, index_name: str, embedding_dim: int = 512):
         """
         Initialize Pinecone client with API credentials and index information.
         
@@ -20,27 +20,21 @@ class PineconeStore:
         if not api_key:
             raise ValueError("PINECONE_API_KEY not found in environment variables")
         pc = Pinecone(api_key=api_key)
-        print("about to creat")
+        self.index_name = index_name
         if not pc.has_index(index_name):
-          index_model = pc.create_index(
+          pc.create_index(
             name=index_name,
-            dimension=1536,
+            dimension=embedding_dim,
             metric='cosine',
             spec=ServerlessSpec(
               cloud="aws",
               region="us-east-1"
             ),
-            deletion_protection="enabled"
           )
-          print("created")
-          index_host = index_model['host']
-          # Initialize index using host
-          self.index = pc.Index(host=index_host)
-        else:
-          index_description = pc.describe_index(index_name)
-          index_host = index_description['host']
-          # Initialize index using host
-          self.index = pc.Index(host=index_host)
+        index_description = pc.describe_index(index_name)
+        index_host = index_description['host']
+        # Initialize index using host
+        self.index = pc.Index(host=index_host)
 
     def add_embeddings(self, vectors: List[List[float]], metadata: List[Dict[str, Any]], ids: List[str]) -> bool:
         """
@@ -99,4 +93,29 @@ class PineconeStore:
             return True
         except Exception as e:
             print(f"Error deleting embeddings: {str(e)}")
+            return False
+
+    @staticmethod
+    def delete_index(index_name: str) -> bool:
+        """
+        Delete a Pinecone index by name.
+        
+        Args:
+            index_name (str): Name of the index to delete
+            
+        Returns:
+            bool: True if deletion was successful, False otherwise
+        """
+        try:
+            load_dotenv()
+            api_key = os.getenv('PINECONE_API_KEY')
+            if not api_key:
+                raise ValueError("PINECONE_API_KEY not found in environment variables")
+                
+            pc = Pinecone(api_key=api_key)
+            pc.delete_index(index_name)
+            print(f"Successfully deleted index: {index_name}")
+            return True
+        except Exception as e:
+            print(f"Error deleting index {index_name}: {str(e)}")
             return False
