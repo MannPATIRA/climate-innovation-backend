@@ -3,7 +3,6 @@ import os
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings
 
 
 def convert_pdfs_to_texts(input_folder, output_folder):
@@ -69,8 +68,3 @@ chunks = text_splitter.split_documents(documents)
 
 print("CHUNKED DOCUMENTS")
 print(len(chunks))
-
-# embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
-# embeddings = embedding_model.embed_documents([chunk.page_content for chunk in chunks])
-# print("EMBEDDED DOCUMENTS")
-# print(len(embeddings))
