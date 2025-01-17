@@ -2,7 +2,7 @@ name: Build, Test & Deploy (CD)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build_test_deploy:
@@ -15,20 +15,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install poetry
+          poetry install
 
-    #   - name: Run tests
-    #     run: |
-    #       pytest
+      #   - name: Run tests
+      #     run: |
+      #       pytest
 
       # Now the Deploy step
       - name: Deploy to Railway
-        if: success()  # only deploy if tests pass
+        if: success() # only deploy if tests pass
         run: |
           echo "Deploying to Railway..."
 
@@ -36,7 +37,7 @@ jobs:
           #   You don't actually need a manual step here: 
           #   connecting your GitHub repo in Railway automatically triggers deployments 
           #   after successful pushes to 'main'.
-          
+
           # Option 2: If you prefer to script it with the Railway CLI:
           #   1) Install the CLI
           #   npm install -g @railway/cli
