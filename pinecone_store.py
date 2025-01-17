@@ -1,10 +1,11 @@
 from pinecone import ServerlessSpec
 from pinecone.grpc import PineconeGRPC as Pinecone
+from vector_store import VectorStore
 import os
 from dotenv import load_dotenv
 from typing import List, Dict, Any
 
-class PineconeStore:
+class PineconeStore(VectorStore):
     def __init__(self, index_name: str,
                  model: str = "multilingual-e5-large"):
         """
