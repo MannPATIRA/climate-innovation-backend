@@ -55,9 +55,8 @@ class PyAlexPaperSource(AbstractPaperSource):
         ) \
             .filter(
             primary_topic={"domain": {"id": "!4"}}
-        ).get(per_page=10)
+        ).get(per_page=100)
 
-        return query
-
-
-print(PyAlexPaperSource().get_paper_abstracts("gb")[0])
+        # We just getting the abstracts with this one, need to discuss what else is important, obv the title and stuff
+        # but like any other info, can design the classes as needed
+        return list(filter(lambda x: x is not None, map(lambda x: x["abstract"], query)))
