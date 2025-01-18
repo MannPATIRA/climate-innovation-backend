@@ -8,7 +8,7 @@ RUN pip install poetry
 COPY . /app
 
 # Install dependencies
-RUN poetry install --without dev --no-interaction --no-ansi
+RUN poetry install --no-interaction --no-ansi
 
 # Run the app
 CMD ["poetry", "run", "app/main.py"]
