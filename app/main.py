@@ -2,17 +2,19 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
 HF_MODEL_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
 
-# 3) Access HF_TOKEN from environment
+# Access HF_TOKEN from environment
 HF_TOKEN = os.getenv("HF_TOKEN")
 if not HF_TOKEN:
-    # Optional: raise an error or warning if not found
     raise ValueError("No HF_TOKEN found in environment variables!")
+
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({"message": "Hello from the Hugging Face LLaMA backend from Aaryan Purohit!"})
@@ -30,8 +32,7 @@ def ask_llama():
         if not user_question:
             return jsonify({"error": "No question provided"}), 400
 
-        # Construct the prompt the same way the article tutorial showed:
-        # Here’s an example prompt that sets up system and user messages:
+        # Construct the prompt
         prompt = (
             "<|begin_of_text|><|start_header_id|>system<|end_header_id|>"
             "You are a helpful and smart assistant. You accurately provide an answer "
@@ -40,7 +41,6 @@ def ask_llama():
             "<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
         )
 
-        # You can customize parameters:
         parameters = {
             "max_new_tokens": 500,
             "temperature": 0.01,
@@ -77,4 +77,4 @@ def ask_llama():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
