@@ -1181,26 +1181,6 @@ files = [
 ]
 
 [[package]]
-name = "pyalex"
-version = "0.15.1"
-description = "Python interface to the OpenAlex database"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "pyalex-0.15.1-py3-none-any.whl", hash = "sha256:713a1aa1cee77f89f212afa58a0a262dbcea46b3c8a4a62dc232f2ed3ccf1ce3"},
-    {file = "pyalex-0.15.1.tar.gz", hash = "sha256:064ae2bc20b21e66a813bccf7f1aec3223ab112ca77e8a1f3e40d657281d181f"},
-]
-
-[package.dependencies]
-requests = "*"
-urllib3 = "*"
-
-[package.extras]
-lint = ["ruff"]
-test = ["pytest", "pytest-xdist"]
-
-[[package]]
 name = "pydantic"
 version = "2.10.5"
 description = "Data validation using Python type hints"
@@ -1808,4 +1788,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "9002afb68f19fd130c89804ae6a279bf837fec9d0f43c65df075fae0c551532a"
+content-hash = "b4bf7399dcd7e5737590a1b75e610c45193185b68bee4c554e5af4551e56adee"
