@@ -14,7 +14,13 @@ dependencies = [
     "langchain-community (>=0.3.14,<0.4.0)",
     "langchain (>=0.3.14,<0.4.0)",
     "flask (>=3.1.0,<4.0.0)",
-    "flask-cors (>=5.0.0,<6.0.0)"
+    "flask-cors (>=5.0.0,<6.0.0)",
+    "google (>=3.0.0,<4.0.0)",
+    "protobuf (>=5.29.3,<6.0.0)",
+    "googleapis-common-protos (>=1.66.0,<2.0.0)",
+    "grpcio (>=1.69.0,<2.0.0)",
+    "grpcio-tools (>=1.69.0,<2.0.0)",
+    "protoc-gen-openapiv2 (>=0.0.1,<0.0.2)"
 ]
 
 

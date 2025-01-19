@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Dict, Any
 
 from pyalex import Works
+from pinecone_store import PineconeStore
 
 
 # Abstract interface for paper sources
@@ -11,7 +12,7 @@ class AbstractPaperSource(ABC):
     """
 
     @abstractmethod
-    def get_paper_abstracts(self, **kwargs) -> List[str]:
+    def get_paper_abstracts(self, **kwargs) -> (List[str], List[Dict[str, Any]]):
         """Fetches the abstracts of papers based on criteria."""
         pass
 
@@ -21,7 +22,7 @@ class PyAlexPaperSource(AbstractPaperSource):
     def __init__(self, **kwargs):
         pass
 
-    def get_paper_abstracts(self, country, **kwargs) -> List[str]:
+    def get_paper_abstracts(self, country, **kwargs) -> (List[str], List[Dict[str, Any]]):
         """
         Fetches paper abstracts using the pyalex library.
 
@@ -59,4 +60,13 @@ class PyAlexPaperSource(AbstractPaperSource):
 
         # We just getting the abstracts with this one, need to discuss what else is important, obv the title and stuff
         # but like any other info, can design the classes as needed
-        return list(filter(lambda x: x is not None, map(lambda x: x["abstract"], query)))
+        abstracts = list(filter(lambda a: a is not None, map(lambda d: d['abstract'], query)))
+        remainder = list(map(lambda d: {k: v for k, v in d.items() if k == 'id' or k == "doi" or k == "title"}, query))
+        return abstracts, remainder
+
+
+pcs = PineconeStore("climate-test")
+
+ab, meta = PyAlexPaperSource().get_paper_abstracts("gb")
+
+pcs.add_chunks(ab, meta, namespace="papers")
