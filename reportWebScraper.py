@@ -141,9 +141,6 @@ def process_goal(driver, goal_url, goal_name):
 
 def save_to_csv(results):
     """Save the results to a CSV file"""
-    import csv
-    import os
-    
     filename = 'evidence_results.csv'
     file_exists = os.path.isfile(filename)
     
