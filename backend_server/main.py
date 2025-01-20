@@ -41,7 +41,7 @@ class Query(BaseModel):
 
 
 # Initialize the query processor
-query_processor = QueryProcessor()
+query_processor = MockQueryProcessor()
 
 @app.get("/")
 async def home():
