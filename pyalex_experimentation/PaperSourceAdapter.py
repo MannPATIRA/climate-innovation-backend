@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 
 from pyalex import Works
-from pinecone_store import PineconeStore
+from common.pinecone_store import PineconeStore
 
 
 # Abstract interface for paper sources
