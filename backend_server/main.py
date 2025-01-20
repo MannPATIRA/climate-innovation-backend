@@ -78,8 +78,8 @@ async def stream_query(query: Query):
     async def streaming_completion_callback(query: str, full_response: str):
         """Callback function called when streaming is complete"""
         # Here you would typically save to your database
-        print(f"Completed processing query: {query}")
-        print(f"Full response: {full_response}")
+        print(f"Completed processing query:\n {query}")
+        print(f"Full response:\n {full_response}")
         # Add your database saving logic here
 
     try:
