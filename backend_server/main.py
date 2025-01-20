@@ -1,13 +1,25 @@
 import os
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import requests
 from dotenv import load_dotenv
+from pydantic import BaseModel
+
+# Load environment variables
 load_dotenv()
 
-app = Flask(__name__)
-CORS(app)
+app = FastAPI()
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Constants
 HF_MODEL_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
 
 # Access HF_TOKEN from environment
@@ -15,29 +27,26 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 if not HF_TOKEN:
     raise ValueError("No HF_TOKEN found in environment variables!")
 
-@app.route('/', methods=['GET'])
-def home():
-    return jsonify({"message": "Hello from the Hugging Face LLaMA backend from Aaryan Purohit!"})
+# Pydantic model for request validation
+class Question(BaseModel):
+    question: str
 
-@app.route('/api/ask', methods=['POST'])
-def ask_llama():
+@app.get("/")
+async def home():
+    return {"message": "Hello from the Hugging Face LLaMA backend from Aaryan Purohit!"}
+
+@app.post("/api/ask")
+async def ask_llama(question_data: Question):
     """
-    This endpoint receives a JSON body with 'question' 
-    and returns a JSON response with 'answer'.
+    This endpoint receives a question and returns an answer from the LLaMA model.
     """
     try:
-        data = request.get_json()
-        user_question = data.get('question', None)
-
-        if not user_question:
-            return jsonify({"error": "No question provided"}), 400
-
         # Construct the prompt
         prompt = (
             "<|begin_of_text|><|start_header_id|>system<|end_header_id|>"
             "You are a helpful and smart assistant. You accurately provide an answer "
             "to the provided user query.<|eot_id|><|start_header_id|>user<|end_header_id|>"
-            f" Here is the query: ```{user_question}```. Provide a precise and concise answer."
+            f" Here is the query: ```{question_data.question}```. Provide a precise and concise answer."
             "<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
         )
 
@@ -65,16 +74,16 @@ def ask_llama():
 
         # Check for errors from the HF API
         if isinstance(response_json, dict) and response_json.get("error"):
-            return jsonify({"error": response_json["error"]}), 500
+            raise HTTPException(status_code=500, detail=response_json["error"])
 
-        # Typically, the HF API returns an array. Extract the generated text from the first object:
+        # Extract the generated text from the first object
         generated_text = response_json[0]["generated_text"].strip()
 
-        return jsonify({"answer": generated_text})
+        return {"answer": generated_text}
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

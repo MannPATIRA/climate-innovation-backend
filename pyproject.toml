@@ -22,7 +22,9 @@ dependencies = [
     "grpcio-tools (>=1.69.0,<2.0.0)",
     "protoc-gen-openapiv2 (>=0.0.1,<0.0.2)",
     "supabase (>=2.11.0,<3.0.0)",
-    "pyalex (>=0.15.1,<0.16.0)"
+    "pyalex (>=0.15.1,<0.16.0)",
+    "fastapi (>=0.115.6,<0.116.0)",
+    "uvicorn (>=0.34.0,<0.35.0)"
 ]
 
 [build-system]
