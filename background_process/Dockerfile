@@ -13,4 +13,4 @@ RUN poetry install --no-interaction --no-ansi --no-root
 RUN ls
 
 # Run the app
-CMD ["poetry", "run", "python", "background_process/main.py"]
+CMD ["poetry", "run", "python", "-m", "background_process.main"]
