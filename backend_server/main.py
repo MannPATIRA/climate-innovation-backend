@@ -7,10 +7,8 @@ from pydantic import BaseModel
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.output_parser import StrOutputParser
 from langchain_openai import ChatOpenAI
-import json
 from fastapi.responses import StreamingResponse
 from common.pinecone_store import PineconeStore
-import asyncio
 from .query_processors import MockQueryProcessor, QueryProcessor
 
 # Load environment variables
