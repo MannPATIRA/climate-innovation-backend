@@ -15,7 +15,7 @@ class AbstractReportFetcher(ABC):
 class LocalPDFFetcher(AbstractReportFetcher):
     def __init__(self, directory: str):
         self.directory = directory
-        self.temp_directory = os.path.join(os.path.dirname(directory), "_temp")
+        self.temp_directory = os.path.join(os.path.dirname(directory), "processing_temp")
         if not os.path.exists(self.temp_directory):
             os.makedirs(self.temp_directory)
 
