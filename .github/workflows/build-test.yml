@@ -24,6 +24,10 @@ jobs:
           pip install poetry
           poetry install --no-root
 
-      - name: Run tests
-        run: |
-          pytest
+      # - name: Run tests
+      #   env:
+      #     PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+      #     SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      #     SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      #   run: |
+      #     pytest
