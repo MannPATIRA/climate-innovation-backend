@@ -58,7 +58,6 @@ class Orchestrator:
                             "report_id": report_record["id"],
                             "summary_id": summary_record["id"],
                             "content_hash": summary_hash,
-                            "type": "summary"
                         }
                         self.summary_processor.chunk_and_embed(summary, summary_metadata)
                     else:
