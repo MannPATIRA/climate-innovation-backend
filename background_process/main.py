@@ -1,9 +1,9 @@
 from supabase import create_client
 from common.pinecone_store import PineconeStore
 from .fetchers import LocalPDFFetcher
-from .report_processor import ReportProcessor
-from .summary_processor import SummaryProcessor
-from .orchestrator import Orchestrator
+from .processors import ReportProcessor
+from .summary_processors import SummaryProcessor
+from .orchestrators import Orchestrator, ReportOrchestrator
 import os
 from dotenv import load_dotenv
 
@@ -27,7 +27,7 @@ def main():
     summary_processor = SummaryProcessor(None, supabase, pinecone_store)  # Summarizer to be implemented later
 
     # Create and run orchestrator
-    orchestrator = Orchestrator(fetcher, report_processor, None)
+    orchestrator = ReportOrchestrator(fetcher, report_processor, None)
     orchestrator.run()
 
 if __name__ == "__main__":

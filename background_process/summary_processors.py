@@ -5,11 +5,17 @@ from typing import Dict, Any, List
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import hashlib
 
+
 class Summarizer(ABC):
     @abstractmethod
     def generate_summary(self, text: str) -> str:
         """Generates a summary for the given text."""
         pass
+
+    def generate_content_hash(self, content: str) -> str:
+        """Generate a hash for the content using SHA-256"""
+        return hashlib.sha256(content.encode()).hexdigest()
+
 
 class SummaryProcessor:
     def __init__(self, summarizer: Summarizer, supabase_client: Client, pinecone_store: PineconeStore):
@@ -25,10 +31,6 @@ class SummaryProcessor:
         """Generate summary using the provided summarizer"""
         return self.summarizer.generate_summary(text)
 
-    def generate_content_hash(self, content: str) -> str:
-        """Generate a hash for the content using SHA-256"""
-        return hashlib.sha256(content.encode()).hexdigest()
-
     def add_summary_to_db(self, summary: str, report_id: int, content_hash: str) -> Dict[str, Any]:
         """Add summary to Supabase DB"""
         data = {
@@ -38,7 +40,7 @@ class SummaryProcessor:
         }
         response = self.supabase.table('summaries').insert(data).execute()
         return response.data[0]
-    
+
     def get_summary(self, content_hash: str) -> Dict[str, Any]:
         """Get summary from Supabase DB by content hash"""
         response = self.supabase.table('summaries') \
@@ -46,7 +48,6 @@ class SummaryProcessor:
             .eq('content_hash', content_hash) \
             .execute()
         return response.data
-
 
     def chunk_text(self, text: str) -> List[str]:
         """Split text into chunks using LangChain's text splitter"""
@@ -66,3 +67,27 @@ class SummaryProcessor:
             return success
         except Exception as e:
             raise Exception(f"Error adding summary to Pinecone: {str(e)}")
+
+    def summarize(self, content: str, report_record: Dict[str, Any], report_path: str):
+        summary = self.summarizer.generate_summary(content)
+        summary_hash = self.summarizer.generate_content_hash(summary)
+
+        # Only process summary if it hasn't been processed before
+        if not self.get_summary(summary_hash):
+            # Add to Supabase
+            summary_record = self.add_summary_to_db(
+                summary,
+                report_record["id"],
+                summary_hash
+            )
+
+            # Add to Pinecone
+            summary_metadata = {
+                "report_id": report_record["id"],
+                "summary_id": summary_record["id"],
+                "content_hash": summary_hash,
+            }
+            self.chunk_and_embed(summary, summary_metadata)
+
+        else:
+            print(f"Summary for report {report_path} already exists.")

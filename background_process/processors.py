@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 from supabase import Client
 from common.pinecone_store import PineconeStore
 from PyPDF2 import PdfReader
@@ -5,14 +7,27 @@ import hashlib
 from typing import Dict, Any, List
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-class ReportProcessor:
+
+class Processor(ABC):
     def __init__(self, supabase_client: Client, pinecone_store: PineconeStore):
+        # Add a ChunkingStrategy class to take in constructor so we can use different chunking strategies LATER
         self.supabase = supabase_client
         self.pinecone_store = pinecone_store
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=500,
             chunk_overlap=50
         )
+
+    def generate_content_hash(self, content: str) -> str:
+        """Generate a hash for the content using SHA-256"""
+        return hashlib.sha256(content.encode()).hexdigest()
+
+    @abstractmethod
+    def process(self, path: str) -> (str, Dict[str, Any]):
+        pass
+
+
+class ReportProcessor(Processor):
 
     def convert_pdf_to_text(self, pdf_path: str) -> str:
         """Converts PDF to text using PyPDF2"""
@@ -27,10 +42,6 @@ class ReportProcessor:
             return text_content
         except Exception as e:
             raise Exception(f"Error converting PDF to text: {str(e)}")
-
-    def generate_content_hash(self, content: str) -> str:
-        """Generate a hash for the content using SHA-256"""
-        return hashlib.sha256(content.encode()).hexdigest()
 
     def add_report_to_db(self, content: str, content_hash: str) -> Dict[str, Any]:
         """Add report to Supabase DB"""
@@ -68,3 +79,34 @@ class ReportProcessor:
             return success
         except Exception as e:
             raise Exception(f"Error adding to Pinecone: {str(e)}")
+
+    def process(self, report_path: str):
+        # Convert PDF to text and get content hash
+        content = self.convert_pdf_to_text(report_path)
+        content_hash = self.generate_content_hash(content)
+        print("content hash: ", content_hash)
+        # Check if report exists and get data if it does
+        existing_report = self.get_report(content_hash)
+        if not existing_report:
+            # Add to Supabase
+            report_record = self.add_report_to_db(content, content_hash)
+
+            # Add to Pinecone
+            report_metadata = {
+                "report_id": report_record["id"],
+                "content_hash": content_hash,
+            }
+            self.chunk_and_embed(content, report_metadata)
+        else:
+            print(f"Report {report_path} already processed.")
+            report_record = existing_report[0]
+
+        return content, report_record
+
+
+class PaperProcessor(Processor):
+    def process(self, path: str) -> (str, Dict[str, Any]):
+        pass
+
+    def chunk_and_embed(self, content: str, metadata: Dict[str, Any]) -> bool:
+        pass
