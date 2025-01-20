@@ -29,7 +29,9 @@ class ReportOrchestrator(Orchestrator):
         """Process a single report"""
         try:
 
-            (content, report_record) = self.processor.process(report_path)
+            data = {'report_path': report_path}
+
+            (content, report_record) = self.processor.process(data)
 
             # Process summary if summary processor exists
             if self.summarizer:
@@ -53,6 +55,6 @@ class ReportOrchestrator(Orchestrator):
 
 class PaperOrchestrator(Orchestrator):
 
-    @abstractmethod
     def run(self):
         """Main process to orchestrate the ingestion and vectorising of documents"""
+

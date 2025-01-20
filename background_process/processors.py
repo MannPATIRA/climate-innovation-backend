@@ -23,7 +23,7 @@ class Processor(ABC):
         return hashlib.sha256(content.encode()).hexdigest()
 
     @abstractmethod
-    def process(self, path: str) -> (str, Dict[str, Any]):
+    def process(self, data: Dict[Any, Any]) -> (str, Dict[str, Any]):
         pass
 
 
@@ -80,7 +80,10 @@ class ReportProcessor(Processor):
         except Exception as e:
             raise Exception(f"Error adding to Pinecone: {str(e)}")
 
-    def process(self, report_path: str):
+    def process(self, data):
+
+        report_path = data['report_path']
+
         # Convert PDF to text and get content hash
         content = self.convert_pdf_to_text(report_path)
         content_hash = self.generate_content_hash(content)
@@ -105,8 +108,5 @@ class ReportProcessor(Processor):
 
 
 class PaperProcessor(Processor):
-    def process(self, path: str) -> (str, Dict[str, Any]):
-        pass
-
-    def chunk_and_embed(self, content: str, metadata: Dict[str, Any]) -> bool:
+    def process(self, data) -> (str, Dict[str, Any]):
         pass
