@@ -58,7 +58,7 @@ class SummaryProcessor:
         try:
             chunks = self.chunk_text(summary)
             # Duplicate metadata for each chunk
-            metadatas = [metadata for _ in chunks]
+            metadatas = [{**metadata, "content": chunk} for chunk in chunks]
             success = self.pinecone_store.add_chunks(
                 chunks=chunks,
                 metadata=metadatas,

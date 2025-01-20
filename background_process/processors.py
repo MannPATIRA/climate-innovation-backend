@@ -70,7 +70,7 @@ class ReportProcessor(Processor):
             chunks = self.chunk_text(content)
             # Duplicate metadata for each chunk
             print("number of chunks in report to embed: ", len(chunks))
-            metadatas = [metadata for _ in chunks]
+            metadatas = [{**metadata, "content": chunk} for chunk in chunks]
             success = self.pinecone_store.add_chunks(
                 chunks=chunks,
                 metadata=metadatas,
