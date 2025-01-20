@@ -83,44 +83,73 @@ def process_goal(driver, goal_url, goal_name):
     3. Goes through each outcome
     4. Collects all the evidence
     """
+    results = []
     try:
         print(f"\n=== Starting to process goal: {goal_name} ===")
         
-        # First, let's visit the goal's page
+        # Navigate to the goal URL with explicit wait
         driver.get(goal_url)
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.panel-content"))
+        )
         
         # Make sure we're on the Evidence tab
-        print("Looking for the Evidence tab...")
-        evidence_tab = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "a.menu-link[href*='panel/evidence']"))
-        )
         if 'panel/evidence' not in driver.current_url:
-            print("Clicking on Evidence tab...")
+            print("Looking for the Evidence tab...")
+            evidence_tab = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "a.menu-link[href*='panel/evidence']"))
+            )
             evidence_tab.click()
-            time.sleep(2)  # Give it a moment to switch tabs
+            time.sleep(2)
         
-        # Now let's get all the outcomes we need to look at
+        # Rest of the processing...
         outcomes = get_outcomes(driver)
         
-        # Go through each outcome one by one
         for outcome in outcomes:
             print(f"\n-> Looking at outcome: {outcome}")
             
-            # Select this outcome from the dropdown
-            dropdown = Select(driver.find_element(By.CSS_SELECTOR, "form.highlight-nav select.menu-item"))
+            dropdown = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "form.highlight-nav select.menu-item"))
+            )
+            select = Select(dropdown)
             print(f"Selecting {outcome} from dropdown...")
-            dropdown.select_by_visible_text(outcome)
-            time.sleep(2)  # Give the page time to update
+            select.select_by_visible_text(outcome)
+            time.sleep(2)
             
-            # Get all the evidence links for this outcome
             evidence_links = get_evidence_links(driver)
             
+            # Save the results
             for link in evidence_links:
+                results.append({
+                    'goal': goal_name,
+                    'outcome': outcome,
+                    'evidence_url': link['url'],
+                    'evidence_text': link['text']
+                })
                 print(f"Found evidence: {link['text']}")
                 # TODO: Here's where we'd actually download or save the evidence
-                
+    
+    # save_to_csv(results)            
     except Exception as e:
         print(f"Something went wrong while processing {goal_name}: {e}")
+        driver.save_screenshot(f"error_{goal_name.replace(' ', '_')}.png")
+
+
+def save_to_csv(results):
+    """Save the results to a CSV file"""
+    import csv
+    import os
+    
+    filename = 'evidence_results.csv'
+    file_exists = os.path.isfile(filename)
+    
+    with open(filename, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['goal', 'outcome', 'evidence_url', 'evidence_text'])
+        
+        if not file_exists:
+            writer.writeheader()
+            
+        writer.writerows(results)
 
 def main():
     """This is where everything starts!
@@ -136,22 +165,38 @@ def main():
     driver = setup_driver()
     
     try:
-        # Let's get this party started!
+        # Go to the main dashboard
         print("Going to the main dashboard...")
         driver.get("https://iris.thegiin.org/share/id/47226x678e3dca05e43/")
         
-        # Find all the goals we need to process
-        goals = driver.find_elements(By.CSS_SELECTOR, "li.tab-item a")
+        # Wait for the tab menu to be present and find all goal links
+        tab_menu = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.tab-menu"))
+        )
+        
+        # Find all goal links within the tab menu
+        goal_elements = tab_menu.find_elements(By.CSS_SELECTOR, "li.tab-item a")
+        
+        # Create a list of goals with their URLs and names
+        goals = []
+        for goal_element in goal_elements:
+            goals.append({
+                'url': goal_element.get_attribute('href'),
+                'name': goal_element.find_element(By.CSS_SELECTOR, "span").text
+            })
+        
         print(f"Found {len(goals)} goals to process")
         
         # Process each goal one at a time
-        for goal in goals:
-            goal_url = goal.get_attribute('href')
-            goal_name = goal.find_element(By.TAG_NAME, "span").text
-            process_goal(driver, goal_url, goal_name)
+        for index, goal in enumerate(goals, 1):
+            print(f"\nProcessing goal {index} of {len(goals)}")
+            print(f"Goal: {goal['name']}")
+            process_goal(driver, goal['url'], goal['name'])
             
     except Exception as e:
         print(f"Oops! Something went wrong in the main process: {e}")
+        # Optionally capture a screenshot of the error
+        driver.save_screenshot("error.png")
     finally:
         print("\nAll done! Closing the browser...")
         driver.quit()
