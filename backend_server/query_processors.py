@@ -1,4 +1,3 @@
-
 import asyncio
 import json
 from langchain.prompts import ChatPromptTemplate
@@ -71,13 +70,12 @@ class QueryProcessor:
         prompt = ChatPromptTemplate.from_template(
             "Answer the following query professionally using the provided context\n"
             "Query: {query}\n"
-            "Context: {context}\n"
+            "Context \n\n: {context}\n"
             "After responding, extract 3-5 main topics from this response.\n"
             "Format these topics as a JSON list of strings under a 'topics' key.\n"
             "Format: {{'topics': ['topic 1', 'topic 2', 'topic 3']}}"
         )
         parser = StrOutputParser()
-        
 
         return (
             {
