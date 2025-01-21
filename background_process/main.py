@@ -5,16 +5,14 @@ from .processors import ReportProcessor
 from .summary_processors import SummaryProcessor
 from .orchestrators import Orchestrator, ReportOrchestrator
 import os
+from common.supabase_client import init_supabase
 from dotenv import load_dotenv
 
 def main():
     load_dotenv()
 
     # Initialize clients
-    supabase = create_client(
-        os.environ.get("SUPABASE_URL"),
-        os.environ.get("SUPABASE_KEY")
-    )
+    supabase = init_supabase()
 
     pinecone_store = PineconeStore(
         index_name="test-index",

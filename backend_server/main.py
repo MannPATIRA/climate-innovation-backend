@@ -10,7 +10,10 @@ from langchain_openai import ChatOpenAI
 from fastapi.responses import StreamingResponse
 from common.pinecone_store import PineconeStore
 from .query_processors import MockQueryProcessor, QueryProcessor
+from common.supabase_client import init_supabase
+from supabase import Client
 
+supabase: Client = init_supabase()
 # Load environment variables
 load_dotenv()
 
@@ -45,6 +48,22 @@ query_processor = MockQueryProcessor()
 @app.get("/")
 async def home():
     return {"message": "Hello from the Hugging Face LLaMA backend from Aaryan Purohit!"}
+
+@app.post("/api/{source_type}/chat")
+async def create_chat(source_type: str):
+    try:
+        # Validate source_type and map to chat type
+        if source_type not in ["reports", "papers"]:
+            raise HTTPException(status_code=400, detail="Invalid source type. Must be 'reports' or 'papers'")
+        
+        # Insert new chat record
+        data = supabase.table("chats").insert({
+            "type": source_type.rstrip('s'),  # Convert 'reports' to 'report', 'papers' to 'paper'
+        }).execute()
+        
+        return data.data[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/reports/query")
 async def stream_query(query: Query):
