@@ -36,6 +36,7 @@ if not HF_TOKEN:
 # Pydantic model for request validation
 class Query(BaseModel):
     query: str
+    chat_id: str
 
 
 # Initialize the query processor
