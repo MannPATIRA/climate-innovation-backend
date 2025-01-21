@@ -49,6 +49,26 @@ query_processor = MockQueryProcessor()
 async def home():
     return {"message": "Hello from the Hugging Face LLaMA backend from Aaryan Purohit!"}
 
+@app.get("/api/chat/{chat_id}")
+async def get_chat(chat_id: int):
+    try:
+        # Query the chat record by ID
+        result = supabase.table("chats")\
+            .select("*")\
+            .eq("id", chat_id)\
+            .single()\
+            .execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail=f"Chat with ID {chat_id} not found")
+            
+        return result.data
+        
+    except Exception as e:
+        if "404" in str(e):  # Handle Supabase's not found error
+            raise HTTPException(status_code=404, detail=f"Chat with ID {chat_id} not found")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/{source_type}/chat")
 async def create_chat(source_type: str):
     try:
@@ -85,6 +105,8 @@ async def stream_query(query: Query):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
 
 if __name__ == "__main__":
     import uvicorn

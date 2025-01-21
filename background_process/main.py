@@ -9,8 +9,6 @@ from common.supabase_client import init_supabase
 from dotenv import load_dotenv
 
 def main():
-    load_dotenv()
-
     # Initialize clients
     supabase = init_supabase()
 
