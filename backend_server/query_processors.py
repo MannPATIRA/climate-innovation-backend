@@ -9,7 +9,7 @@ class MockQueryProcessor:
     def __init__(self):
         pass
 
-    async def process_stream(self, query: str, completion_callback):
+    async def process_stream(self, query: str, chat_history: list, completion_callback):
         """Generator function that yields streaming responses"""
         # Example predefined response
         mock_response = (
@@ -33,7 +33,7 @@ class MockQueryProcessor:
             yield f"data: {json.dumps({'text': chunk})}\n\n"
         
         # After the stream is complete, call the completion callback
-        await completion_callback(query, full_response)
+        await completion_callback(full_response)
 
 class QueryProcessor:
     def __init__(self):
@@ -87,7 +87,7 @@ class QueryProcessor:
             | parser
         )
 
-    async def process_stream(self, query: str, completion_callback):
+    async def process_stream(self, query: str, chat_history: list, completion_callback):
         """Generator function that yields streaming responses"""
         full_response = ""
         
@@ -97,4 +97,4 @@ class QueryProcessor:
             yield f"data: {json.dumps({'text': chunk})}\n\n"
         
         # After the stream is complete, call the completion callback
-        await completion_callback(query, full_response)
+        await completion_callback(full_response)

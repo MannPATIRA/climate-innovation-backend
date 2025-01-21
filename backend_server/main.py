@@ -87,10 +87,60 @@ async def create_chat(source_type: str):
 
 @app.post("/api/reports/query")
 async def stream_query(query: Query):
-    async def streaming_completion_callback(query: str, full_response: str):
+    # First get the chat and verify it exists
+    chat_result = supabase.table("chats")\
+        .select("*")\
+        .eq("id", query.chat_id)\
+        .execute()
+        
+    if not chat_result.data:
+        raise HTTPException(status_code=404, detail=f"Chat with ID {query.chat_id} not found")
+    
+    chat = chat_result.data[0]
+    current_count = chat.get('message_count', 0)
+    
+    # Get chat history
+    history_result = supabase.table("chat_messages")\
+        .select("*")\
+        .eq("chat_id", query.chat_id)\
+        .order("order")\
+        .execute()
+    
+    chat_history = history_result.data
+    # Store user message
+    new_message_order = current_count + 1
+    supabase.table("chat_messages").insert({
+        "content": query.query,
+        "order": new_message_order,
+        "user_message": True,
+        "chat_id": query.chat_id
+    }).execute()
+    
+    # Update message count
+    supabase.table("chats")\
+        .update({"message_count": new_message_order})\
+        .eq("id", query.chat_id)\
+        .execute()
+    
+
+    async def streaming_completion_callback(full_response: str):
         """Callback function called when streaming is complete"""
+        # Store assistant response
+        response_order = new_message_order + 1
+        supabase.table("chat_messages").insert({
+            "content": full_response,
+            "order": response_order,
+            "user_message": False,
+            "chat_id": query.chat_id
+        }).execute()
+            
+        # Update message count again
+        supabase.table("chats")\
+            .update({"message_count": response_order})\
+            .eq("id", query.chat_id)\
+            .execute()
         # Here you would typically save to your database
-        print(f"Completed processing query:\n {query}")
+        print(f"Completed processing query:\n {query.query}")
         print(f"Full response:\n {full_response}")
         # Add your database saving logic here
 
@@ -98,7 +148,8 @@ async def stream_query(query: Query):
         # Create the streaming response with the completion callback
         return StreamingResponse(
             query_processor.process_stream(
-                query.query, 
+                query.query,
+                chat_history=chat_history,
                 completion_callback=streaming_completion_callback
             ),
             media_type="text/event-stream"
