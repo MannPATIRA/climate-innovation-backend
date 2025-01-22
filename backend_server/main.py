@@ -12,6 +12,7 @@ from common.pinecone_store import PineconeStore
 from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
 from supabase import Client
+from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -49,103 +50,65 @@ query_processor = MockQueryProcessor()
 async def home():
     return {"message": "Hello from the Hugging Face LLaMA backend from Aaryan Purohit!"}
 
+
+chat_repository = ChatRepository(supabase_client=supabase)
 @app.get("/api/chat/{chat_id}")
 async def get_chat(chat_id: int):
     try:
-        # Query the chat record by ID
-        result = supabase.table("chats")\
-            .select("*")\
-            .eq("id", chat_id)\
-            .single()\
-            .execute()
-        
-        if not result.data:
-            raise HTTPException(status_code=404, detail=f"Chat with ID {chat_id} not found")
-            
-        return result.data
-        
+        return chat_repository.get_chat(chat_id)
+    except ChatNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        if "404" in str(e):  # Handle Supabase's not found error
-            raise HTTPException(status_code=404, detail=f"Chat with ID {chat_id} not found")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/{source_type}/chat")
 async def create_chat(source_type: str):
     try:
-        # Validate source_type and map to chat type
-        if source_type not in ["reports", "papers"]:
-            raise HTTPException(status_code=400, detail="Invalid source type. Must be 'reports' or 'papers'")
-        
-        # Insert new chat record
-        data = supabase.table("chats").insert({
-            "type": source_type.rstrip('s'),  # Convert 'reports' to 'report', 'papers' to 'paper'
-        }).execute()
-        
-        return data.data[0]
+        return chat_repository.create_chat(source_type)
+    except InvalidSourceTypeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/reports/query")
 async def stream_query(query: Query):
-    # First get the chat and verify it exists
-    chat_result = supabase.table("chats")\
-        .select("*")\
-        .eq("id", query.chat_id)\
-        .execute()
-        
-    if not chat_result.data:
-        raise HTTPException(status_code=404, detail=f"Chat with ID {query.chat_id} not found")
-    
-    chat = chat_result.data[0]
-    current_count = chat.get('message_count', 0)
-    
-    # Get chat history
-    history_result = supabase.table("chat_messages")\
-        .select("*")\
-        .eq("chat_id", query.chat_id)\
-        .order("order")\
-        .execute()
-    
-    chat_history = history_result.data
-    # Store user message
-    new_message_order = current_count + 1
-    supabase.table("chat_messages").insert({
-        "content": query.query,
-        "order": new_message_order,
-        "user_message": True,
-        "chat_id": query.chat_id
-    }).execute()
-    
-    # Update message count
-    supabase.table("chats")\
-        .update({"message_count": new_message_order})\
-        .eq("id", query.chat_id)\
-        .execute()
-    
-
-    async def streaming_completion_callback(full_response: str):
-        """Callback function called when streaming is complete"""
-        # Store assistant response
-        response_order = new_message_order + 1
-        supabase.table("chat_messages").insert({
-            "content": full_response,
-            "order": response_order,
-            "user_message": False,
-            "chat_id": query.chat_id
-        }).execute()
-            
-        # Update message count again
-        supabase.table("chats")\
-            .update({"message_count": response_order})\
-            .eq("id", query.chat_id)\
-            .execute()
-        # Here you would typically save to your database
-        print(f"Completed processing query:\n {query.query}")
-        print(f"Full response:\n {full_response}")
-        # Add your database saving logic here
-
     try:
-        # Create the streaming response with the completion callback
+        # Get chat and verify it exists
+        chat = chat_repository.get_chat(query.chat_id)
+        current_count = chat.get('message_count', 0)
+        
+        # Get chat history
+        chat_history = chat_repository.get_chat_history(query.chat_id)
+        
+        # Store user message
+        new_message_order = current_count + 1
+        chat_repository.add_message(
+            query.chat_id,
+            query.query,
+            new_message_order,
+            True
+        )
+        
+        # Update message count
+        chat_repository.update_message_count(query.chat_id, new_message_order)
+
+        async def streaming_completion_callback(full_response: str):
+            """Callback function called when streaming is complete"""
+            # Store assistant response
+            response_order = new_message_order + 1
+            chat_repository.add_message(
+                query.chat_id,
+                full_response,
+                response_order,
+                False
+            )
+                
+            # Update message count again
+            chat_repository.update_message_count(query.chat_id, response_order)
+            
+            print(f"Completed processing query:\n {query.query}")
+            print(f"Full response:\n {full_response}")
+
         return StreamingResponse(
             query_processor.process_stream(
                 query.query,
@@ -154,6 +117,8 @@ async def stream_query(query: Query):
             ),
             media_type="text/event-stream"
         )
+    except ChatNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
