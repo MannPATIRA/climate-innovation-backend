@@ -4,6 +4,7 @@ from common.pinecone_store import PineconeStore
 from typing import Dict, Any, List
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import hashlib
+from .processors import PDFDocument
 
 
 class Summarizer(ABC):
@@ -31,12 +32,13 @@ class SummaryProcessor:
         """Generate summary using the provided summarizer"""
         return self.summarizer.generate_summary(text)
 
-    def add_summary_to_db(self, summary: str, report_id: int, content_hash: str) -> Dict[str, Any]:
+    def add_summary_to_db(self, summary: str, report_id: int, document: PDFDocument, content_hash: str) -> Dict[str, Any]:
         """Add summary to Supabase DB"""
         data = {
             "content": summary,
             "content_hash": content_hash,
-            "report_id": report_id
+            "report_id": report_id,
+            "title": document.title,
         }
         response = self.supabase.table('summaries').insert(data).execute()
         return response.data[0]
@@ -68,8 +70,8 @@ class SummaryProcessor:
         except Exception as e:
             raise Exception(f"Error adding summary to Pinecone: {str(e)}")
 
-    def summarize(self, content: str, report_record: Dict[str, Any], report_path: str):
-        summary = self.summarizer.generate_summary(content)
+    def summarize(self, document: PDFDocument, report_record: Dict[str, Any], report_path: str):
+        summary = self.summarizer.generate_summary(document.content)
         summary_hash = self.summarizer.generate_content_hash(summary)
 
         # Only process summary if it hasn't been processed before
@@ -78,6 +80,7 @@ class SummaryProcessor:
             summary_record = self.add_summary_to_db(
                 summary,
                 report_record["id"],
+                document,
                 summary_hash
             )
 
@@ -85,6 +88,7 @@ class SummaryProcessor:
             summary_metadata = {
                 "report_id": report_record["id"],
                 "summary_id": summary_record["id"],
+                "report_title": document.title,
                 "content_hash": summary_hash,
             }
             self.chunk_and_embed(summary, summary_metadata)

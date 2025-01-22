@@ -31,12 +31,12 @@ class ReportOrchestrator(Orchestrator):
 
             data = {'report_path': report_path}
 
-            (content, report_record) = self.processor.process(data)
+            (document, report_record) = self.processor.process(data)
 
             # Process summary if summary processor exists
             if self.summarizer:
                 try:
-                    self.summarizer.summarize(content, report_record, report_path)
+                    self.summarizer.summarize(document, report_record, report_path)
                 except Exception as e:
                     print(f"Error processing summary for {report_path}: {str(e)}")
 

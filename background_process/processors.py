@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+import os
 
 from supabase import Client
 from common.pinecone_store import PineconeStore
@@ -27,27 +29,45 @@ class Processor(ABC):
         pass
 
 
+@dataclass
+class PDFDocument:
+    content: str
+    title: str
+    content_hash: str
+
 class ReportProcessor(Processor):
 
-    def convert_pdf_to_text(self, pdf_path: str) -> str:
-        """Converts PDF to text using PyPDF2"""
-        text_content = ''
+    def convert_pdf_to_text(self, pdf_path: str) -> PDFDocument:
+        """Converts PDF to text using PyPDF2 and extracts title from filename"""
         try:
+            # Extract title from path (filename without extension)
+            title = os.path.splitext(os.path.basename(pdf_path))[0]
+            
+            # Convert PDF content
+            text_content = ''
             with open(pdf_path, 'rb') as pdf_file:
                 reader = PdfReader(pdf_file)
                 for page in reader.pages:
                     page_text = page.extract_text()
                     if page_text:
                         text_content += page_text + '\n'
-            return text_content
+            
+            # Generate hash and return PDFDocument
+            content_hash = self.generate_content_hash(text_content)
+            return PDFDocument(
+                content=text_content,
+                title=title,
+                content_hash=content_hash
+            )
         except Exception as e:
             raise Exception(f"Error converting PDF to text: {str(e)}")
 
-    def add_report_to_db(self, content: str, content_hash: str) -> Dict[str, Any]:
+    def add_report_to_db(self, pdf_doc: PDFDocument) -> Dict[str, Any]:
         """Add report to Supabase DB"""
         data = {
-            "content": content,
-            "content_hash": content_hash
+            "content": pdf_doc.content,
+            "content_hash": pdf_doc.content_hash,
+            "report_title": pdf_doc.title
         }
         response = self.supabase.table('reports').insert(data).execute()
         return response.data[0]
@@ -64,13 +84,15 @@ class ReportProcessor(Processor):
         """Split text into chunks using LangChain's text splitter"""
         return self.text_splitter.split_text(text)
 
-    def chunk_and_embed(self, content: str, metadata: Dict[str, Any]) -> bool:
+    def chunk_and_embed(self, pdf_doc: PDFDocument, metadata: Dict[str, Any]) -> bool:
         """Add report content to Pinecone with metadata"""
         try:
-            chunks = self.chunk_text(content)
-            # Duplicate metadata for each chunk
-            print("number of chunks in report to embed: ", len(chunks))
-            metadatas = [{**metadata, "content": chunk} for chunk in chunks]
+            chunks = self.chunk_text(pdf_doc.content)
+            # Add title to metadata for each chunk
+            metadatas = [{
+                **metadata,
+                "content": chunk,
+            } for chunk in chunks]
             success = self.pinecone_store.add_chunks(
                 chunks=chunks,
                 metadata=metadatas,
@@ -81,30 +103,29 @@ class ReportProcessor(Processor):
             raise Exception(f"Error adding to Pinecone: {str(e)}")
 
     def process(self, data):
-
         report_path = data['report_path']
 
-        # Convert PDF to text and get content hash
-        content = self.convert_pdf_to_text(report_path)
-        content_hash = self.generate_content_hash(content)
-        print("content hash: ", content_hash)
+        # Convert PDF to text and get PDFDocument
+        pdf_doc = self.convert_pdf_to_text(report_path)
+        
         # Check if report exists and get data if it does
-        existing_report = self.get_report(content_hash)
+        existing_report = self.get_report(pdf_doc.content_hash)
         if not existing_report:
             # Add to Supabase
-            report_record = self.add_report_to_db(content, content_hash)
+            report_record = self.add_report_to_db(pdf_doc)
 
             # Add to Pinecone
             report_metadata = {
                 "report_id": report_record["id"],
-                "content_hash": content_hash,
+                "content_hash": pdf_doc.content_hash,
+                "report_title": pdf_doc.title
             }
-            self.chunk_and_embed(content, report_metadata)
+            self.chunk_and_embed(pdf_doc, report_metadata)
         else:
             print(f"Report {report_path} already processed.")
             report_record = existing_report[0]
 
-        return content, report_record
+        return pdf_doc, report_record
 
 
 class PaperProcessor(Processor):

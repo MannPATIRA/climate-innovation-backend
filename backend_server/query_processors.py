@@ -58,7 +58,8 @@ class QueryProcessor:
         for i, match in enumerate(matches, 1):
             if match.metadata and 'content' in match.metadata:
                 chunk_text = match.metadata['content']
-                formatted_context.append(f"Chunk {i}:\n{chunk_text}\n")
+                chunk_title = match.metadata["report_title"]
+                formatted_context.append(f"Chunk {i}:\n{chunk_text}\n\nSource:\n{chunk_title}\n\n")
         
         # Join all formatted chunks
         return "\n".join(formatted_context)
@@ -71,9 +72,9 @@ class QueryProcessor:
             "Answer the following query professionally using the provided context\n"
             "Query: {query}\n"
             "Context \n\n: {context}\n"
-            "After responding, extract 3-5 main topics from this response.\n"
-            "Format these topics as a JSON list of strings under a 'topics' key.\n"
-            "Format: {{'topics': ['topic 1', 'topic 2', 'topic 3']}}"
+            "After responding, extract 3-5 main topics from this response along with their sources.\n"
+            "Format the output as a JSON list of objects, where each object has 'topic' and 'source' keys.\n"
+            "Format: {{'topics': [{'topic': 'topic 1', 'source': 'source 1'}, {'topic': 'topic 2', 'source': 'source 2'}]}}"
         )
         parser = StrOutputParser()
 
