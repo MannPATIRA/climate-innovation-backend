@@ -74,7 +74,7 @@ class QueryProcessor:
             "Context \n\n: {context}\n"
             "After responding, extract 3-5 main topics from this response along with their sources.\n"
             "Format the output as a JSON list of objects, where each object has 'topic' and 'source' keys.\n"
-            "Format: {{'topics': [{'topic': 'topic 1', 'source': 'source 1'}, {'topic': 'topic 2', 'source': 'source 2'}]}}"
+            "Format: {{'topics': [{{'topic': 'topic 1', 'source': 'source 1'}}, {{'topic': 'topic 2', 'source': 'source 2'}}]}}"
         )
         parser = StrOutputParser()
 
