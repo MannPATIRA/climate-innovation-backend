@@ -19,7 +19,9 @@ class MockQueryProcessor:
             "2. It emphasizes the importance of scalability\n"
             "3. Security considerations are highlighted\n\n"
             "The analysis suggests that...\n"
-            "{'topics': ['Software Architecture', 'System Scalability', 'Security Principles']}"
+            "{'topics': [{'topic': 'Software Architecture', 'source': 'System Design Doc'}, "
+            "{'topic': 'System Scalability', 'source': 'Architecture Guide'}, "
+            "{'topic': 'Security Principles', 'source': 'Security Manual'}]}"
         )
         
         full_response = ""
@@ -30,7 +32,7 @@ class MockQueryProcessor:
             full_response += chunk
             print(chunk)
             await asyncio.sleep(0.02)  # Add delay to simulate real streaming
-            yield f"data: {json.dumps({'text': chunk})}\n\n"
+            yield chunk
         
         # After the stream is complete, call the completion callback
         await completion_callback(full_response)
@@ -69,10 +71,12 @@ class QueryProcessor:
         model = ChatOpenAI(model="gpt-4o")
 
         prompt = ChatPromptTemplate.from_template(
-            "Answer the following query professionally using the provided context\n"
+            "Answer the following query in markdown format using the provided context\n"
             "Query: {query}\n"
             "Context \n\n: {context}\n"
-            "After responding, extract 3-5 main topics from this response along with their sources.\n"
+            "Your response must directly start with the markdown"
+            "After responding, extract 3-5 main points that answer the query from this response along with their sources.\n"
+            "When you extract these point, you must ensure that they come from the chunks, don't use your own knowledge"
             "Format the output as a JSON list of objects, where each object has 'topic' and 'source' keys.\n"
             "Format: {{'topics': [{{'topic': 'topic 1', 'source': 'source 1'}}, {{'topic': 'topic 2', 'source': 'source 2'}}]}}"
         )
@@ -95,7 +99,7 @@ class QueryProcessor:
         async for chunk in self.chain.astream({"query": query}):
             full_response += chunk
             print(chunk)
-            yield f"data: {json.dumps({'text': chunk})}\n\n"
+            yield chunk
         
         # After the stream is complete, call the completion callback
         await completion_callback(full_response)
