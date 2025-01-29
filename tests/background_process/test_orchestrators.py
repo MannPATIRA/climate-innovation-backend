@@ -37,7 +37,7 @@ def test_report_orchestrator_initialization(report_orchestrator, mock_fetcher, m
 def test_process_single_report_success(report_orchestrator, mock_processor):
     """Test successful processing of a single report"""
     # Setup
-    test_path = "test.pdf"
+    test_path = "testpath.pdf"
     mock_document = Mock()
     mock_record = Mock()
     mock_processor.process.return_value = (mock_document, mock_record)
@@ -67,7 +67,7 @@ def test_process_single_report_without_summarizer():
         summarizer=None
     )
     
-    test_path = "test.pdf"
+    test_path = "testpath.pdf"
     mock_document = Mock()
     mock_record = Mock()
     mock_processor.process.return_value = (mock_document, mock_record)
@@ -86,7 +86,7 @@ def test_process_single_report_without_summarizer():
 def test_process_single_report_processor_error(report_orchestrator, mock_processor):
     """Test handling of processor errors"""
     # Setup
-    test_path = "test.pdf"
+    test_path = "testpath.pdf"
     mock_processor.process.side_effect = Exception("Processing error")
 
     # Create a temporary file
@@ -104,7 +104,7 @@ def test_process_single_report_processor_error(report_orchestrator, mock_process
 def test_process_single_report_summarizer_error(report_orchestrator, mock_processor):
     """Test handling of summarizer errors"""
     # Setup
-    test_path = "test.pdf"
+    test_path = "testpath.pdf"
     mock_document = Mock()
     mock_record = Mock()
     mock_processor.process.return_value = (mock_document, mock_record)

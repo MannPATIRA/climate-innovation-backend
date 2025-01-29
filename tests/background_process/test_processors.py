@@ -60,7 +60,7 @@ def test_convert_pdf_to_text(mock_pdf_reader, report_processor):
     
     # Mock open file
     with patch("builtins.open", mock_open(read_data="dummy pdf content")):
-        result = report_processor.convert_pdf_to_text("test.pdf")
+        result = report_processor.convert_pdf_to_text("testpath.pdf")
     
     assert isinstance(result, PDFDocument)
     assert "test page content" in result.content
@@ -150,7 +150,7 @@ def test_process_new_report(report_processor, mock_supabase, mock_pinecone_store
         )
 
         # Execute
-        doc, record = report_processor.process({"report_path": "test.pdf"})
+        doc, record = report_processor.process({"report_path": "testpath.pdf"})
 
     # Verify
     assert isinstance(doc, PDFDocument)
@@ -172,7 +172,7 @@ def test_process_existing_report(report_processor, mock_supabase, mock_pinecone_
         )
 
         # Execute
-        doc, record = report_processor.process({"report_path": "test.pdf"})
+        doc, record = report_processor.process({"report_path": "testpath.pdf"})
 
     # Verify
     assert isinstance(doc, PDFDocument)

@@ -53,9 +53,9 @@ def sample_report_record():
     }
 
 # Tests for Summarizer
-def test_summarizer_generate_content_hash():
+def test_summarizer_generate_content_hash(mock_summarizer):
     """Test hash generation in Summarizer"""
-    summarizer = MockSummarizer()
+    summarizer = mock_summarizer
     content = "test content"
     hash1 = summarizer.generate_content_hash(content)
     hash2 = summarizer.generate_content_hash(content)
@@ -141,7 +141,7 @@ def test_summarize_new_summary(summary_processor, sample_document, sample_report
     mock_pinecone_store.add_chunks.return_value = True
     
     # Execute
-    summary_processor.summarize(sample_document, sample_report_record, "test.pdf")
+    summary_processor.summarize(sample_document, sample_report_record, "testpath.pdf")
     
     # Verify
     mock_supabase.table().insert.assert_called_once()
@@ -153,7 +153,7 @@ def test_summarize_existing_summary(summary_processor, sample_document, sample_r
     mock_supabase.table().select().eq().execute.return_value.data = [{"id": 1}]  # Existing summary
     
     # Execute
-    summary_processor.summarize(sample_document, sample_report_record, "test.pdf")
+    summary_processor.summarize(sample_document, sample_report_record, "testpath.pdf")
     
     # Verify
     mock_supabase.table().insert.assert_not_called()
@@ -176,7 +176,7 @@ def test_full_summary_workflow(summary_processor, sample_document, sample_report
     mock_pinecone_store.add_chunks.return_value = True
     
     # Execute
-    summary_processor.summarize(sample_document, sample_report_record, "test.pdf")
+    summary_processor.summarize(sample_document, sample_report_record, "testpath.pdf")
     
     # Verify
     # Check summary was generated
