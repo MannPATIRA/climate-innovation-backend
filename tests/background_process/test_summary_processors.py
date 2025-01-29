@@ -96,7 +96,13 @@ def test_add_summary_to_db(summary_processor, mock_supabase, sample_document):
     
     assert result == {"id": 1}
     mock_supabase.table.assert_called_with('summaries')
-    mock_supabase.table().insert.assert_called_once()
+    mock_supabase.table().insert.assert_called_with({
+        "content": summary,
+        "content_hash": content_hash,
+        "report_id": report_id,
+        "title": sample_document.title,
+    })
+
 
 def test_get_summary(summary_processor, mock_supabase):
     """Test getting summary from database"""
@@ -107,7 +113,7 @@ def test_get_summary(summary_processor, mock_supabase):
     
     assert result == [mock_summary]
     mock_supabase.table.assert_called_with('summaries')
-    mock_supabase.table().select.assert_called_once()
+    mock_supabase.table().select.assert_called_with("*")
 
 def test_chunk_text(summary_processor):
     """Test text chunking"""
