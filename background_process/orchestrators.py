@@ -40,12 +40,14 @@ class ReportOrchestrator(Orchestrator):
                 except Exception as e:
                     print(f"Error processing summary for {report_path}: {str(e)}")
 
-            # Clean up the PDF file
-            if os.path.exists(report_path):
-                os.remove(report_path)
 
         except Exception as e:
             print(f"Error processing report {report_path}: {str(e)}")
+        
+        finally:
+            # Clean up the PDF file
+            if os.path.exists(report_path):
+                os.remove(report_path)
 
     def run(self):
         """Main process to fetch and process reports"""
