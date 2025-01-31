@@ -83,7 +83,11 @@ def test_add_report_to_db(report_processor, mock_supabase):
     # Verify
     assert result == {"id": 1}
     mock_supabase.table.assert_called_with('reports')
-    mock_supabase.table().insert.assert_called_once()
+    mock_supabase.table().insert.assert_called_with({
+            "content": pdf_doc.content,
+            "content_hash": pdf_doc.content_hash,
+            "report_title": pdf_doc.title
+    })
 
 def test_get_report(report_processor, mock_supabase):
     """Test getting report from database"""
