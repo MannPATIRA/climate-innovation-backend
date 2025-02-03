@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from itertools import chain
 from typing import Generator, Any, Dict, Tuple
 import os
 import shutil
@@ -88,13 +89,11 @@ class PyAlexFetcher(PaperFetcher):
             primary_topic={"domain": {"id": "!4"}}
         )
 
-        # Use cursor-based pagination to get all results
-        cursor = '*'
-        while cursor:
-            page = query.get(per_page=100, cursor=cursor)
-
+        # Use pagination to get all results
+        for page in chain(query.paginate(per_page=200)):
             for paper in page:
-                abstract = paper.get('abstract')
+                #abstract = paper.get("abstract", "None")
+                abstract = self._get_abstract(paper)
                 if abstract:  # Only yield papers with abstracts
                     metadata = {
                         'id': paper.get('id'),
@@ -103,7 +102,23 @@ class PyAlexFetcher(PaperFetcher):
                     }
                     yield abstract, metadata
 
-            # Get the cursor for the next page
-            cursor = page.get_next_cursor()
-            if not cursor:  # No more results
-                break
+    def _get_abstract(self, work):
+        # Try the v3 index first
+        inverted_index = work.get('abstract_inverted_index_v3') or work.get('abstract_inverted_index')
+        
+        if not inverted_index:
+            return None
+        
+        # Reconstruct the abstract from the inverted index
+        # The index is a dict where keys are words and values are lists of positions
+        # We need to create a list long enough to hold all words
+        max_position = max(pos for positions in inverted_index.values() for pos in positions)
+        words = [''] * (max_position + 1)
+        
+        # Place each word in its correct position(s)
+        for word, positions in inverted_index.items():
+            for position in positions:
+                words[position] = word
+        
+        # Join the words to form the complete abstract
+        return ' '.join(words)
