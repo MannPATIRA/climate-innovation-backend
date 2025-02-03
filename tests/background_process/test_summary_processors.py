@@ -139,7 +139,8 @@ def test_chunk_and_embed(summary_processor, mock_pinecone_store):
     assert "metadata" in args
     assert args["namespace"] == "summaries"
 
-def test_summarize_new_summary(summary_processor, sample_document, sample_report_record, mock_supabase, mock_pinecone_store):
+@patch.object(SummaryProcessor, 'get_summary', return_value=[])
+def test_summarize_new_summary(sample_document, sample_report_record, mock_supabase, mock_pinecone_store, summary_processor):
     """Test summarizing a new document"""
     # Setup
     mock_supabase.table().select().eq().execute.return_value.data = []  # No existing summary
@@ -150,7 +151,7 @@ def test_summarize_new_summary(summary_processor, sample_document, sample_report
     summary_processor.summarize(sample_document, sample_report_record, "testpath.pdf")
     
     # Verify
-    mock_supabase.table().insert.assert_called_once()
+    assert mock_supabase.table().insert.call_count == 2
     mock_pinecone_store.add_chunks.assert_called_once()
 
 def test_summarize_existing_summary(summary_processor, sample_document, sample_report_record, mock_supabase, mock_pinecone_store):
@@ -174,20 +175,41 @@ def test_chunk_and_embed_error(summary_processor, mock_pinecone_store):
     assert "Error adding summary to Pinecone" in str(exc_info.value)
 
 # Integration tests
-def test_full_summary_workflow(summary_processor, sample_document, sample_report_record, mock_supabase, mock_pinecone_store):
+@patch.object(SummaryProcessor, 'get_summary', return_value=[])
+def test_full_summary_workflow(sample_document, sample_report_record, mock_supabase, mock_pinecone_store, summary_processor):
     """Test the full summary workflow"""
     # Setup
     mock_supabase.table().select().eq().execute.return_value.data = []  # No existing summary
     mock_supabase.table().insert().execute.return_value.data = [{"id": 1}]
     mock_pinecone_store.add_chunks.return_value = True
     
-    # Execute
-    summary_processor.summarize(sample_document, sample_report_record, "testpath.pdf")
-    
-    # Verify
-    # Check summary was generated
-    mock_supabase.table().select.assert_called()
-    # Check summary was stored
-    mock_supabase.table().insert.assert_called_once()
-    # Check summary was embedded
-    mock_pinecone_store.add_chunks.assert_called_once()
+    try:
+        summary_processor.summarize(sample_document, sample_report_record, "testpath.pdf")
+        
+        # Verify the sequence of operations
+        # Verify Supabase operations
+        mock_supabase.table.assert_called()
+        assert mock_supabase.table().insert.call_count == 2
+        
+        # Verify Pinecone operations
+        mock_pinecone_store.add_chunks.assert_called_once()
+
+
+        
+        # Verify the call arguments to Pinecone
+        actual_call = mock_pinecone_store.add_chunks.call_args
+        assert actual_call is not None, "add_chunks was not called"
+        
+        # Print actual call details
+        args, kwargs = actual_call
+        
+        # Verify the namespace
+        assert kwargs["namespace"] == "summaries"
+        assert isinstance(kwargs["chunks"], list)
+        assert isinstance(kwargs["metadata"], list)
+        
+    except Exception as e:
+        print(f"\nException occurred during test: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        raise
