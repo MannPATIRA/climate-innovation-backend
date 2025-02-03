@@ -117,3 +117,4 @@ class PyAlexFetcher(PaperFetcher):
             cursor = page.get_next_cursor()
             if not cursor:  # No more results
                 break
+

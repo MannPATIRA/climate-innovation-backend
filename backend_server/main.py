@@ -13,6 +13,7 @@ from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
+from gatherers import SemanticScholarInformationGatherer
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -44,7 +45,8 @@ class Query(BaseModel):
 
 
 # Initialize the query processor
-query_processor = QueryProcessor()
+# query_processor = QueryProcessor()
+query_processor = MockQueryProcessor()
 
 @app.get("/")
 async def home():
@@ -122,6 +124,12 @@ async def stream_query(query: Query):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/construct_graph/{doi}")
+async def construct_graph(doi: str):
+    authors = SemanticScholarInformationGatherer.get_authors_from_doi(doi)
+
+    for author in authors:
+        SemanticScholarInformationGatherer.get_author_info(author["authorId"])
 
 
 if __name__ == "__main__":
