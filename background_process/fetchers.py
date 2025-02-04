@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from itertools import chain
-from typing import Generator, Any, Dict, Tuple
+from typing import Generator, Any, Dict, Tuple, List
 import os
 import shutil
 from pyalex import Works, Topics
@@ -59,6 +59,9 @@ class PaperFetcher(Fetcher, ABC):
 
 
 class PyAlexFetcher(PaperFetcher):
+    def __init__(self, supabase_client):
+        self.supabase = supabase_client
+
     def fetch(self, country: str, **kwargs) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         """
         Generates paper abstracts using the pyalex library.
@@ -72,32 +75,38 @@ class PyAlexFetcher(PaperFetcher):
                 - abstract (str): The paper's abstract
                 - metadata (Dict): Dictionary containing id, doi, and title of the paper
         """
+        # Get climate-relevant topic IDs
+        climate_relevant_topics = self._get_climate_relevant_topics()
+        
         # Build the query with filters
         query = Works() \
             .filter(
-            authorships={"institutions": {"country_code": country}}
-        ) \
+                topics={"id": climate_relevant_topics}
+            ) \
             .filter(
-            type="article|preprint|book-chapter|dissertation"
-        ) \
+                authorships={"institutions": {"country_code": country}}
+            ) \
             .filter(
-            authorships={"is_corresponding": "true"}
-        ) \
+                type="article|preprint|book-chapter|dissertation"
+            ) \
             .filter(
-            authorships={"affiliations": {
-                "institution_ids": "https://openalex.org/I82284825|https://openalex.org/I47508984|https://openalex"
-                                   ".org/I98677209|https://openalex.org/I130828816|https://openalex.org/I241749|https"
-                                   "://openalex.org/I4210092773"}}
-        ) \
+                authorships={"is_corresponding": "true"}
+            ) \
             .filter(
-            publication_year=">1999"
-        ) \
+                authorships={"affiliations": {
+                    "institution_ids": "https://openalex.org/I82284825|https://openalex.org/I47508984|https://openalex"
+                                    ".org/I98677209|https://openalex.org/I130828816|https://openalex.org/I241749|https"
+                                    "://openalex.org/I4210092773"}}
+            ) \
             .filter(
-            primary_topic={"domain": {"id": "!2"}}
-        ) \
+                publication_year=">1999"
+            ) \
             .filter(
-            primary_topic={"domain": {"id": "!4"}}
-        )
+                primary_topic={"domain": {"id": "!2"}}
+            ) \
+            .filter(
+                primary_topic={"domain": {"id": "!4"}}
+            )
 
         # Use pagination to get all results
         for page in chain(query.paginate(per_page=200)):
@@ -111,6 +120,15 @@ class PyAlexFetcher(PaperFetcher):
                         'title': paper.get('title')
                     }
                     yield abstract, metadata
+
+    
+    def _get_climate_relevant_topics(self) -> List[str]:
+        """Get list of topic IDs that were assessed as climate-relevant"""
+        response = self.supabase.table('openalex_topic_assessments') \
+            .select('topic_id') \
+            .eq('is_climate_relevant', True) \
+            .execute()
+        return [record['topic_id'] for record in response.data]
 
     def _get_abstract(self, work):
         # Try the v3 index first
