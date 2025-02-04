@@ -24,8 +24,6 @@ class SemanticScholarInformationGatherer(InformationGatherer):
                 params={"fields": "authorId,name"}
             )
 
-            return r.json()["data"]
-
         else:
 
             doi = doi.split(".org/")[1]
@@ -35,7 +33,15 @@ class SemanticScholarInformationGatherer(InformationGatherer):
                 params={"fields": "authorId,name"}
             )
 
-            return r.json()["data"]
+        # First check if the request was successful
+        r.raise_for_status()
+        
+        # Then try to access the data
+        response_json = r.json()
+        if "data" not in response_json:
+            raise ValueError("Invalid API response format: 'data' field missing")
+            
+        return response_json["data"]
 
     @staticmethod
     def get_author_info(author_id, exclude=None):
@@ -174,5 +180,5 @@ def construct_graph(doi: str):
 
         original_concepts = topics[doi]
 
-
-construct_graph("https://doi.org/10.48550/arXiv.2303.11366")
+if __name__ == "__main__":
+    construct_graph("https://doi.org/10.48550/arXiv.2303.11366")
