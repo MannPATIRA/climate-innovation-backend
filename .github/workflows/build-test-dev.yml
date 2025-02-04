@@ -1,0 +1,48 @@
+name: Build & Test Dev (CI)
+
+on:
+  push:
+    branches: ["dev"]
+  pull_request:
+    branches: ["dev"]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install poetry
+          poetry install --no-root
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.PRODUCTION_SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_ID: ${{ secrets.PRODUCTION_SUPABASE_PROJECT_ID }}
+        run: |
+          supabase link --password ${{ secrets.PRODUCTION_SUPABASE_DB_PASSWORD }} --project-ref ${{ secrets.PRODUCTION_SUPABASE_PROJECT_ID }}
+          supabase db push
+
+      # - name: Run tests
+      #   env:
+      #     PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+      #     SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      #     SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      #   run: |
+      #     pytest

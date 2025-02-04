@@ -17,7 +17,7 @@ class PineconeStore(VectorStore):
             embedding_dim (int): Dimension of vectors (default 512)
             model (str): Name of the embedding model to use (default multilingual-e5-large)
         """
-        load_dotenv()
+        load_dotenv(override=True)
         self.model = model
         # Get API key from environment variables
         api_key = os.getenv('PINECONE_API_KEY')
@@ -192,7 +192,7 @@ class PineconeStore(VectorStore):
             bool: True if deletion was successful, False otherwise
         """
         try:
-            load_dotenv()
+            load_dotenv(override=True)
             api_key = os.getenv('PINECONE_API_KEY')
             if not api_key:
                 raise ValueError("PINECONE_API_KEY not found in environment variables")

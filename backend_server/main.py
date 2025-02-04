@@ -17,7 +17,7 @@ from gatherers import SemanticScholarInformationGatherer
 
 supabase: Client = init_supabase()
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 app = FastAPI()
 
