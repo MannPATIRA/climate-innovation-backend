@@ -36,8 +36,8 @@ class MockQueryProcessor:
         for chunk in mock_response:
             
             full_response += chunk
-            print(chunk)
-            await asyncio.sleep(0.02)  # Add delay to simulate real streaming
+            # print(chunk)
+            await asyncio.sleep(0.01)  # Add delay to simulate real streaming
             yield chunk
         
         # After the stream is complete, call the completion callback
@@ -104,7 +104,7 @@ class QueryProcessor:
         
         async for chunk in self.chain.astream({"query": query}):
             full_response += chunk
-            print(chunk)
+            # print(chunk)
             yield chunk
         
         # After the stream is complete, call the completion callback

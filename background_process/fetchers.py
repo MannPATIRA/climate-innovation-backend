@@ -37,12 +37,22 @@ class LocalPDFFetcher(ReportFetcher):
                 temp_path = os.path.join(self.temp_directory, filename)
                 shutil.copy2(source_path, temp_path)
                 yield temp_path
+                
+    def __enter__(self):
+        return self
 
-    def __del__(self):
-        """Cleanup temporary directory when the fetcher is destroyed"""
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cleanup()
+        
+    def cleanup(self):
+        """Cleanup temporary directory"""
         if os.path.exists(self.temp_directory):
             shutil.rmtree(self.temp_directory)
 
+
+    def __del__(self):
+        """Cleanup temporary directory when the fetcher is destroyed"""
+        self.cleanup()
 
 class PaperFetcher(Fetcher, ABC):
     pass

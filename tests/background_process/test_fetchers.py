@@ -51,10 +51,10 @@ def test_local_pdf_fetcher_cleanup(test_directory):
     
     # Create a new scope for the fetcher
     with pytest.raises(Exception):
-        fetcher = LocalPDFFetcher(test_directory)
-        temp_dir = fetcher.temp_directory
-        assert os.path.exists(temp_dir)
-        raise Exception("Force cleanup")
+        with LocalPDFFetcher(test_directory) as fetcher:
+            temp_dir = fetcher.temp_directory
+            assert os.path.exists(temp_dir)
+            raise Exception("Force cleanup")
     
     # Check if temp directory was cleaned up
     assert not os.path.exists(temp_dir)
