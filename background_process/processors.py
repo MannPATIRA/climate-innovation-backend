@@ -6,7 +6,7 @@ from supabase import Client
 from common.pinecone_store import PineconeStore
 from PyPDF2 import PdfReader
 import hashlib
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 
@@ -25,7 +25,7 @@ class Processor(ABC):
         return hashlib.sha256(content.encode()).hexdigest()
 
     @abstractmethod
-    def process(self, data: Dict[Any, Any]) -> (str, Dict[str, Any]):
+    def process(self, data: Dict[Any, Any]) -> Tuple[str, Dict[str, Any]]:
         pass
 
 
@@ -128,6 +128,83 @@ class ReportProcessor(Processor):
         return pdf_doc, report_record
 
 
+@dataclass
+class Paper:
+    abstract: str
+    openalex_id: str
+    doi: str
+    title: str
+    content_hash: str
+
 class PaperProcessor(Processor):
-    def process(self, data) -> (str, Dict[str, Any]):
-        pass
+    def add_paper_to_db(self, paper: Paper) -> Dict[str, Any]:
+        """Add paper to Supabase DB"""
+        data = {
+            "openalex_id": paper.openalex_id,
+            "doi": paper.doi,
+            "abstract": paper.abstract,
+            "content_hash": paper.content_hash,
+            "title": paper.title
+        }
+        response = self.supabase.table('papers').insert(data).execute()
+        return response.data[0]
+
+    def get_paper(self, openalex_id: str) -> Dict[str, Any]:
+        """Get paper from Supabase DB by OpenAlex ID"""
+        response = self.supabase.table('papers') \
+            .select("*") \
+            .eq('openalex_id', openalex_id) \
+            .execute()
+        return response.data
+
+    def chunk_and_embed(self, paper: Paper, metadata: Dict[str, Any]) -> bool:
+        """Add paper abstract to Pinecone with metadata"""
+        try:
+            chunks = self.text_splitter.split_text(paper.abstract)
+            # Add paper details to metadata for each chunk
+            metadatas = [{
+                **metadata,
+                "content": chunk,
+            } for chunk in chunks]
+            success = self.pinecone_store.add_chunks(
+                chunks=chunks,
+                metadata=metadatas,
+                namespace="papers"
+            )
+            return success
+        except Exception as e:
+            raise Exception(f"Error adding to Pinecone: {str(e)}")
+
+    def process(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
+        abstract = data['abstract']
+        metadata = data['metadata']
+        
+        # Create Paper object
+        paper = Paper(
+            abstract=abstract,
+            openalex_id=metadata['id'],
+            doi=metadata['doi'],  # Handle potential None value
+            title=metadata['title'],
+            content_hash=self.generate_content_hash(abstract)
+        )
+        
+        # Check if paper exists and get data if it does
+        existing_paper = self.get_paper(paper.openalex_id)
+        if not existing_paper:
+            # Add to Supabase
+            paper_record = self.add_paper_to_db(paper)
+
+            # Add to Pinecone
+            paper_metadata = {
+                "paper_id": paper_record["id"],
+                "openalex_id": paper.openalex_id,
+                "doi": paper.doi,
+                "title": paper.title,
+                "content_hash": paper.content_hash
+            }
+            self.chunk_and_embed(paper, paper_metadata)
+        else:
+            print(f"Paper {paper.title} already processed.")
+            paper_record = existing_paper[0]
+
+        return paper, paper_record

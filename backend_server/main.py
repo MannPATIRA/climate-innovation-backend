@@ -16,7 +16,7 @@ from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeE
 
 supabase: Client = init_supabase()
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 app = FastAPI()
 
@@ -44,7 +44,7 @@ class Query(BaseModel):
 
 
 # Initialize the query processor
-query_processor = QueryProcessor()
+query_processor = MockQueryProcessor()
 
 @app.get("/")
 async def home():
