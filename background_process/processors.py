@@ -2,6 +2,11 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import os
 import asyncio
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+from queue import Queue
+import time
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from supabase import Client
 from common.pinecone_store import PineconeStore
@@ -14,12 +19,12 @@ from .prompts import CLIMATE_RELEVANCE_PROMPT, TopicAssessment
 
 
 class Processor(ABC):
-    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore):
+    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 500):
         # Add a ChunkingStrategy class to take in constructor so we can use different chunking strategies LATER
         self.supabase = supabase_client
         self.pinecone_store = pinecone_store
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,
+            chunk_size=chunk_size,
             chunk_overlap=50
         )
 
@@ -137,16 +142,19 @@ class Paper:
     openalex_id: str
     doi: str
     title: str
-    content_hash: str
 
 class PaperProcessor(Processor):
+    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 5000,
+                max_workers: int = 4):
+        super().__init__(supabase_client, pinecone_store, chunk_size=chunk_size)
+        self.max_workers = max_workers
+
     def add_paper_to_db(self, paper: Paper) -> Dict[str, Any]:
         """Add paper to Supabase DB"""
         data = {
             "openalex_id": paper.openalex_id,
             "doi": paper.doi,
             "abstract": paper.abstract,
-            "content_hash": paper.content_hash,
             "title": paper.title
         }
         response = self.supabase.table('papers').insert(data).execute()
@@ -160,57 +168,103 @@ class PaperProcessor(Processor):
             .execute()
         return response.data
 
-    def chunk_and_embed(self, paper: Paper, metadata: Dict[str, Any]) -> bool:
-        """Add paper abstract to Pinecone with metadata"""
+    def chunk_and_embed(self, papers: List[Paper], metadata_list: List[Dict[str, Any]]) -> bool:
+        """Batch add paper abstracts to Pinecone with metadata"""
         try:
-            chunks = self.text_splitter.split_text(paper.abstract)
-            # Add paper details to metadata for each chunk
-            metadatas = [{
-                **metadata,
-                "content": chunk,
-            } for chunk in chunks]
+            all_chunks = []
+            all_metadata = []
+            
+            for paper, metadata in zip(papers, metadata_list):
+                chunks = self.text_splitter.split_text(paper.abstract)
+                chunk_metadata = [{
+                    **metadata,
+                    "content": chunk,
+                } for chunk in chunks]
+                
+                all_chunks.extend(chunks)
+                all_metadata.extend(chunk_metadata)
+            
             success = self.pinecone_store.add_chunks(
-                chunks=chunks,
-                metadata=metadatas,
+                chunks=all_chunks,
+                metadata=all_metadata,
                 namespace="papers"
             )
             return success
         except Exception as e:
-            raise Exception(f"Error adding to Pinecone: {str(e)}")
+            print(f"Error adding to Pinecone: {str(e)}")
+            return False
+
+    def process_single_paper(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
+        """Process a single paper"""
+        try:
+            abstract = data['abstract']
+            metadata = data['metadata']
+            paper = Paper(
+                abstract=abstract,
+                openalex_id=metadata['id'],
+                doi=metadata.get('doi'),
+                title=metadata['title'],
+            )
+            
+            # Check if paper exists
+            existing_paper = self.get_paper(paper.openalex_id)
+            if not existing_paper:
+                # Add to Supabase
+                paper_record = self.add_paper_to_db(paper)
+
+                # Add to Pinecone
+                paper_metadata = {
+                    "paper_id": paper_record["id"],
+                    "openalex_id": paper.openalex_id,
+                    "doi": paper.doi,
+                }
+                self.chunk_and_embed([paper], [paper_metadata])
+            else:
+                print(f"Paper {paper.title} already processed.")
+                paper_record = existing_paper[0]
+
+            return paper, paper_record
+        except Exception as e:
+            print(f"Error processing paper: {str(e)}")
+            return None, None
 
     def process(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
-        abstract = data['abstract']
-        metadata = data['metadata']
-        print("This paper meta data: ")
-        print(metadata)
-        
-        # Create Paper object
-        paper = Paper(
-            abstract=abstract,
-            openalex_id=metadata['id'],
-            doi=metadata['doi'],  # Handle potential None value
-            title=metadata['title'],
-            content_hash=self.generate_content_hash(abstract)
-        )
-        
-        # Check if paper exists and get data if it does
-        existing_paper = self.get_paper(paper.openalex_id)
-        if not existing_paper:
-            # Add to Supabase
-            paper_record = self.add_paper_to_db(paper)
+        """Process a single paper (for backward compatibility)"""
+        return self.process_single_paper(data)
 
-            # Add to Pinecone
-            paper_metadata = {
-                "paper_id": paper_record["id"],
-                "openalex_id": paper.openalex_id,
-                "doi": paper.doi,
+    def process_batch(self, papers_data: List[Dict[str, Any]]) -> List[Tuple[Paper, Dict[str, Any]]]:
+        """
+        Process a batch of papers using thread pool executor
+        
+        Args:
+            papers_data: List of paper data dictionaries
+            
+        Returns:
+            List of (Paper, record) tuples
+        """
+        results = []
+        
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            # Submit all papers to the thread pool
+            future_to_paper = {
+                executor.submit(self.process_single_paper, paper_data): paper_data 
+                for paper_data in papers_data
             }
-            self.chunk_and_embed(paper, paper_metadata)
-        else:
-            print(f"Paper {paper.title} already processed.")
-            paper_record = existing_paper[0]
-
-        return paper, paper_record
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_paper):
+                paper_data = future_to_paper[future]
+                try:
+                    paper, record = future.result()
+                    if paper and record:
+                        results.append((paper, record))
+                    else:
+                        print(f"Failed to process paper: {paper_data.get('metadata', {}).get('title', 'Unknown')}")
+                except Exception as e:
+                    print(f"Exception processing paper: {str(e)}")
+                    continue
+                
+        return results
 
 
 class TopicProcessor(Processor):

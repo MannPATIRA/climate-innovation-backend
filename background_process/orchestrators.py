@@ -12,7 +12,7 @@ class Orchestrator(ABC):
             self,
             fetcher: Fetcher,
             processor: Processor,
-            summarizer: Optional[SummaryProcessor]
+            summarizer: Optional[SummaryProcessor] = None
     ):
         self.fetcher = fetcher
         self.processor = processor

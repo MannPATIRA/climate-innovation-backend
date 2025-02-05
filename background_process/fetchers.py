@@ -81,9 +81,6 @@ class PyAlexFetcher(PaperFetcher):
         # Build the query with filters
         query = Works() \
             .filter(
-                topics={"id": climate_relevant_topics}
-            ) \
-            .filter(
                 authorships={"institutions": {"country_code": country}}
             ) \
             .filter(
@@ -93,16 +90,21 @@ class PyAlexFetcher(PaperFetcher):
                 authorships={"is_corresponding": "true"}
             ) \
             .filter(
-                authorships={"affiliations": {
-                    "institution_ids": "https://openalex.org/I82284825|https://openalex.org/I47508984|https://openalex"
-                                    ".org/I98677209|https://openalex.org/I130828816|https://openalex.org/I241749|https"
-                                    "://openalex.org/I4210092773"}}
+                publication_year=">2015"
             ) \
             .filter(
-                publication_year=">1999"
-            )
+                cited_by_count=">3"
+            ) \
+            .filter(
+                primary_location={"source": {"type": "journal|repository"}}
+            ) \
+            .sort(cited_by_count="desc")  # Get most cited papers first
+        res, meta = query.get(per_page=1, return_meta=True)
+        print("paper meta info: ")
+        print(meta)
         # Use pagination to get all results
         for page in chain(query.paginate(per_page=200)):
+            print("Another 200 papers fetched")
             for paper in page:
                 #abstract = paper.get("abstract", "None")
                 abstract = self._get_abstract(paper)
