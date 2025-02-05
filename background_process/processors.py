@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import os
+import asyncio
 
 from supabase import Client
 from common.pinecone_store import PineconeStore
 from PyPDF2 import PdfReader
 import hashlib
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Set
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import ChatOpenAI
 from .prompts import CLIMATE_RELEVANCE_PROMPT, TopicAssessment
@@ -219,6 +220,7 @@ class TopicProcessor(Processor):
             model=model_name,
             temperature=0.2
         ).with_structured_output(TopicAssessment)
+        self._tasks: Set[asyncio.Task] = set()
 
     def format_sample_works(self, works: list) -> str:
         """Format sample works for prompt"""
@@ -248,6 +250,25 @@ class TopicProcessor(Processor):
         return response.data[0]
 
     def process(self, data: Dict[str, Any]) -> Tuple[TopicAssessment, Dict[str, Any]]:
+        """
+        Synchronous process method to satisfy abstract class.
+        For single topic processing, use this.
+        For batch processing, use process_batch.
+        """
+        # Run the async process in the event loop
+        return asyncio.run(self.process_single_topic(data))
+
+    async def process_batch(self, topics: List[Dict[str, Any]]) -> List[Tuple[TopicAssessment, Dict[str, Any]]]:
+        """Process a batch of topics concurrently"""
+        tasks = []
+        for topic in topics:
+            task = asyncio.create_task(self.process_single_topic(topic))
+            tasks.append(task)
+        
+        return await asyncio.gather(*tasks)
+
+    async def process_single_topic(self, data: Dict[str, Any]) -> Tuple[TopicAssessment, Dict[str, Any]]:
+        """Process a single topic asynchronously"""
         # Check if topic has already been processed
         existing_assessment = self.get_topic_assessment(data['topic_id'])
         if existing_assessment:
@@ -259,7 +280,7 @@ class TopicProcessor(Processor):
         chain = CLIMATE_RELEVANCE_PROMPT | self.evaluator
         
         # Get structured assessment from LLM
-        assessment = chain.invoke({
+        assessment = await chain.ainvoke({
             "topic_name": data['topic_name'],
             "topic_description": data['topic_description'],
             "sample_works": sample_works_text

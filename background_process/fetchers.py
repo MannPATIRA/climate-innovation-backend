@@ -100,14 +100,7 @@ class PyAlexFetcher(PaperFetcher):
             ) \
             .filter(
                 publication_year=">1999"
-            ) \
-            .filter(
-                primary_topic={"domain": {"id": "!2"}}
-            ) \
-            .filter(
-                primary_topic={"domain": {"id": "!4"}}
             )
-
         # Use pagination to get all results
         for page in chain(query.paginate(per_page=200)):
             for paper in page:
