@@ -4,6 +4,7 @@ from typing import Generator, Any, Dict, Tuple, List
 import os
 import shutil
 from pyalex import Works, Topics
+from .processors import ProcessingTask
 
 
 class Fetcher(ABC):
@@ -61,10 +62,64 @@ class PaperFetcher(Fetcher, ABC):
 class PyAlexFetcher(PaperFetcher):
     def __init__(self, supabase_client):
         self.supabase = supabase_client
-        # Store climate relevant topics as a set for O(1) lookup
+        self.task_id = self._get_paper_processing_task_id()
+        self.current_page = self._get_current_page()
+        # Store climate relevant topics as set for O(1) lookup
         self.climate_relevant_topics = set(self._get_climate_relevant_topics())
         print("number of climate relevant topics")
         print(len(self.climate_relevant_topics))
+
+    def _get_paper_processing_task_id(self) -> int:
+        """Get the task ID for paper processing"""
+        response = self.supabase.table('processing_tasks') \
+            .select("id") \
+            .eq('task', ProcessingTask.PAPER_PROCESSING) \
+            .execute()
+        
+        if not response.data:
+            raise ValueError("Paper processing task not found in processing_tasks table")
+        return response.data[0]['id']
+
+    def _get_current_page(self) -> int:
+        """Get the current page number from the processing_tasks table"""
+        response = self.supabase.table('processing_tasks') \
+            .select('progress') \
+            .eq('id', self.task_id) \
+            .execute()
+        
+        return response.data[0].get('progress', 0) if response.data else 0
+
+    def _update_current_page(self, page: int):
+        """Update the current page number in the processing_tasks table"""
+        self.supabase.table('processing_tasks') \
+            .update({'progress': page}) \
+            .eq('id', self.task_id) \
+            .execute()
+
+    def _get_failed_papers(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
+        """Fetch and yield papers that failed to process previously"""
+        # Get all paper IDs from processing logs for this task
+        response = self.supabase.table('processing_logs') \
+            .select('reference_id') \
+            .eq('task_id', self.task_id) \
+            .execute()
+
+        if not response.data:
+            return
+
+        for record in response.data:
+            openalex_id = record['reference_id']
+            # Fetch the specific paper from OpenAlex
+            work = Works()[openalex_id]
+            if work:
+                abstract = self._get_abstract(work)
+                if abstract:
+                    metadata = {
+                        'id': work.get('id'),
+                        'doi': work.get('doi'),
+                        'title': work.get('title')
+                    }
+                    yield abstract, metadata
 
     def fetch(self, country: str, **kwargs) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         """
@@ -79,8 +134,10 @@ class PyAlexFetcher(PaperFetcher):
                 - abstract (str): The paper's abstract
                 - metadata (Dict): Dictionary containing id, doi, and title of the paper
         """
-        
-        # Build the query with filters
+        # First yield any failed papers
+        yield from self._get_failed_papers()
+
+        # Continue with normal fetching process
         query = Works() \
             .filter(
                 authorships={"institutions": {"country_code": country}}
@@ -105,8 +162,8 @@ class PyAlexFetcher(PaperFetcher):
         print("paper meta info: ")
         print(meta)
         # Use pagination to get all results
-        for page in chain(query.paginate(per_page=200)):
-            print("Another 200 papers fetched")
+        for page in chain(query.paginate(per_page=200, page=self.current_page)):
+            print(f"Another 200 papers fetched from page {self.current_page}")
             papers_yielded = 0
             for paper in page:
                 #abstract = paper.get("abstract", "None")
@@ -126,7 +183,12 @@ class PyAlexFetcher(PaperFetcher):
                     else:
                         print("primary topic is null: here are topics: ")
                         print(paper.get('topics', "No topics"))
+            
             print(f"Yielded {papers_yielded} out of 200 papers in this batch")
+            
+            # Update the current page in the database
+            self.current_page += 1
+            self._update_current_page(self.current_page)
 
     
     def _get_climate_relevant_topics(self) -> List[str]:
