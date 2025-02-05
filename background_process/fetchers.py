@@ -111,6 +111,7 @@ class PyAlexFetcher(PaperFetcher):
             openalex_id = record['reference_id']
             # Fetch the specific paper from OpenAlex
             work = Works()[openalex_id]
+            print("Re Yielding this work: ", work.get('id'))
             if work:
                 abstract = self._get_abstract(work)
                 if abstract:
