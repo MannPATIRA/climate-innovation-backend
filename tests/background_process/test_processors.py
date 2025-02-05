@@ -12,6 +12,13 @@ def mock_supabase():
     mock_table.insert.return_value = mock_table
     mock_table.select.return_value = mock_table
     mock_table.eq.return_value = mock_table
+    mock_table.delete.return_value = mock_table
+    
+    # Add execute method that returns a data structure
+    mock_execute = Mock()
+    mock_execute.data = [{"id": 1}]
+    mock_table.execute.return_value = mock_execute
+    
     return mock
 
 @pytest.fixture
@@ -129,7 +136,13 @@ class TestReportProcessor:
         """Test getting report from database"""
         # Setup
         mock_report = {"id": 1, "content": "test"}
-        mock_supabase.table().select().eq().execute.return_value.data = [mock_report]
+        mock_table = Mock()
+        mock_supabase.table.return_value = mock_table
+        mock_table.select.return_value = mock_table
+        mock_table.eq.return_value = mock_table
+        mock_execute = Mock()
+        mock_execute.data = [mock_report]
+        mock_table.execute.return_value = mock_execute
 
         # Execute
         result = report_processor.get_report("test_hash")
@@ -137,7 +150,7 @@ class TestReportProcessor:
         # Verify
         assert result == [mock_report]
         mock_supabase.table.assert_called_with('reports')
-        assert mock_supabase.table().select.call_count == 2
+        mock_table.select.assert_called_once()
 
     def test_chunk_text(self, report_processor):
         """Test text chunking"""
@@ -238,13 +251,11 @@ class TestPaper:
             openalex_id="test_id",
             doi="test_doi",
             title="test title",
-            content_hash="test hash"
         )
         assert paper.abstract == "test abstract"
         assert paper.openalex_id == "test_id"
         assert paper.doi == "test_doi"
         assert paper.title == "test title"
-        assert paper.content_hash == "test hash"
 
 class TestPaperProcessor:
     def test_paper_processor_initialization(self, mock_supabase, mock_pinecone_store):
@@ -260,7 +271,6 @@ class TestPaperProcessor:
             openalex_id="test_id",
             doi="test_doi",
             title="test title",
-            content_hash="test hash"
         )
         mock_supabase.table().insert().execute.return_value.data = [{"id": 1}]
 
@@ -271,8 +281,6 @@ class TestPaperProcessor:
         mock_supabase.table().insert.assert_called_with({
             "openalex_id": paper.openalex_id,
             "doi": paper.doi,
-            "abstract": paper.abstract,
-            "content_hash": paper.content_hash,
             "title": paper.title
         })
 
@@ -289,17 +297,16 @@ class TestPaperProcessor:
 
     def test_paper_chunk_and_embed(self, paper_processor, mock_pinecone_store):
         """Test chunking and embedding process for papers"""
-        paper = Paper(
+        papers = [Paper(
             abstract="test " * 200,
             openalex_id="test_id",
             doi="test_doi",
             title="test title",
-            content_hash="test hash"
-        )
-        metadata = {"paper_id": 1}
+        )]
+        metadata_list = [{"paper_id": 1}]
         mock_pinecone_store.add_chunks.return_value = True
 
-        result = paper_processor.chunk_and_embed(paper, metadata)
+        result = paper_processor.chunk_and_embed(papers, metadata_list)
 
         assert result is True
         mock_pinecone_store.add_chunks.assert_called_once()
@@ -317,6 +324,9 @@ class TestPaperProcessor:
         paper_processor.add_paper_to_db = Mock(return_value={"id": 1})
         # Mock chunk_and_embed to simulate embedding process
         paper_processor.chunk_and_embed = Mock(return_value=True)
+        # Mock log_progress and remove_from_logs
+        paper_processor.log_progress = Mock()
+        paper_processor.remove_from_logs = Mock()
 
         test_data = {
             'abstract': 'test abstract',
@@ -327,22 +337,27 @@ class TestPaperProcessor:
             }
         }
 
-        paper, record = paper_processor.process(test_data)
+        paper, record = paper_processor.process_single_paper(test_data)
 
         assert isinstance(paper, Paper)
         assert record["id"] == 1
+        assert paper.openalex_id == "test_id"
+        assert paper.abstract == "test abstract"
+        assert paper.doi == "test_doi"
+        assert paper.title == "test title"
+        
+        paper_processor.get_paper.assert_called_once_with("test_id")
+        paper_processor.add_paper_to_db.assert_called_once()
         paper_processor.chunk_and_embed.assert_called_once()
+        paper_processor.log_progress.assert_called_once()
+        paper_processor.remove_from_logs.assert_called_once()
     
 class TestTopicProcessor:
     def test_topic_processor_initialization(self, mock_supabase):
         """Test TopicProcessor initialization"""
-        # Patch both OpenAI and environment variable
-        with patch.dict('os.environ', {'OPENAI_API_KEY': 'test-key'}), \
-            patch('openai.OpenAI') as mock_openai:
-
+        with patch.dict('os.environ', {'OPENAI_API_KEY': 'test-key'}):
             processor = TopicProcessor(mock_supabase, "test-model")
             assert processor.supabase == mock_supabase
-            assert processor._tasks == set()
 
     def test_format_sample_works(self, topic_processor):
         """Test formatting of sample works"""
