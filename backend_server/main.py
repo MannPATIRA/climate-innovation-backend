@@ -49,8 +49,7 @@ class PaperQuery(BaseModel):
     top_k: Optional[int] = 1000
 
 class PaperResult(BaseModel):
-    paper_id: str
-    title: str
+    paper_id: int
     doi: Optional[str]
     openalex_id: str
     score: float
@@ -162,7 +161,6 @@ async def search_papers(query: PaperQuery):
             paper_results.append(PaperResult(
                 paper_id=metadata.get("paper_id"),
                 openalex_id=metadata.get("openalex_id"),
-                title=metadata.get("title", "Unknown Title"),
                 doi=metadata.get("doi"),
                 score=match.score
             ))
