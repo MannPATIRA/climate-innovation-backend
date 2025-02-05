@@ -39,7 +39,7 @@ def test_pinecone_operations():
 
     # Test querying chunks
     print("\n2. Testing query_chunk...")
-    query = "Tell me about Apple technology"
+    query = "Tell me about yummy things"
     results = store.query_chunk(query, top_k=2, namespace="test_namespace")
     print("\nQuery results:")
     for result in results:

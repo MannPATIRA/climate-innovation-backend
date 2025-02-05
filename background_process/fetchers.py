@@ -192,10 +192,7 @@ class PyAlexFetcher(PaperFetcher):
                 authorships={"is_corresponding": "true"}
             ) \
             .filter(
-                publication_year=">2015"
-            ) \
-            .filter(
-                cited_by_count=">3"
+                publication_year=">2000"
             ) \
             .filter(
                 primary_location={"source": {"type": "journal|repository"}}
