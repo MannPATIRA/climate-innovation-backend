@@ -13,7 +13,7 @@ from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
-from gatherers import SemanticScholarInformationGatherer
+from .gatherers import SemanticScholarInformationGatherer
 
 supabase: Client = init_supabase()
 # Load environment variables
