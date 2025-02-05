@@ -110,7 +110,7 @@ class PyAlexFetcher(PaperFetcher):
         
         # If no current_cursor exists, use the main cursor value
         if not response.data or response.data[0].get('current_cursor') is None:
-            return self._get_cursor()
+            return self._get_main_cursor()
         
         return response.data[0].get('current_cursor')
 
