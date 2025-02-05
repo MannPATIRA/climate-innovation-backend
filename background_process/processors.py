@@ -221,11 +221,12 @@ class PaperProcessor(Processor):
                 paper_metadata = {
                     "paper_id": paper_record["id"],
                     "openalex_id": paper.openalex_id,
-                    "doi": paper.doi,
                 }
+                if paper.doi:  # Only add doi if it exists and is not None
+                    paper_metadata["doi"] = paper.doi
                 self.chunk_and_embed([paper], [paper_metadata])
             else:
-                print(f"Paper {paper.title} already processed.")
+                print(f"Paper {paper.title[:30]}... already processed.")
                 paper_record = existing_paper[0]
 
             # Add small delay to prevent overwhelming the server

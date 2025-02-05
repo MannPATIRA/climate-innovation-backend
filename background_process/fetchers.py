@@ -61,6 +61,10 @@ class PaperFetcher(Fetcher, ABC):
 class PyAlexFetcher(PaperFetcher):
     def __init__(self, supabase_client):
         self.supabase = supabase_client
+        # Store climate relevant topics as a set for O(1) lookup
+        self.climate_relevant_topics = set(self._get_climate_relevant_topics())
+        print("number of climate relevant topics")
+        print(len(self.climate_relevant_topics))
 
     def fetch(self, country: str, **kwargs) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         """
@@ -75,8 +79,6 @@ class PyAlexFetcher(PaperFetcher):
                 - abstract (str): The paper's abstract
                 - metadata (Dict): Dictionary containing id, doi, and title of the paper
         """
-        # Get climate-relevant topic IDs
-        climate_relevant_topics = self._get_climate_relevant_topics()
         
         # Build the query with filters
         query = Works() \
@@ -98,32 +100,55 @@ class PyAlexFetcher(PaperFetcher):
             .filter(
                 primary_location={"source": {"type": "journal|repository"}}
             ) \
-            .sort(cited_by_count="desc")  # Get most cited papers first
+            .sort(publication_date="desc")  # Get most cited papers first
         res, meta = query.get(per_page=1, return_meta=True)
         print("paper meta info: ")
         print(meta)
         # Use pagination to get all results
         for page in chain(query.paginate(per_page=200)):
             print("Another 200 papers fetched")
+            papers_yielded = 0
             for paper in page:
                 #abstract = paper.get("abstract", "None")
                 abstract = self._get_abstract(paper)
                 if abstract:  # Only yield papers with abstracts
-                    metadata = {
-                        'id': paper.get('id'),
-                        'doi': paper.get('doi'),
-                        'title': paper.get('title')
-                    }
-                    yield abstract, metadata
+                    primary_topic = paper.get('primary_topic', {})
+                    if primary_topic is not None:
+                        primary_topic_id = primary_topic.get('id')
+                        if primary_topic_id and primary_topic_id in self.climate_relevant_topics:
+                            metadata = {
+                                'id': paper.get('id'),
+                                'doi': paper.get('doi'),
+                                'title': paper.get('title')
+                            }
+                            papers_yielded += 1
+                            yield abstract, metadata
+                    else:
+                        print("primary topic is null: here are topics: ")
+                        print(paper.get('topics', "No topics"))
+            print(f"Yielded {papers_yielded} out of 200 papers in this batch")
 
     
     def _get_climate_relevant_topics(self) -> List[str]:
         """Get list of topic IDs that were assessed as climate-relevant"""
-        response = self.supabase.table('openalex_topic_assessments') \
-            .select('topic_id') \
-            .eq('is_climate_relevant', True) \
-            .execute()
-        return [record['topic_id'] for record in response.data]
+        all_topics = []
+        page = 0
+        page_size = 1000
+        
+        while True:
+            response = self.supabase.table('openalex_topic_assessments') \
+                .select('topic_id') \
+                .eq('is_climate_relevant', True) \
+                .range(page * page_size, (page + 1) * page_size - 1) \
+                .execute()
+            
+            if not response.data:  # No more results
+                break
+                
+            all_topics.extend(record['topic_id'] for record in response.data)
+            page += 1
+            
+        return all_topics
 
     def _get_abstract(self, work):
         # Try the v3 index first
