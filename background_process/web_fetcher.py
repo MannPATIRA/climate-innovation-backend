@@ -6,9 +6,9 @@ from typing import Generator, Dict, Any
 import os
 import time
 import csv
-from fetcher import ReportFetcher
-from utils.selenium_utils import wait_for_page_load
-from utils.download_handlers import (
+from .fetchers import ReportFetcher
+from .utils.selenium_utils import wait_for_page_load
+from .utils.download_handlers import (
     try_generic_pdf_download,
     extract_sciencedirect_preview
 )
