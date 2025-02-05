@@ -70,15 +70,22 @@ class PyAlexFetcher(PaperFetcher):
         print(len(self.climate_relevant_topics))
 
     def _get_paper_processing_task_id(self) -> int:
-        """Get the task ID for paper processing"""
+        """Create a new task record if it doesn't exist and return its ID"""
+        # Check for existing task
         response = self.supabase.table('processing_tasks') \
-            .select("id") \
+            .select("*") \
             .eq('task', ProcessingTask.PAPER_PROCESSING) \
             .execute()
         
-        if not response.data:
-            raise ValueError("Paper processing task not found in processing_tasks table")
-        return response.data[0]['id']
+        if response.data:
+            # Return ID of existing task
+            return response.data[0]["id"]
+        
+        # Create new task if none exists
+        response = self.supabase.table('processing_tasks').insert({
+            "task": ProcessingTask.PAPER_PROCESSING
+        }).execute()
+        return response.data[0]["id"]
 
     def _get_current_page(self) -> int:
         """Get the current page number from the processing_tasks table"""
