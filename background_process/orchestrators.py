@@ -106,6 +106,9 @@ class PaperOrchestrator(Orchestrator):
                 print(f"Successfully processed {len(batch_results)} papers in this batch")
                 print(f"Total papers processed: {total_processed}")
                 
+                # Mark batch as complete by updating the main cursor
+                self.fetcher.mark_batch_complete()
+                
                 # Print some details about processed papers (first 5 in batch)
                 for paper, record in batch_results[:5]:
                     print(f"Processed: {paper.title}")
