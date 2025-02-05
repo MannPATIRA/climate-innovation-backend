@@ -10,7 +10,6 @@ def test_pinecone_operations():
     # Initialize store
     store = PineconeStore(
         index_name="test-index",
-        model="multilingual-e5-large"
     )
     
     # Test data
