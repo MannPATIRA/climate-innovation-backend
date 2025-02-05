@@ -39,7 +39,7 @@ def test_paper_ingestion():
         supabase, 
         pinecone_store,
         chunk_size=750,
-        max_workers=5
+        max_workers=10
     )
     
     # Get papers generator

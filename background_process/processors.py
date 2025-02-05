@@ -144,13 +144,15 @@ class Paper:
     title: str
 
 class PaperProcessor(Processor):
-    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 5000,
-                max_workers: int = 4):
+    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 500, 
+                 max_workers: int = 5):
         super().__init__(supabase_client, pinecone_store, chunk_size=chunk_size)
         self.max_workers = max_workers
 
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def add_paper_to_db(self, paper: Paper) -> Dict[str, Any]:
-        """Add paper to Supabase DB"""
+        """Add paper to Supabase DB with retry logic"""
         data = {
             "openalex_id": paper.openalex_id,
             "doi": paper.doi,
@@ -160,16 +162,18 @@ class PaperProcessor(Processor):
         response = self.supabase.table('papers').insert(data).execute()
         return response.data[0]
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def get_paper(self, openalex_id: str) -> Dict[str, Any]:
-        """Get paper from Supabase DB by OpenAlex ID"""
+        """Get paper from Supabase DB with retry logic"""
         response = self.supabase.table('papers') \
             .select("*") \
             .eq('openalex_id', openalex_id) \
             .execute()
         return response.data
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def chunk_and_embed(self, papers: List[Paper], metadata_list: List[Dict[str, Any]]) -> bool:
-        """Batch add paper abstracts to Pinecone with metadata"""
+        """Batch add paper abstracts to Pinecone with retry logic"""
         try:
             all_chunks = []
             all_metadata = []
@@ -195,10 +199,11 @@ class PaperProcessor(Processor):
             return False
 
     def process_single_paper(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
-        """Process a single paper"""
+        """Process a single paper with error handling"""
         try:
             abstract = data['abstract']
             metadata = data['metadata']
+            
             paper = Paper(
                 abstract=abstract,
                 openalex_id=metadata['id'],
@@ -223,25 +228,15 @@ class PaperProcessor(Processor):
                 print(f"Paper {paper.title} already processed.")
                 paper_record = existing_paper[0]
 
+            # Add small delay to prevent overwhelming the server
+            time.sleep(0.1)
             return paper, paper_record
         except Exception as e:
             print(f"Error processing paper: {str(e)}")
             return None, None
 
-    def process(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
-        """Process a single paper (for backward compatibility)"""
-        return self.process_single_paper(data)
-
     def process_batch(self, papers_data: List[Dict[str, Any]]) -> List[Tuple[Paper, Dict[str, Any]]]:
-        """
-        Process a batch of papers using thread pool executor
-        
-        Args:
-            papers_data: List of paper data dictionaries
-            
-        Returns:
-            List of (Paper, record) tuples
-        """
+        """Process a batch of papers using thread pool executor"""
         results = []
         
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
@@ -265,6 +260,15 @@ class PaperProcessor(Processor):
                     continue
                 
         return results
+    
+    def process(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
+        """
+        Synchronous process method to satisfy abstract class.
+        For single topic processing, use this.
+        For batch processing, use process_batch.
+        """
+        # Run the async process in the event loop
+        return asyncio.run(self.process_single_paper(data))
 
 
 class TopicProcessor(Processor):
