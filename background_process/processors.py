@@ -39,10 +39,11 @@ class Processor(ABC):
         """Generate a hash for the content using SHA-256"""
         return hashlib.sha256(content.encode()).hexdigest()
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def create_task(self, task_type: ProcessingTask) -> int:
         """Create a new task record if it doesn't exist and return its ID"""
         # Check for existing task
-        response = self.supabase.table('processing_tasks') \
+        response = self.supabase.table('processor_progress') \
             .select("*") \
             .eq('task', task_type.value) \
             .execute()
@@ -52,27 +53,29 @@ class Processor(ABC):
             return response.data[0]["id"]
         
         # Create new task if none exists
-        response = self.supabase.table('processing_tasks').insert({
+        response = self.supabase.table('processor_progress').insert({
             "task": task_type.value
         }).execute()
         return response.data[0]["id"]
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def log_progress(self, reference_id: str):
         """Log individual progress for a task"""
         if not self.task_id:
             raise ValueError("No task_id set. Task must be created before logging progress.")
         
-        self.supabase.table('processing_logs').insert({
+        self.supabase.table('process_progress_logs').insert({
             "task_id": self.task_id,
             "reference_id": reference_id
         }).execute()
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def remove_from_logs(self, reference_id: str):
         """Remove the entry from processing logs once completed"""
         if not self.task_id:
             raise ValueError("No task_id set. Task must be created before removing from logs.")
         
-        self.supabase.table('processing_logs') \
+        self.supabase.table('process_progress_logs') \
             .delete() \
             .eq('task_id', self.task_id) \
             .eq('reference_id', reference_id) \
@@ -348,6 +351,7 @@ class TopicProcessor(Processor):
             formatted += f"Abstract: {work['abstract'][:500]}...\n"  # Truncate long abstracts
         return formatted
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def get_topic_assessment(self, topic_id: str) -> Dict[str, Any]:
         """Get existing topic assessment from Supabase DB by topic_id"""
         response = self.supabase.table('openalex_topic_assessments') \
@@ -356,10 +360,11 @@ class TopicProcessor(Processor):
             .execute()
         return response.data
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def save_to_db(self, assessment: TopicAssessment, topic_id: str) -> Dict[str, Any]:
         """Save assessment to Supabase"""
         data = {
-            "topic_id": topic_id,  # Add topic_id to the data
+            "topic_id": topic_id,
             "is_climate_relevant": assessment.is_climate_relevant,
             "analysis": assessment.analysis
         }

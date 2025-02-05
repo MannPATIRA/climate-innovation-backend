@@ -55,23 +55,5 @@ class ReportOrchestrator(Orchestrator):
             self.process_single_report(report_path)
 
 
-class PaperOrchestrator(Orchestrator):
 
-    def process_single_paper(self, abstract: str, metadata: Dict[str, Any]) -> None:
-        """Process a single paper"""
-        try:
-            data = {
-                'abstract': abstract,
-                'metadata': metadata
-            }
-            
-            (paper, paper_record) = self.processor.process(data)
-
-        except Exception as e:
-            print(f"Error processing paper {metadata['title']}: {str(e)}")
-
-    def run(self):
-        """Main process to fetch and process papers"""
-        for abstract, metadata in self.fetcher.fetch(country="GB"):  # Fetch uk paper
-            self.process_single_paper(abstract, metadata)
 
