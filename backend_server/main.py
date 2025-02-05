@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
+from typing import List, Optional
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from langchain.prompts import ChatPromptTemplate
@@ -43,6 +43,17 @@ class Query(BaseModel):
     query: str
     chat_id: str
 
+# Add new Pydantic models for the request and response
+class PaperQuery(BaseModel):
+    query: str
+    top_k: Optional[int] = 1000
+
+class PaperResult(BaseModel):
+    paper_id: str
+    title: str
+    doi: Optional[str]
+    openalex_id: str
+    score: float
 
 # Initialize the query processor
 # query_processor = QueryProcessor()
@@ -131,6 +142,35 @@ async def construct_graph(doi: str):
     for author in authors:
         SemanticScholarInformationGatherer.get_author_info(author["authorId"])
 
+@app.post("/api/papers/search")
+async def search_papers(query: PaperQuery):
+    try:
+        # Initialize PineconeStore
+        pinecone_store = PineconeStore(index_name="climate-index")
+        
+        # Query the papers namespace
+        results = pinecone_store.query_chunk(
+            query_text=query.query,
+            top_k=query.top_k,
+            namespace="papers"
+        )
+        
+        # Format the results
+        paper_results = []
+        for match in results:
+            metadata = match.metadata
+            paper_results.append(PaperResult(
+                paper_id=metadata.get("paper_id"),
+                openalex_id=metadata.get("openalex_id"),
+                title=metadata.get("title", "Unknown Title"),
+                doi=metadata.get("doi"),
+                score=match.score
+            ))
+        
+        return paper_results
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn

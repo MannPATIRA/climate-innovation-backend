@@ -4,6 +4,8 @@ from typing import Generator, Any, Dict, Tuple, List
 import os
 import shutil
 from pyalex import Works, Topics
+from .processors import ProcessingTask
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 
 class Fetcher(ABC):
@@ -61,6 +63,106 @@ class PaperFetcher(Fetcher, ABC):
 class PyAlexFetcher(PaperFetcher):
     def __init__(self, supabase_client):
         self.supabase = supabase_client
+        self.task_id = self._get_paper_processing_task_id()
+        self.current_cursor = self._get_current_cursor()
+        # Store climate relevant topics as set for O(1) lookup
+        self.climate_relevant_topics = set(self._get_climate_relevant_topics())
+        print("number of climate relevant topics")
+        print(len(self.climate_relevant_topics))
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def _get_paper_processing_task_id(self) -> int:
+        """Create a new task record if it doesn't exist and return its ID"""
+        # Check for existing task
+        response = self.supabase.table('processor_progress') \
+            .select("*") \
+            .eq('task', ProcessingTask.PAPER_PROCESSING.value) \
+            .execute()
+        
+        if response.data:
+            # Return ID of existing task
+            return response.data[0]["id"]
+        
+        # Create new task if none exists
+        response = self.supabase.table('processor_progress').insert({
+            "task": ProcessingTask.PAPER_PROCESSING.value
+        }).execute()
+        return response.data[0]["id"]
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def _get_current_cursor(self) -> str:
+        """Get the current cursor from the processing_tasks table"""
+        response = self.supabase.table('processor_progress') \
+            .select('cursor') \
+            .eq('id', self.task_id) \
+            .execute()
+        
+        return response.data[0].get('cursor', '*') if response.data else '*'
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def _update_current_cursor(self, cursor: str):
+        """Update the current cursor in the processing_tasks table"""
+        self.supabase.table('processor_progress') \
+            .update({'cursor': cursor}) \
+            .eq('id', self.task_id) \
+            .execute()
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def _get_failed_papers(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
+        """Fetch and yield papers that failed to process previously"""
+        # Get all paper IDs from processing logs for this task
+        response = self.supabase.table('process_progress_logs') \
+            .select('reference_id') \
+            .eq('task_id', self.task_id) \
+            .execute()
+
+        if not response.data:
+            return
+        
+        print("The number of failed papers retrieved: ", len(response.data))
+        for record in response.data:
+            openalex_id = record['reference_id']
+            # Fetch the specific paper from OpenAlex
+            work = Works()[openalex_id]
+            print("Re Yielding this work: ", work.get('id'))
+            if work:
+                abstract = self._get_abstract(work)
+                if abstract:
+                    primary_topic = work.get('primary_topic', {})
+                    if primary_topic is not None:
+                        primary_topic_id = primary_topic.get('id')
+                        if primary_topic_id and primary_topic_id in self.climate_relevant_topics:
+                            metadata = {
+                                'id': work.get('id'),
+                                'doi': work.get('doi'),
+                                'title': work.get('title')
+                            }
+                            yield abstract, metadata
+                    else:
+                        print("primary topic is null: here are topics: ")
+                        print(work.get('topics', "No topics"))
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def _get_climate_relevant_topics(self) -> List[str]:
+        """Get list of topic IDs that were assessed as climate-relevant"""
+        all_topics = []
+        page = 0
+        page_size = 1000
+        
+        while True:
+            response = self.supabase.table('openalex_topic_assessments') \
+                .select('topic_id') \
+                .eq('is_climate_relevant', True) \
+                .range(page * page_size, (page + 1) * page_size - 1) \
+                .execute()
+            
+            if not response.data:  # No more results
+                break
+                
+            all_topics.extend(record['topic_id'] for record in response.data)
+            page += 1
+            
+        return all_topics
 
     def fetch(self, country: str, **kwargs) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         """
@@ -75,14 +177,11 @@ class PyAlexFetcher(PaperFetcher):
                 - abstract (str): The paper's abstract
                 - metadata (Dict): Dictionary containing id, doi, and title of the paper
         """
-        # Get climate-relevant topic IDs
-        climate_relevant_topics = self._get_climate_relevant_topics()
-        
-        # Build the query with filters
+        # First yield any failed papers
+        yield from self._get_failed_papers()
+
+        # Continue with normal fetching process
         query = Works() \
-            .filter(
-                topics={"id": climate_relevant_topics}
-            ) \
             .filter(
                 authorships={"institutions": {"country_code": country}}
             ) \
@@ -93,36 +192,53 @@ class PyAlexFetcher(PaperFetcher):
                 authorships={"is_corresponding": "true"}
             ) \
             .filter(
-                authorships={"affiliations": {
-                    "institution_ids": "https://openalex.org/I82284825|https://openalex.org/I47508984|https://openalex"
-                                    ".org/I98677209|https://openalex.org/I130828816|https://openalex.org/I241749|https"
-                                    "://openalex.org/I4210092773"}}
+                publication_year=">2000"
             ) \
             .filter(
-                publication_year=">1999"
-            )
-        # Use pagination to get all results
-        for page in chain(query.paginate(per_page=200)):
-            for paper in page:
-                #abstract = paper.get("abstract", "None")
+                primary_location={"source": {"type": "journal|repository"}}
+            ) \
+            .sort(publication_date="desc")
+        
+
+        res, meta = query.get(per_page=1, return_meta=True)
+        print("paper meta info: ")
+        print(meta)
+
+
+        # Use cursor to get all results
+        cursor = self.current_cursor
+        while cursor:
+            works, meta = query.get(per_page=200, cursor=cursor, return_meta=True)
+            cursor = meta.get('next_cursor')
+            print(f"Another 200 papers fetched with cursor")
+            papers_yielded = 0
+            
+            for paper in works:
                 abstract = self._get_abstract(paper)
                 if abstract:  # Only yield papers with abstracts
-                    metadata = {
-                        'id': paper.get('id'),
-                        'doi': paper.get('doi'),
-                        'title': paper.get('title')
-                    }
-                    yield abstract, metadata
+                    primary_topic = paper.get('primary_topic', {})
+                    if primary_topic is not None:
+                        primary_topic_id = primary_topic.get('id')
+                        if primary_topic_id and primary_topic_id in self.climate_relevant_topics:
+                            metadata = {
+                                'id': paper.get('id'),
+                                'doi': paper.get('doi'),
+                                'title': paper.get('title')
+                            }
+                            papers_yielded += 1
+                            yield abstract, metadata
+                    else:
+                        print("primary topic is null: here are topics: ")
+                        print(paper.get('topics', "No topics"))
+            
+            print(f"Yielded {papers_yielded} out of 200 papers in this batch")
+            
+            # Update the current cursor in the database
+            if cursor:
+                self.current_cursor = cursor
+                self._update_current_cursor(cursor)
 
     
-    def _get_climate_relevant_topics(self) -> List[str]:
-        """Get list of topic IDs that were assessed as climate-relevant"""
-        response = self.supabase.table('openalex_topic_assessments') \
-            .select('topic_id') \
-            .eq('is_climate_relevant', True) \
-            .execute()
-        return [record['topic_id'] for record in response.data]
-
     def _get_abstract(self, work):
         # Try the v3 index first
         inverted_index = work.get('abstract_inverted_index_v3') or work.get('abstract_inverted_index')
