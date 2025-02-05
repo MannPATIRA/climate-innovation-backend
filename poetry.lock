@@ -126,6 +126,17 @@ files = [
 frozenlist = ">=1.1.0"
 
 [[package]]
+name = "aiter"
+version = "0.13.20191203"
+description = "Useful patterns building upon asynchronous iterators."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "aiter-0.13.20191203.tar.gz", hash = "sha256:b99a5dcdceccc8f2c2c10b1327d462353f7ab1aedc8ae17fcd3d2331db5ff429"},
+]
+
+[[package]]
 name = "annotated-types"
 version = "0.7.0"
 description = "Reusable constraint types to use with typing.Annotated"
@@ -3248,4 +3259,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "219c0fbb46350806fa1e5bb88e670e1fb0856a9e6c6570ac67a91671940c7170"
+content-hash = "48eaec823e74ed1361b9f4d56ba497c0117c439d3f490e91884176be2090f845"

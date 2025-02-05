@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from itertools import chain
-from typing import Generator, Any, Dict, Tuple
+from typing import Generator, Any, Dict, Tuple, List
 import os
 import shutil
-from pyalex import Works
+from pyalex import Works, Topics
 
 
 class Fetcher(ABC):
@@ -59,6 +59,9 @@ class PaperFetcher(Fetcher, ABC):
 
 
 class PyAlexFetcher(PaperFetcher):
+    def __init__(self, supabase_client):
+        self.supabase = supabase_client
+
     def fetch(self, country: str, **kwargs) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         """
         Generates paper abstracts using the pyalex library.
@@ -72,33 +75,32 @@ class PyAlexFetcher(PaperFetcher):
                 - abstract (str): The paper's abstract
                 - metadata (Dict): Dictionary containing id, doi, and title of the paper
         """
+        # Get climate-relevant topic IDs
+        climate_relevant_topics = self._get_climate_relevant_topics()
+        
         # Build the query with filters
         query = Works() \
             .filter(
-            authorships={"institutions": {"country_code": country}}
-        ) \
+                topics={"id": climate_relevant_topics}
+            ) \
             .filter(
-            type="article|preprint|book-chapter|dissertation"
-        ) \
+                authorships={"institutions": {"country_code": country}}
+            ) \
             .filter(
-            authorships={"is_corresponding": "true"}
-        ) \
+                type="article|preprint|book-chapter|dissertation"
+            ) \
             .filter(
-            authorships={"affiliations": {
-                "institution_ids": "https://openalex.org/I82284825|https://openalex.org/I47508984|https://openalex"
-                                   ".org/I98677209|https://openalex.org/I130828816|https://openalex.org/I241749|https"
-                                   "://openalex.org/I4210092773"}}
-        ) \
+                authorships={"is_corresponding": "true"}
+            ) \
             .filter(
-            publication_year=">1999"
-        ) \
+                authorships={"affiliations": {
+                    "institution_ids": "https://openalex.org/I82284825|https://openalex.org/I47508984|https://openalex"
+                                    ".org/I98677209|https://openalex.org/I130828816|https://openalex.org/I241749|https"
+                                    "://openalex.org/I4210092773"}}
+            ) \
             .filter(
-            primary_topic={"domain": {"id": "!2"}}
-        ) \
-            .filter(
-            primary_topic={"domain": {"id": "!4"}}
-        )
-
+                publication_year=">1999"
+            )
         # Use pagination to get all results
         for page in chain(query.paginate(per_page=200)):
             for paper in page:
@@ -111,6 +113,15 @@ class PyAlexFetcher(PaperFetcher):
                         'title': paper.get('title')
                     }
                     yield abstract, metadata
+
+    
+    def _get_climate_relevant_topics(self) -> List[str]:
+        """Get list of topic IDs that were assessed as climate-relevant"""
+        response = self.supabase.table('openalex_topic_assessments') \
+            .select('topic_id') \
+            .eq('is_climate_relevant', True) \
+            .execute()
+        return [record['topic_id'] for record in response.data]
 
     def _get_abstract(self, work):
         # Try the v3 index first
@@ -131,4 +142,59 @@ class PyAlexFetcher(PaperFetcher):
                 words[position] = word
         
         # Join the words to form the complete abstract
+        return ' '.join(words)
+
+class TopicFetcher(Fetcher):
+    def fetch(self) -> Generator[Dict[str, Any], None, None]:
+        """
+        Fetches topics and sample works from OpenAlex.
+        
+        Yields:
+            Dict containing topic info and sample works
+        """
+        cursor = "*"
+        while cursor:
+            topics, meta = Topics().get(per_page=200, cursor=cursor, return_meta=True)
+            cursor = meta["next_cursor"]
+            print("number of topics: ", len(topics))
+            for topic in topics:
+                # Get 3 random sample works for this topic
+                sample_works = Works() \
+                    .filter(topics={'id': topic['id']}) \
+                    .sort(cited_by_count="desc") \
+                    .select(['id', 'title', 'abstract_inverted_index_v3', 'abstract_inverted_index']) \
+                    .paginate(per_page=3)
+                    
+                # Get the first page of results (3 works)
+                sample_abstracts = []
+                for page in chain(sample_works):
+                    for work in page:
+                        if abstract := self._get_abstract(work):
+                            sample_abstracts.append({
+                                'title': work.get('title'),
+                                'abstract': abstract
+                            })
+                    break # break after first page (we have already seen 3 papers)
+                yield {
+                    'topic_id': topic['id'],
+                    'topic_name': topic['display_name'],
+                    'topic_description': topic.get('description', ''),
+                    'sample_works': sample_abstracts
+                }
+            
+
+    def _get_abstract(self, work):
+        # Reuse the abstract extraction logic from PyAlexFetcher
+        inverted_index = work.get('abstract_inverted_index_v3') or work.get('abstract_inverted_index')
+        
+        if not inverted_index:
+            return None
+        
+        max_position = max(pos for positions in inverted_index.values() for pos in positions)
+        words = [''] * (max_position + 1)
+        
+        for word, positions in inverted_index.items():
+            for position in positions:
+                words[position] = word
+        
         return ' '.join(words)
