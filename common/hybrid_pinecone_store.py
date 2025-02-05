@@ -1,236 +1,272 @@
 from pinecone import ServerlessSpec
 from pinecone.grpc import PineconeGRPC as Pinecone
+# If you have a base class VectorStore, you can still inherit from it:
 from common.vector_store import VectorStore
+
 import os
 import hashlib
 from dotenv import load_dotenv
 from typing import List, Dict, Any
 
+# Import the BM25Encoder from pinecone_text
+from pinecone_text.sparse import BM25Encoder
+
 class HybridPineconeStore(VectorStore):
-    def __init__(self,
-                 dense_index_name: str = "test-index",
-                 hybrid_index_name: str = "hybrid-index",
-                 model: str = "multilingual-e5-large"):
+    def __init__(self, index_name: str, model: str = "multilingual-e5-large"):
         """
-        Single class to manage BOTH a dense-only index and a hybrid index.
-        This version automatically handles a naive sparse embedding generation
-        inside the class (for demonstration).
+        Initialize Pinecone client with API credentials and index information.
+        Also prepare a BM25Encoder for sparse vectors (used in hybrid search).
+        
+        Args:
+            index_name (str): Name of the Pinecone index to use
+            model (str): Name of the embedding model to use (default multilingual-e5-large)
         """
         load_dotenv()
         self.model = model
+        
         # Get API key from environment variables
         api_key = os.getenv('PINECONE_API_KEY')
         if not api_key:
             raise ValueError("PINECONE_API_KEY not found in environment variables")
         
-        # Pinecone Client
+        # Initialize Pinecone client
         self.pc = Pinecone(api_key=api_key)
+        self.index_name = index_name
         
-        # ------------------------------
-        # 1) Set up the Dense Index
-        # ------------------------------
-        self.dense_index_name = dense_index_name
-        if not self.pc.has_index(self.dense_index_name):
+        # Create (if necessary) and connect to the index
+        if not self.pc.has_index(index_name):
             self.pc.create_index(
-                name=self.dense_index_name,
-                dimension=1024,  # Adjust to match your dense model dimension
+                name=index_name,
+                dimension=1024,  # e5-large is 1024-dimensional
                 metric='cosine',
-                spec=ServerlessSpec(
-                    cloud="aws",
-                    region="us-east-1"
-                ),
+                spec=ServerlessSpec(cloud="aws", region="us-east-1"),
             )
-        dense_desc = self.pc.describe_index(self.dense_index_name)
-        dense_host = dense_desc['host']
-        self.dense_index = self.pc.Index(host=dense_host)
-        
-        # ------------------------------
-        # 2) Set up the Hybrid Index
-        # ------------------------------
-        self.hybrid_index_name = hybrid_index_name
-        if not self.pc.has_index(self.hybrid_index_name):
-            self.pc.create_index(
-                name=self.hybrid_index_name,
-                dimension=1024,  # Adjust to match your dense model dimension
-                metric='cosine',
-                spec=ServerlessSpec(
-                    cloud="aws",
-                    region="us-east-1"
-                ),
-            )
-        hybrid_desc = self.pc.describe_index(self.hybrid_index_name)
-        hybrid_host = hybrid_desc['host']
-        self.hybrid_index = self.pc.Index(host=hybrid_host)
+        index_description = self.pc.describe_index(index_name)
+        index_host = index_description['host']
+        self.index = self.pc.Index(host=index_host)
 
-        # -----------------------------------------------------
-        # A naive, local vocabulary mapping token -> token_id
-        # In a real system, you'd persist this or use a library
-        # -----------------------------------------------------
-        self.token2id = {}
-        self.next_token_id = 1  # Start token IDs at 1 (arbitrary choice)
-    
-    def _compute_sparse_representation(self, text: str) -> Dict[str, List]:
-        """
-        Naive example of generating a sparse representation for a single piece
-        of text. We'll tokenize by splitting on whitespace, then assign each token
-        an ID, and (for demonstration) we'll weight each token by 1.0.
+        # Initialize BM25Encoder for generating sparse embeddings
+        # (used when we want to do hybrid search)
+        self.bm25_encoder = BM25Encoder()
 
-        In a real system, you'd do something more sophisticated (BM25, TF-IDF, etc.).
-        """
-        # 1) Simple tokenize
-        tokens = text.lower().split()
-        
-        # 2) Build lists for 'indices' and 'values'
-        indices = []
-        values = []
-        
-        # We can do a frequency-based approach or a simple '1.0' for each token
-        # For demonstration, let's do: freq of token in this text
-        token_counts = {}
-        for t in tokens:
-            token_counts[t] = token_counts.get(t, 0) + 1
-        
-        for token, freq in token_counts.items():
-            # If it's a new token, assign a new ID
-            if token not in self.token2id:
-                self.token2id[token] = self.next_token_id
-                self.next_token_id += 1
-            
-            token_id = self.token2id[token]
-            indices.append(token_id)
-            # Naive weighting: let's just store the frequency
-            # or you could do something like freq / max_freq
-            values.append(float(freq))
-        
-        return {
-            "indices": indices,
-            "values": values
-        }
-
-    # ----------------------------------------------------------------
-    # Single method to add text chunks to EITHER the dense index or
-    # the hybrid index. The method internally handles:
-    #   - generating dense embeddings
-    #   - generating naive sparse embeddings
-    # ----------------------------------------------------------------
-    def add_texts(
+    def add_embeddings(
         self,
-        texts: List[str],
-        metadata_list: List[Dict[str, Any]] = None,
+        vectors: List[List[float]],
+        metadata: List[Dict[str, Any]],
+        ids: List[str],
         use_hybrid: bool = False,
-        namespace: str = ""
+        raw_texts: List[str] = None
     ) -> bool:
         """
-        The caller only provides raw text (and optional metadata). This method:
-          1) Generates a dense embedding for each text (via Pinecone Inference).
-          2) Generates a naive sparse embedding (via _compute_sparse_representation)
-             if use_hybrid=True.
-          3) Upserts to the chosen index (dense or hybrid).
+        Add embeddings to Pinecone index with associated metadata.
+        Optionally, if use_hybrid=True, also add sparse vectors generated 
+        from the raw text using BM25.
         
         Args:
-            texts (List[str]): The text documents or chunks
-            metadata_list (List[Dict[str, Any]]): Any metadata
-            use_hybrid (bool): If True, upsert to hybrid index with sparse + dense
-            namespace (str): Optional Pinecone namespace
+            vectors (List[List[float]]): List of dense embedding vectors
+            metadata (List[Dict]): List of metadata dictionaries for each vector
+            ids (List[str]): List of unique IDs for each vector
+            use_hybrid (bool): Whether to add sparse vectors too (default: False)
+            raw_texts (List[str]): Original raw texts corresponding to vectors, 
+                                   needed only if use_hybrid=True so we can encode them.
+        
+        Returns:
+            bool: True if successful, False otherwise
         """
         try:
-            index = self.hybrid_index if use_hybrid else self.dense_index
+            # Prepare list of upsert items
+            items_to_upsert = []
             
-            # 1) Generate dense embeddings
-            embeddings = self.pc.inference.embed(
-                model=self.model,
-                inputs=texts,
-                parameters={"input_type": "passage"}
-            )
+            for i, emb in enumerate(vectors):
+                # Build the base record (dense vector + metadata)
+                record = {
+                    "id": ids[i],
+                    "values": emb,
+                    "metadata": metadata[i]
+                }
+                
+                # If we want hybrid, we also add a sparse vector from BM25
+                if use_hybrid and raw_texts is not None:
+                    # Encode the text as a document (BM25Encoder) -> sparse dict
+                    sparse_vec = self.bm25_encoder.encode_documents([raw_texts[i]])[0]
+                    record["sparse_values"] = sparse_vec
+                
+                items_to_upsert.append(record)
             
-            # 2) Prepare upsert items
-            upsert_data = []
-            for i, text in enumerate(texts):
-                # build ID from the text
-                doc_id = hashlib.sha256(text.encode("utf-8")).hexdigest()
-                
-                # build metadata
-                if metadata_list and i < len(metadata_list):
-                    doc_metadata = metadata_list[i]
-                else:
-                    doc_metadata = {"text": text}
-                
-                # The dense vector
-                dense_vec = embeddings[i]["values"]
-                
-                # For hybrid, also generate a naive sparse vector
-                if use_hybrid:
-                    sparse_vec = self._compute_sparse_representation(text)
-                    record = {
-                        "id": doc_id,
-                        "values": dense_vec,
-                        "sparse_values": sparse_vec,
-                        "metadata": doc_metadata
-                    }
-                else:
-                    record = {
-                        "id": doc_id,
-                        "values": dense_vec,
-                        "metadata": doc_metadata
-                    }
-                
-                upsert_data.append(record)
-            
-            # 3) Upsert
-            index.upsert(vectors=upsert_data, namespace=namespace)
+            # Upsert to Pinecone
+            self.index.upsert(vectors=items_to_upsert)
             return True
-        
         except Exception as e:
-            print(f"Error adding texts: {e}")
+            print(f"Error adding embeddings: {str(e)}")
             return False
 
-    # ----------------------------------------------------------------
-    # Query method that automatically:
-    #   - Creates a dense query embedding
-    #   - Creates a naive sparse embedding if it's a hybrid query
-    # ----------------------------------------------------------------
-    def query_text(
+    def query_embeddings(
         self,
-        query: str,
+        query_vector: List[float],
         top_k: int = 5,
         use_hybrid: bool = False,
-        namespace: str = ""
+        query_text: str = None
     ) -> List[Dict]:
         """
-        The caller only provides raw text as the query. We:
-          1) Generate a dense query embedding.
-          2) Generate a naive sparse query embedding (if use_hybrid=True).
-          3) Query Pinecone with both dense + sparse or just dense.
-
+        Query the Pinecone index for similar vectors using a dense vector.
+        If use_hybrid=True, also generate a sparse BM25 vector from `query_text`.
+        
         Args:
-            query (str): Raw text query
-            top_k (int): # of results
-            use_hybrid (bool): If True, query the hybrid index with sparse + dense
-            namespace (str): Optionally search within a namespace
+            query_vector (List[float]): The query embedding vector (dense)
+            top_k (int): Number of results to return
+            use_hybrid (bool): If True, do a hybrid query (dense + sparse)
+            query_text (str): The actual text of the query for BM25 encoding 
+                              if use_hybrid=True.
+        
+        Returns:
+            List[Dict]: List of matching results with scores and metadata
         """
         try:
-            index = self.hybrid_index if use_hybrid else self.dense_index
+            if use_hybrid and query_text:
+                # Encode the query as a sparse vector
+                sparse_query = self.bm25_encoder.encode_queries([query_text])[0]
+                
+                results = self.index.query(
+                    vector=query_vector,
+                    sparse_vector=sparse_query,
+                    top_k=top_k,
+                    include_metadata=True
+                )
+            else:
+                # Dense-only query
+                results = self.index.query(
+                    vector=query_vector,
+                    top_k=top_k,
+                    include_metadata=True
+                )
             
-            # 1) Dense embedding for the query
+            return results.matches
+        except Exception as e:
+            print(f"Error querying embeddings: {str(e)}")
+            return []
+
+    def delete_embeddings(self, ids: List[str]) -> bool:
+        """
+        Delete embeddings from the Pinecone index by their IDs.
+        
+        Args:
+            ids (List[str]): List of IDs to delete
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            self.index.delete(ids=ids)
+            return True
+        except Exception as e:
+            print(f"Error deleting embeddings: {str(e)}")
+            return False
+
+    def add_chunks(
+        self,
+        chunks: List[str],
+        metadata: List[Dict[str, Any]] = None, 
+        namespace: str = "",
+        use_hybrid: bool = False
+    ) -> bool:
+        """
+        Add text chunks to Pinecone index after converting to embeddings 
+        (and optionally generating BM25 sparse vectors).
+        
+        Args:
+            chunks (List[str]): List of text chunks to embed and store
+            metadata (List[Dict], optional): List of metadata for each chunk
+            namespace (str, optional): Namespace for the vectors
+            use_hybrid (bool): If True, store both dense + sparse embeddings
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            batch_size = 96
+            for i in range(0, len(chunks), batch_size):
+                # Get batch
+                batch_chunks = chunks[i:i + batch_size]
+                batch_metadata = metadata[i:i + batch_size] if metadata else None
+                
+                # 1) Generate dense embeddings for the chunk batch
+                embeddings = self.pc.inference.embed(
+                    model=self.model,
+                    inputs=batch_chunks,
+                    parameters={"input_type": "passage"}
+                )
+                
+                # 2) (Optional) Generate sparse embeddings if hybrid
+                sparse_vectors = []
+                if use_hybrid:
+                    # encode_documents returns a list of dicts w/ "indices" and "values"
+                    sparse_vectors = self.bm25_encoder.encode_documents(batch_chunks)
+                
+                # 3) Prepare upsert data
+                records = []
+                for j, (chunk, emb) in enumerate(zip(batch_chunks, embeddings)):
+                    chunk_id = hashlib.sha256(chunk.encode()).hexdigest()
+                    
+                    record = {
+                        "id": chunk_id,
+                        "values": emb['values'],
+                        "metadata": batch_metadata[j] if batch_metadata else {"text": chunk}
+                    }
+                    
+                    if use_hybrid and sparse_vectors:
+                        record["sparse_values"] = sparse_vectors[j]
+
+                    records.append(record)
+                
+                # 4) Upsert
+                self.index.upsert(vectors=records, namespace=namespace)
+            
+            return True
+        except Exception as e:
+            print(f"Error adding chunks: {str(e)}")
+            return False
+
+    def query_chunk(
+        self,
+        query_text: str,
+        top_k: int = 5,
+        namespace: str = "",
+        use_hybrid: bool = False
+    ) -> List[Dict]:
+        """
+        Query the index using a text chunk. We generate a dense embedding for `query_text`.
+        If use_hybrid=True, we also generate a BM25 sparse vector from `query_text`.
+        
+        Args:
+            query_text (str): The text to search for
+            top_k (int): Number of results to return
+            namespace (str, optional): Namespace to search in
+            use_hybrid (bool): If True, do a hybrid query (dense + sparse)
+            
+        Returns:
+            List[Dict]: List of matching results with scores and metadata
+        """
+        try:
+            # 1) Generate a dense embedding for the query
             query_embedding = self.pc.inference.embed(
                 model=self.model,
-                inputs=[query],
+                inputs=[query_text],
                 parameters={"input_type": "query"}
             )
             dense_vec = query_embedding[0]["values"]
             
-            # 2) If hybrid, compute sparse
+            # 2) If hybrid, generate sparse vector from BM25
             if use_hybrid:
-                sparse_vec = self._compute_sparse_representation(query)
-                results = index.query(
+                sparse_query = self.bm25_encoder.encode_queries([query_text])[0]
+                results = self.index.query(
                     vector=dense_vec,
-                    sparse_vector=sparse_vec,
+                    sparse_vector=sparse_query,
                     top_k=top_k,
                     include_metadata=True,
                     namespace=namespace
                 )
             else:
-                results = index.query(
+                results = self.index.query(
                     vector=dense_vec,
                     top_k=top_k,
                     include_metadata=True,
@@ -238,15 +274,20 @@ class HybridPineconeStore(VectorStore):
                 )
             
             return results.matches
-        
         except Exception as e:
-            print(f"Error querying text: {e}")
+            print(f"Error querying chunks: {str(e)}")
             return []
 
     @staticmethod
     def delete_index(index_name: str) -> bool:
         """
         Delete a Pinecone index by name.
+        
+        Args:
+            index_name (str): Name of the index to delete
+            
+        Returns:
+            bool: True if deletion was successful, False otherwise
         """
         try:
             load_dotenv()
