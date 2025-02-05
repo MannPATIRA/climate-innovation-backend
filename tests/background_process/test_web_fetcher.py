@@ -1,11 +1,10 @@
 import pytest
-from unittest.mock import Mock, patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock, mock_open
 import os
 import time
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.remote.webelement import WebElement
+from selenium.common.exceptions import TimeoutException
 
 from background_process.web_fetcher import WebReportFetcher
 
@@ -95,47 +94,25 @@ class TestWebReportFetcher:
         goals = fetcher._get_goals()
         assert goals == TEST_GOALS
 
-    # def test_get_outcomes(self, fetcher):
-    #     # Create a mock driver
-    #     fetcher.driver = MagicMock()
+    def test_get_outcomes_empty_list(self, fetcher):
+        """Test handling of empty outcomes list"""
+        mock_select = MagicMock()
+        mock_select.options = []
 
-    #     # Create mock dropdown element
-    #     mock_dropdown = MagicMock()
-    #     mock_dropdown.tag_name = 'select'
+        with patch('selenium.webdriver.support.ui.Select', return_value=mock_select):
+            with patch('selenium.webdriver.support.ui.WebDriverWait') as mock_wait:
+                mock_wait.return_value.until.return_value = MagicMock()
+                
+                outcomes = fetcher._get_outcomes()
+                assert len(outcomes) == 0
 
-    #     # Create mock options
-    #     mock_options = []
-    #     for outcome in TEST_OUTCOMES:
-    #         mock_option = MagicMock()
-    #         mock_option.text = outcome
-    #         mock_options.append(mock_option)
-
-    #     # Create mock Select instance
-    #     mock_select = MagicMock(spec=Select)
-    #     mock_select.options = mock_options
-
-    #     with patch('selenium.webdriver.support.ui.Select', return_value=mock_select):
-    #         with patch('selenium.webdriver.support.ui.WebDriverWait') as mock_wait_class:
-    #             mock_wait_instance = mock_wait_class.return_value
-
-    #             # Setup driver.find_element to return mock_dropdown when called with expected locator
-    #             def find_element_side_effect(by, value):
-    #                 if (by == By.CSS_SELECTOR and value == "form.highlight-nav select.menu-item"):
-    #                     return mock_dropdown
-    #                 else:
-    #                     raise Exception("Element not found")
-
-    #             fetcher.driver.find_element.side_effect = find_element_side_effect
-
-    #             # Set the until() method to call the condition with the driver and return the result
-    #             def until_side_effect(condition):
-    #                 return condition(fetcher.driver)
-
-    #             mock_wait_instance.until.side_effect = until_side_effect
-
-    #             # Call the method and verify the results
-    #             outcomes = fetcher._get_outcomes()
-    #             assert outcomes == TEST_OUTCOMES
+    def test_get_outcomes_exception_handling(self, fetcher):
+        """Test exception handling in _get_outcomes"""
+        with patch('selenium.webdriver.support.ui.WebDriverWait') as mock_wait:
+            mock_wait.return_value.until.side_effect = TimeoutException("Test timeout")
+            
+            outcomes = fetcher._get_outcomes()
+            assert len(outcomes) == 0
         
     def test_get_evidence_links(self, fetcher):
         # Mock the evidence items
@@ -157,50 +134,60 @@ class TestWebReportFetcher:
         links = fetcher._get_evidence_links()
         assert links == TEST_EVIDENCE_LINKS
 
-    # @patch('time.sleep')
-    # def test_process_goal(self, mock_sleep, fetcher):
-    #     # Create a mock driver
-    #     fetcher.driver = MagicMock()
-    #     fetcher.driver.current_url = 'panel/evidence'
+    def test_process_goal_no_outcomes(self, fetcher):
+        """Test process_goal behavior when no outcomes are found"""
+        fetcher.driver = MagicMock()
+        fetcher.driver.current_url = 'panel/evidence'
 
-    #     # Create mock dropdown element
-    #     mock_dropdown = MagicMock()
-    #     mock_dropdown.tag_name = 'select'
+        with patch.object(fetcher, '_get_outcomes', return_value=[]):
+            results = list(fetcher._process_goal(TEST_GOALS[0]['url'], TEST_GOALS[0]['name']))
+            assert len(results) == 0
 
-    #     # Create mock options
-    #     mock_options = []
-    #     for outcome in TEST_OUTCOMES:
-    #         mock_option = MagicMock()
-    #         mock_option.text = outcome
-    #         mock_options.append(mock_option)
+    def test_process_goal_download_failure(self, fetcher):
+        """Test process_goal handling of download failures"""
+        fetcher.driver = MagicMock()
+        fetcher.driver.current_url = 'panel/evidence'
 
-    #     # Create mock Select instance
-    #     mock_select = MagicMock(spec=Select)
-    #     mock_select.options = mock_options
+        with patch.object(fetcher, '_get_outcomes', return_value=TEST_OUTCOMES), \
+             patch.object(fetcher, '_get_evidence_links', return_value=TEST_EVIDENCE_LINKS), \
+             patch.object(fetcher, '_download_report', return_value=None):
+            
+            results = list(fetcher._process_goal(TEST_GOALS[0]['url'], TEST_GOALS[0]['name']))
+            assert len(results) == 0
+            
+    @pytest.mark.integration
+    def test_process_goal_evidence_tab_navigation(self, fetcher):
+        """Test navigation to evidence tab"""
+        fetcher.driver = MagicMock()
+        # Set current_url to a URL that does NOT contain 'panel/evidence'
+        fetcher.driver.current_url = 'http://test.com/goal1'
 
-    #     # Mock WebDriverWait and Select
-    #     with patch('selenium.webdriver.support.ui.WebDriverWait') as mock_wait_class, \
-    #         patch('selenium.webdriver.support.ui.Select', return_value=mock_select):
+        # Create mocks for elements
+        mock_panel_content = MagicMock(name='panel_content')
+        mock_panel_content.is_displayed.return_value = True
 
-    #         # The instance of WebDriverWait
-    #         mock_wait_instance = mock_wait_class.return_value
+        mock_evidence_tab = MagicMock(name='evidence_tab')
+        mock_evidence_tab.is_displayed.return_value = True
+        mock_evidence_tab.is_enabled.return_value = True
+        mock_evidence_tab.click = MagicMock()
 
-    #         # Set the until() method to call the condition with driver and return the mock_dropdown
-    #         mock_wait_instance.until.side_effect = lambda condition: condition(fetcher.driver)
+        # Mock driver.find_element() to return the correct elements based on the locator
+        def mock_find_element(by, value):
+            if by == By.CSS_SELECTOR and value == "div.panel-content":
+                return mock_panel_content
+            elif by == By.CSS_SELECTOR and value == "a.menu-link[href*='panel/evidence']":
+                return mock_evidence_tab
+            else:
+                # Return a generic MagicMock for any other elements
+                return MagicMock()
 
-    #         # Mock select_by_visible_text
-    #         mock_select.select_by_visible_text = MagicMock()
+        fetcher.driver.find_element.side_effect = mock_find_element
 
-    #         # Mock other methods
-    #         fetcher._get_evidence_links = MagicMock(return_value=TEST_EVIDENCE_LINKS)
-    #         fetcher._download_report = MagicMock(return_value="/tmp/test.pdf")
+        with patch.object(fetcher, '_get_outcomes', return_value=[]):
+            list(fetcher._process_goal(TEST_GOALS[0]['url'], TEST_GOALS[0]['name']))
 
-    #         # Call the method and verify results
-    #         results = list(fetcher._process_goal(TEST_GOALS[0]['url'], TEST_GOALS[0]['name']))
-
-    #         # Verify the number of results matches expectations
-    #         expected_count = len(TEST_OUTCOMES) * len(TEST_EVIDENCE_LINKS)
-    #         assert len(results) == expected_count
+        # Assert that evidence_tab.click() was called
+        mock_evidence_tab.click.assert_called_once()
 
     def test_download_report(self, fetcher):
         fetcher.driver = MagicMock()
