@@ -209,7 +209,6 @@ class PaperProcessor(Processor):
         data = {
             "openalex_id": paper.openalex_id,
             "doi": paper.doi,
-            "abstract": paper.abstract,
             "title": paper.title
         }
         response = self.supabase.table('papers').insert(data).execute()

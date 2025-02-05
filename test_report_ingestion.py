@@ -2,11 +2,11 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client
 from common.pinecone_store import PineconeStore
-from background_process.fetchers import PyAlexFetcher
-from background_process.processors import PaperProcessor
-from background_process.orchestrators import PaperOrchestrator
+from background_process.fetchers import LocalPDFFetcher
+from background_process.processors import ReportProcessor
+from background_process.orchestrators import ReportOrchestrator
 
-def test_paper_ingestion():
+def test_report_ingestion():
     # Load environment variables
     load_dotenv(override=True)
     
@@ -17,22 +17,20 @@ def test_paper_ingestion():
     pinecone_store = PineconeStore(index_name="climate-index")
     
     # Initialize components
-    fetcher = PyAlexFetcher(supabase)
-    processor = PaperProcessor(
+    fetcher = LocalPDFFetcher("./test_reports")
+    processor = ReportProcessor(
         supabase, 
         pinecone_store,
         chunk_size=750,
-        max_workers=10
     )
     
     # Create and run orchestrator
-    orchestrator = PaperOrchestrator(
+    orchestrator = ReportOrchestrator(
         fetcher=fetcher,
-        processor=processor,
-        batch_size=1000
+        processor=processor
     )
     
-    orchestrator.run(country="GB")
+    orchestrator.run()
 
 if __name__ == "__main__":
-    test_paper_ingestion() 
+    test_report_ingestion() 

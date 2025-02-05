@@ -9,7 +9,7 @@ def test_pinecone_operations():
     
     # Initialize store
     store = PineconeStore(
-        index_name="test-index",
+        index_name="climate-index",
     )
     
     # Test data
