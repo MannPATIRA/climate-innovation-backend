@@ -7,6 +7,7 @@ import threading
 from queue import Queue
 import time
 from tenacity import retry, stop_after_attempt, wait_exponential
+from enum import Enum
 
 from supabase import Client
 from common.pinecone_store import PineconeStore
@@ -18,6 +19,11 @@ from langchain_openai import ChatOpenAI
 from .prompts import CLIMATE_RELEVANCE_PROMPT, TopicAssessment
 
 
+class ProcessingTask(Enum):
+    REPORT_PROCESSING = "report_processing"
+    PAPER_PROCESSING = "paper_processing" 
+    TOPIC_PROCESSING = "topic_processing"
+
 class Processor(ABC):
     def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 500):
         # Add a ChunkingStrategy class to take in constructor so we can use different chunking strategies LATER
@@ -27,10 +33,39 @@ class Processor(ABC):
             chunk_size=chunk_size,
             chunk_overlap=50
         )
+        self.task_id = None
 
     def generate_content_hash(self, content: str) -> str:
         """Generate a hash for the content using SHA-256"""
         return hashlib.sha256(content.encode()).hexdigest()
+
+    def create_task(self, task_type: ProcessingTask) -> int:
+        """Create a new task record if it doesn't exist and return its ID"""
+        # Check for existing task
+        response = self.supabase.table('processing_tasks') \
+            .select("*") \
+            .eq('task', task_type.value) \
+            .execute()
+        
+        if response.data:
+            # Return ID of existing task
+            return response.data[0]["id"]
+        
+        # Create new task if none exists
+        response = self.supabase.table('processing_tasks').insert({
+            "task": task_type.value
+        }).execute()
+        return response.data[0]["id"]
+
+    def log_progress(self, reference_id: str):
+        """Log individual progress for a task"""
+        if not self.task_id:
+            raise ValueError("No task_id set. Task must be created before logging progress.")
+        
+        self.supabase.table('processing_logs').insert({
+            "task_id": self.task_id,
+            "reference_id": reference_id
+        }).execute()
 
     @abstractmethod
     def process(self, data: Dict[Any, Any]) -> Tuple[str, Dict[str, Any]]:
@@ -44,6 +79,9 @@ class PDFDocument:
     content_hash: str
 
 class ReportProcessor(Processor):
+    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 500):
+        super().__init__(supabase_client, pinecone_store, chunk_size=chunk_size)
+        self.task_id = self.create_task(ProcessingTask.REPORT_PROCESSING)
 
     def convert_pdf_to_text(self, pdf_path: str) -> PDFDocument:
         """Converts PDF to text using PyPDF2 and extracts title from filename"""
@@ -148,6 +186,7 @@ class PaperProcessor(Processor):
                  max_workers: int = 5):
         super().__init__(supabase_client, pinecone_store, chunk_size=chunk_size)
         self.max_workers = max_workers
+        self.task_id = self.create_task(ProcessingTask.PAPER_PROCESSING)
 
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
@@ -274,12 +313,12 @@ class PaperProcessor(Processor):
 
 class TopicProcessor(Processor):
     def __init__(self, supabase_client, model_name: str = "gpt-4o-mini"):
-        self.supabase = supabase_client
+        super().__init__(supabase_client, None)  # No pinecone store needed
         self.evaluator = ChatOpenAI(
             model=model_name,
             temperature=0.2
         ).with_structured_output(TopicAssessment)
-        self._tasks: Set[asyncio.Task] = set()
+        self.task_id = self.create_task(ProcessingTask.TOPIC_PROCESSING)
 
     def format_sample_works(self, works: list) -> str:
         """Format sample works for prompt"""
