@@ -1,7 +1,7 @@
 from .fetchers import ReportFetcher, Fetcher, PaperFetcher
 from .processors import ReportProcessor, Processor, PaperProcessor
 from .summary_processors import SummaryProcessor, Summarizer
-from typing import Optional
+from typing import Optional, Dict, Any
 import os
 from abc import ABC, abstractmethod
 
@@ -57,6 +57,21 @@ class ReportOrchestrator(Orchestrator):
 
 class PaperOrchestrator(Orchestrator):
 
+    def process_single_paper(self, abstract: str, metadata: Dict[str, Any]) -> None:
+        """Process a single paper"""
+        try:
+            data = {
+                'abstract': abstract,
+                'metadata': metadata
+            }
+            
+            (paper, paper_record) = self.processor.process(data)
+
+        except Exception as e:
+            print(f"Error processing paper {metadata['title']}: {str(e)}")
+
     def run(self):
-        """Main process to orchestrate the ingestion and vectorising of documents"""
+        """Main process to fetch and process papers"""
+        for abstract, metadata in self.fetcher.fetch(country="GB"):  # Fetch uk paper
+            self.process_single_paper(abstract, metadata)
 
