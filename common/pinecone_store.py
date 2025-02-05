@@ -9,7 +9,7 @@ import time
 from openai import OpenAI
 
 class PineconeStore(VectorStore):
-    def __init__(self, index_name: str,
+    def __init__(self, index_name: str = "climate-index",
                  model: str = "text-embedding-3-large"):
         """
         Initialize Pinecone client with API credentials and index information.
