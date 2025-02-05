@@ -64,7 +64,7 @@ class PyAlexFetcher(PaperFetcher):
     def __init__(self, supabase_client):
         self.supabase = supabase_client
         self.task_id = self._get_paper_processing_task_id()
-        self.current_page = self._get_current_page()
+        self.current_cursor = self._get_current_cursor()
         # Store climate relevant topics as set for O(1) lookup
         self.climate_relevant_topics = set(self._get_climate_relevant_topics())
         print("number of climate relevant topics")
@@ -90,20 +90,20 @@ class PyAlexFetcher(PaperFetcher):
         return response.data[0]["id"]
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def _get_current_page(self) -> int:
-        """Get the current page number from the processing_tasks table"""
+    def _get_current_cursor(self) -> str:
+        """Get the current cursor from the processing_tasks table"""
         response = self.supabase.table('processor_progress') \
-            .select('progress') \
+            .select('cursor') \
             .eq('id', self.task_id) \
             .execute()
         
-        return response.data[0].get('progress', 0) if response.data else 0
+        return response.data[0].get('cursor', '*') if response.data else '*'
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def _update_current_page(self, page: int):
-        """Update the current page number in the processing_tasks table"""
+    def _update_current_cursor(self, cursor: str):
+        """Update the current cursor in the processing_tasks table"""
         self.supabase.table('processor_progress') \
-            .update({'progress': page}) \
+            .update({'cursor': cursor}) \
             .eq('id', self.task_id) \
             .execute()
 
@@ -200,16 +200,23 @@ class PyAlexFetcher(PaperFetcher):
             .filter(
                 primary_location={"source": {"type": "journal|repository"}}
             ) \
-            .sort(publication_date="desc")  # Get most cited papers first
+            .sort(publication_date="desc")
+        
+
         res, meta = query.get(per_page=1, return_meta=True)
         print("paper meta info: ")
         print(meta)
-        # Use pagination to get all results
-        for page in chain(query.paginate(per_page=200, page=self.current_page)):
-            print(f"Another 200 papers fetched from page {self.current_page}")
+
+
+        # Use cursor to get all results
+        cursor = self.current_cursor
+        while cursor:
+            works, meta = query.get(per_page=200, cursor=cursor, return_meta=True)
+            cursor = meta.get('next_cursor')
+            print(f"Another 200 papers fetched with cursor")
             papers_yielded = 0
-            for paper in page:
-                #abstract = paper.get("abstract", "None")
+            
+            for paper in works:
                 abstract = self._get_abstract(paper)
                 if abstract:  # Only yield papers with abstracts
                     primary_topic = paper.get('primary_topic', {})
@@ -229,9 +236,10 @@ class PyAlexFetcher(PaperFetcher):
             
             print(f"Yielded {papers_yielded} out of 200 papers in this batch")
             
-            # Update the current page in the database
-            self.current_page += 1
-            self._update_current_page(self.current_page)
+            # Update the current cursor in the database
+            if cursor:
+                self.current_cursor = cursor
+                self._update_current_cursor(cursor)
 
     
     def _get_abstract(self, work):
