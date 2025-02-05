@@ -181,6 +181,8 @@ class PaperProcessor(Processor):
     def process(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
         abstract = data['abstract']
         metadata = data['metadata']
+        print("This paper meta data: ")
+        print(metadata)
         
         # Create Paper object
         paper = Paper(
@@ -202,8 +204,6 @@ class PaperProcessor(Processor):
                 "paper_id": paper_record["id"],
                 "openalex_id": paper.openalex_id,
                 "doi": paper.doi,
-                "title": paper.title,
-                "content_hash": paper.content_hash
             }
             self.chunk_and_embed(paper, paper_metadata)
         else:
