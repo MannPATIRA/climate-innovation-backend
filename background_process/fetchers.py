@@ -64,6 +64,7 @@ class PyAlexFetcher(PaperFetcher):
     def __init__(self, supabase_client):
         self.supabase = supabase_client
         self.task_id = self._get_paper_processing_task_id()
+        self.cursor = self._get_main_cursor()
         self.current_cursor = self._get_current_cursor()
         # Store climate relevant topics as set for O(1) lookup
         self.climate_relevant_topics = set(self._get_climate_relevant_topics())
@@ -90,8 +91,8 @@ class PyAlexFetcher(PaperFetcher):
         return response.data[0]["id"]
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def _get_current_cursor(self) -> str:
-        """Get the current cursor from the processing_tasks table"""
+    def _get_main_cursor(self) -> str:
+        """Get the main cursor from the processing_tasks table"""
         response = self.supabase.table('processor_progress') \
             .select('cursor') \
             .eq('id', self.task_id) \
@@ -100,10 +101,32 @@ class PyAlexFetcher(PaperFetcher):
         return response.data[0].get('cursor', '*') if response.data else '*'
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def _get_current_cursor(self) -> str:
+        """Get the current_cursor from the processing_tasks table"""
+        response = self.supabase.table('processor_progress') \
+            .select('current_cursor') \
+            .eq('id', self.task_id) \
+            .execute()
+        
+        # If no current_cursor exists, use the main cursor value
+        if not response.data or response.data[0].get('current_cursor') is None:
+            return self._get_cursor()
+        
+        return response.data[0].get('current_cursor')
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def _update_current_cursor(self, cursor: str):
-        """Update the current cursor in the processing_tasks table"""
+        """Update the current_cursor in the processing_tasks table"""
         self.supabase.table('processor_progress') \
-            .update({'cursor': cursor}) \
+            .update({'current_cursor': cursor}) \
+            .eq('id', self.task_id) \
+            .execute()
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def _update_main_cursor(self):
+        """Update the main cursor with the current_cursor value"""
+        self.supabase.table('processor_progress') \
+            .update({'cursor': self.current_cursor}) \
             .eq('id', self.task_id) \
             .execute()
 
@@ -206,7 +229,7 @@ class PyAlexFetcher(PaperFetcher):
 
 
         # Use cursor to get all results
-        cursor = self.current_cursor
+        cursor = self.cursor
         while cursor:
             works, meta = query.get(per_page=200, cursor=cursor, return_meta=True)
             cursor = meta.get('next_cursor')
@@ -233,7 +256,7 @@ class PyAlexFetcher(PaperFetcher):
             
             print(f"Yielded {papers_yielded} out of 200 papers in this batch")
             
-            # Update the current cursor in the database
+            # Update the current cursor
             if cursor:
                 self.current_cursor = cursor
                 self._update_current_cursor(cursor)
@@ -259,6 +282,10 @@ class PyAlexFetcher(PaperFetcher):
         
         # Join the words to form the complete abstract
         return ' '.join(words)
+
+    def mark_batch_complete(self):
+        """Mark the current batch as complete by updating the main cursor"""
+        self._update_main_cursor()
 
 class TopicFetcher(Fetcher):
     def fetch(self) -> Generator[Dict[str, Any], None, None]:
