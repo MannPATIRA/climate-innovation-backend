@@ -67,6 +67,17 @@ class Processor(ABC):
             "reference_id": reference_id
         }).execute()
 
+    def remove_from_logs(self, reference_id: str):
+        """Remove the entry from processing logs once completed"""
+        if not self.task_id:
+            raise ValueError("No task_id set. Task must be created before removing from logs.")
+        
+        self.supabase.table('processing_logs') \
+            .delete() \
+            .eq('task_id', self.task_id) \
+            .eq('reference_id', reference_id) \
+            .execute()
+
     @abstractmethod
     def process(self, data: Dict[Any, Any]) -> Tuple[str, Dict[str, Any]]:
         pass
@@ -240,12 +251,18 @@ class PaperProcessor(Processor):
     def process_single_paper(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
         """Process a single paper with error handling"""
         try:
+            # Extract openalex_id for logging
+            openalex_id = data['metadata']['id']
+            
+            # Log that we're starting to process this paper
+            self.log_progress(openalex_id)
+            
             abstract = data['abstract']
             metadata = data['metadata']
             
             paper = Paper(
                 abstract=abstract,
-                openalex_id=metadata['id'],
+                openalex_id=openalex_id,
                 doi=metadata.get('doi'),
                 title=metadata['title'],
             )
@@ -268,7 +285,9 @@ class PaperProcessor(Processor):
                 print(f"Paper {paper.title[:30]}... already processed.")
                 paper_record = existing_paper[0]
 
-            # Add small delay to prevent overwhelming the server
+            # Remove from processing logs after successful processing
+            self.remove_from_logs(openalex_id)
+            
             time.sleep(0.1)
             return paper, paper_record
         except Exception as e:
