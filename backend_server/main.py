@@ -53,6 +53,7 @@ class PaperResult(BaseModel):
     doi: Optional[str]
     openalex_id: str
     score: float
+    content: str
 
 # Initialize the query processor
 # query_processor = QueryProcessor()
@@ -162,7 +163,8 @@ async def search_papers(query: PaperQuery):
                 paper_id=metadata.get("paper_id"),
                 openalex_id=metadata.get("openalex_id"),
                 doi=metadata.get("doi"),
-                score=match.score
+                score=match.score,
+                content=metadata.get("content")
             ))
         
         return paper_results
