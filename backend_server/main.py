@@ -15,6 +15,9 @@ from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
 from .gatherers import OpenAlexInformationGatherer, authors_from_doi
+from ranking_model.ranker import Ranker
+from ranking_model.author import Author
+from ranking_model.grant import Grant
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -49,18 +52,97 @@ class PaperQuery(BaseModel):
     query: str
     top_k: Optional[int] = 1000
 
-class PaperResult(BaseModel):
-    paper_id: int
-    doi: Optional[str]
-    openalex_id: str
-    score: float
-    content: str
-    paper_title: str
-    publication_date: str
+class GrantData(BaseModel):
+    title: str
+    category: str
+    value: float
+    funder: str
+    organisation: str
+
+class AuthorData(BaseModel):
+    name: str
+    citations: int
+    dob: str
+    organisation_history: Optional[str] = None
+    orcid: Optional[str] = None
+    hindex: int
+    grants: Optional[List[GrantData]] = []
+    grant_org_name: Optional[str] = None
+    website: Optional[str] = None
+    openAlexid: Optional[str] = None
+    works_count: int
+
+class PaperData(BaseModel):
+    paper_id: str
+    doi: str
+    title: str
+    relevancy: float
+    # Other fields (like abstract, publication_date) can be added if needed.
+    authors: List[AuthorData]
+
+# For paper feedback (accept/reject)
+class PaperFeedback(BaseModel):
+    paper: PaperData
+    accepted: bool
+
+# For author feedback (accept/reject)
+class AuthorFeedback(BaseModel):
+    paper: PaperData
+    author_name: str
+    accepted: bool
+
+
+def build_author_from_dict(data: dict) -> Author:
+    grants = []
+    for grant_data in data.get("grants", []):
+        grant = Grant(
+            title=grant_data["title"],
+            category=grant_data["category"],
+            value=grant_data["value"],
+            funder=grant_data["funder"],
+            organisation=grant_data["organisation"]
+        )
+        grants.append(grant)
+    return Author(
+        name=data["name"],
+        citations=data["citations"],
+        dob=data["dob"],
+        organisation_history=data.get("organisation_history", ""),
+        orcid=data.get("orcid", ""),
+        hindex=data["hindex"],
+        grants=grants,
+        grant_org_name=data.get("grant_org_name", ""),
+        website=data.get("website", ""),
+        openAlexid=data.get("openAlexid", ""),
+        works_count=data["works_count"]
+    )
+
+    
+def build_paper_from_dict(data: dict) -> Paper:
+    authors = []
+    for a_data in data.get("authors", []):
+        author = build_author_from_dict(a_data)
+        authors.append(author)
+    # For fields not used in ranking, we set default values.
+    return Paper(
+        paper_id=data["paper_id"],
+        doi=data["doi"],
+        name=data.get("name", data["title"]),
+        title=data["title"],
+        institution="",
+        institution_size=0,
+        funding=0,
+        citations=0,
+        relevancy=data["relevancy"],
+        authors=authors
+    )
+
 
 # Initialize the query processor
 # query_processor = QueryProcessor()
 query_processor = MockQueryProcessor()
+
+ranker = Ranker(0.000001)
 
 @app.get("/")
 async def home():
@@ -168,10 +250,57 @@ async def search_papers(query: PaperQuery):
                 authors=authors
             ))
 
-        return paper_results
+        return ranker.rank(paper_results)
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/papers/feedback")
+async def paper_feedback(feedback: PaperFeedback):
+    """
+    Endpoint for paper acceptance or rejection.
+    The frontend sends the paper (as JSON) along with a flag (accepted: true/false).
+    The ranker then updates its model weights using the paper's relevancy.
+    """
+    try:
+        paper_obj = build_paper_from_dict(feedback.paper.dict())
+        if feedback.accepted:
+            ranker.accept_paper(paper_obj)
+            message = "Paper accepted. Model weights updated."
+        else:
+            ranker.delete_paper(paper_obj)
+            message = "Paper rejected. Model weights updated."
+        return {"message": message}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/authors/feedback")
+async def author_feedback(feedback: AuthorFeedback):
+    """
+    Endpoint for author acceptance or rejection.
+    The frontend sends the paper (with the list of authors), the specific author name,
+    and whether that author is accepted (true) or rejected (false).
+    The ranker then updates its author model weights accordingly.
+    """
+    try:
+        paper_obj = build_paper_from_dict(feedback.paper.dict())
+        target_author = None
+        for author in paper_obj.authors:
+            if author.name == feedback.author_name:
+                target_author = author
+                break
+        if target_author is None:
+            raise HTTPException(status_code=404, detail="Author not found in paper.")
+        if feedback.accepted:
+            ranker.accept_author(paper_obj, target_author)
+            message = "Author accepted. Model weights updated."
+        else:
+            ranker.delete_author(paper_obj, target_author)
+            message = "Author rejected. Model weights updated."
+        return {"message": message}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     import uvicorn

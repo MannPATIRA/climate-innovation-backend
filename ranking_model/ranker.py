@@ -1,80 +1,107 @@
 from author import Author
 from paper import Paper
+from grant import Grant
 import numpy as np
-
+from typing import List
 class Ranker:
-    def __init__(self, learning_rate=0.01):
+    def __init__(self, learning_rate: float = 0.01):
         """
-        The Ranker maintains separate model weights for authors and papers.
-          - For authors, we use features: [citations, hindex].
-          - For papers, we use the paper's relevancy score.
+        The Ranker maintains separate model weights for ranking authors and papers.
+          - For authors, we now use an extended feature vector:
+                [citations, hindex, total_grant_value, num_grants, works_count]
+          - For papers, we use the paper relevancy score.
         """
         self.learning_rate = learning_rate
-        self.author_weights = {'citations': 0.5, 'hindex': 0.5}
+        self.author_weights = {
+            'citations': 0.5,
+            'hindex': 0.5,
+            'total_grant_value': 0.1,
+            'num_grants': 0.1,
+            'works_count': 0.1
+        }
         self.paper_weights = {'relevancy': 1.0}
 
     @staticmethod
-    def sigmoid(x):
+    def sigmoid(x: float) -> float:
+        """Compute the sigmoid function."""
         return 1 / (1 + np.exp(-x))
 
-    # --------------------------
-    # Ranking Functions
-    # --------------------------
-
-    def rank(self, papers):
+    def get_extended_feature_vector(self, author: Author) -> np.ndarray:
         """
-        Given a list of Paper objects, compute a score for each author and each paper.
-          - For each paper:
-              * Compute each author's score using a logistic model with the current author weights.
-              * Rank the authors in descending order (highest score first).
-              * Compute a paper relevancy contribution as sigmoid(paper_weight * paper.relevancy).
-              * Set the paper's overall score = (paper relevancy contribution) + (sum of its authors' scores).
-          - Finally, return the list of papers ranked in descending order.
+        Build an extended feature vector for the author including:
+            - citations
+            - hindex
+            - total grant value (sum of values of all grants)
+            - number of grants
+            - works count
+        """
+        total_grant_value = sum(grant.value for grant in author.grants) if author.grants else 0.0
+        num_grants = len(author.grants)
+        works_count = author.works_count
+        return np.array([author.citations, author.hindex, total_grant_value, num_grants, works_count], dtype=float)
+
+    def rank(self, papers: List[Paper]) -> List[Paper]:
+        """
+        Rank each paper by computing:
+          - Each author's score using the extended feature vector.
+          - Authors are sorted within the paper (highest score first).
+          - The paper's overall score is computed as the sum of its authors' scores plus
+            a contribution from the paper relevancy.
+        Returns a list of papers ranked by their overall score (highest first).
         """
         for paper in papers:
-            # Compute and assign score for each author in the paper.
+            # Compute score for each author using the extended feature vector.
             for author in paper.authors:
-                features = author.get_feature_vector()
-                weights = np.array([self.author_weights['citations'], self.author_weights['hindex']])
+                features = self.get_extended_feature_vector(author)
+                weights = np.array([
+                    self.author_weights['citations'],
+                    self.author_weights['hindex'],
+                    self.author_weights['total_grant_value'],
+                    self.author_weights['num_grants'],
+                    self.author_weights['works_count']
+                ])
                 raw_score = np.dot(features, weights)
                 author.score = self.sigmoid(raw_score)
-            # Rank authors within the paper (highest score first).
+            # Sort authors within the paper (highest score first).
             paper.authors.sort(key=lambda a: a.score, reverse=True)
+            # Compute paper relevancy contribution.
+            paper_contrib = self.sigmoid(self.paper_weights['relevancy'] * paper.relevancy)
+            # Overall paper score: relevancy contribution plus the sum of its authors' scores.
+            paper.score = paper_contrib + sum(author.score for author in paper.authors)
+        # Return papers sorted by overall score.
+        return sorted(papers, key=lambda p: p.score, reverse=True)
 
-            # Compute the paper's relevancy contribution.
-            paper_weight = self.paper_weights['relevancy']
-            relevancy_contribution = self.sigmoid(paper_weight * paper.relevancy)
-            # The overall paper score is defined here as:
-            paper.score = relevancy_contribution + sum(author.score for author in paper.authors)
-        # Return papers ranked by their score (highest first)
-        ranked_papers = sorted(papers, key=lambda p: p.score, reverse=True)
-        return ranked_papers
-
-    # --------------------------
-    # Model Update Functions
-    # --------------------------
-
-    def update_author_model(self, author, label):
+    def update_author_model(self, author: Author, label: int):
         """
-        Update the author model weights using an online logistic regression rule.
-        :param author: The Author object.
-        :param label: 1 for accept, 0 for rejection.
+        Update the author model weights using an online logistic regression update.
+        Label is 1 for acceptance and 0 for rejection.
+        Uses the extended feature vector.
         """
-        features = author.get_feature_vector()
-        weights = np.array([self.author_weights['citations'], self.author_weights['hindex']])
+        features = self.get_extended_feature_vector(author)
+        weights = np.array([
+            self.author_weights['citations'],
+            self.author_weights['hindex'],
+            self.author_weights['total_grant_value'],
+            self.author_weights['num_grants'],
+            self.author_weights['works_count']
+        ])
         raw_score = np.dot(features, weights)
         prediction = self.sigmoid(raw_score)
         error = label - prediction
         updated_weights = weights + self.learning_rate * error * features
+
+        # Update the weights dictionary.
         self.author_weights['citations'] = updated_weights[0]
         self.author_weights['hindex'] = updated_weights[1]
-        print(f"Updated author weights: {self.author_weights}")
+        self.author_weights['total_grant_value'] = updated_weights[2]
+        self.author_weights['num_grants'] = updated_weights[3]
+        self.author_weights['works_count'] = updated_weights[4]
 
-    def update_paper_model(self, paper, label):
+        print("Updated author weights:", self.author_weights)
+
+    def update_paper_model(self, paper: Paper, label: int):
         """
-        Update the paper model weight (for relevancy) using an online logistic regression rule.
-        :param paper: The Paper object.
-        :param label: 1 for accept, 0 for rejection.
+        Update the paper relevancy model weight using an online update rule.
         """
         feature = paper.relevancy  # single feature
         weight = self.paper_weights['relevancy']
@@ -83,44 +110,35 @@ class Ranker:
         error = label - prediction
         updated_weight = weight + self.learning_rate * error * feature
         self.paper_weights['relevancy'] = updated_weight
-        print(f"Updated paper weights: {self.paper_weights}")
+        print("Updated paper weights:", self.paper_weights)
 
-    # --------------------------
-    # User Feedback Functions
-    # --------------------------
-
-    def delete_author(self, paper, author):
+    def delete_author(self, paper: Paper, author: Author):
         """
-        Called when the user rejects an author.
-          - Update the author model with a rejection signal (label = 0).
-          - Remove the author from the paper's author list.
+        Process a deletion of an author:
+          - Update the author model with a rejection (label = 0).
+          - Remove the author from the paper.
         """
         print(f"Deleting author '{author.name}' from paper '{paper.name}'.")
         self.update_author_model(author, label=0)
-        # Remove the author from the paper.
-        paper.authors = [a for a in paper.authors if a != author]
+        paper.authors = [a for a in paper.authors if a.name != author.name]
 
-    def accept_author(self, paper, author):
+    def accept_author(self, paper: Paper, author: Author):
         """
-        Called when the user accepts an author.
-          - Update the author model with an acceptance signal (label = 1).
+        Process an acceptance of an author (update with label = 1).
         """
         print(f"Accepting author '{author.name}' for paper '{paper.name}'.")
         self.update_author_model(author, label=1)
 
-    def delete_paper(self, paper):
+    def delete_paper(self, paper: Paper):
         """
-        Called when the user rejects a paper.
-          - Update the paper model with a rejection signal (label = 0).
+        Process a deletion of a paper by updating the paper model with a rejection (label = 0).
         """
         print(f"Deleting paper '{paper.name}'.")
         self.update_paper_model(paper, label=0)
-        # The caller can then remove the paper from the ranked list.
 
-    def accept_paper(self, paper):
+    def accept_paper(self, paper: Paper):
         """
-        Called when the user accepts a paper.
-          - Update the paper model with an acceptance signal (label = 1).
+        Process an acceptance of a paper (update with label = 1).
         """
         print(f"Accepting paper '{paper.name}'.")
         self.update_paper_model(paper, label=1)
