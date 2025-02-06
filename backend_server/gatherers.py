@@ -62,9 +62,34 @@ class OpenAlexInformationGatherer(InformationGatherer):
                 "name": author.get('display_name'),
                 "citations": author.get('cited_by_count', 0),
                 "hIndex": author.get('h_index', 0),
-                "externalIds": author.get('ids', {})
+                "externalIds": author.get('ids', {}),
+                "works_count": author.get("works_count", 0),
+                "organisations": list(map(lambda x: x.get("display_name", "Unknown name"), author.get("last_known_institutions", []))),
+                "openAlex_id": author.get("id", "")
             }
         return {}
+
+    @staticmethod
+    def get_details_from_paper_id(paper_id):
+        """
+        Retrieve the DOI of a paper using its OpenAlex ID.
+        """
+
+        id = paper_id.split("org/")[1]
+
+        # Fetch the work (paper) details using the OpenAlex ID
+        work = Works()[id]
+
+        if work:
+            # Extract the DOI
+            return {
+                "title": work.get("title", "Unknown title"),
+                "publication_date": work.get("publication_date", "Unknown publication date"),
+                "abstract": work.get("abstract", "Can't get abstract")
+            }
+        else:
+            return None
+
 
     #     @staticmethod
     #     def get_doi_from_paper_id(paper_id):
@@ -96,8 +121,10 @@ class GTRInformationGatherer(InformationGatherer):
     HEADERS = {"Accept": "application/json"}
 
     @staticmethod
-    def get_gtr_orgs_grants(orcid_id, name):
+    def get_gtr_orgs_grants(orcid_id, name, organisations):
         """Fetches grant information for an author using GTR API."""
+
+        name = name.lower()
 
         # Parse the name into some URL format as that's what the API requires
         name_url_parsed = urllib.parse.quote(name)
@@ -115,13 +142,13 @@ class GTRInformationGatherer(InformationGatherer):
                 # Get the person JSON
                 person = person_details.get("person", {})
 
+                # and (person_details.get("organisation", {}).get("name", "Unknown")).strip() in organisations
+
                 # Try to match the person by name or ORCID
-                if ((person.get("firstName") in name and person.get("surname") in name) or
-                        (orcid_id is not None
+                if (orcid_id is not None
                          and person.get("orcidId") is not None
                          and orcid_id in person.get("orcidId")
-                        )
-                ):
+                        ) or ((person.get("firstName").lower() in name and person.get("surname").lower() in name) and (person_details.get("organisation", {}).get("name", "Unknown")).strip() in organisations):
 
                     # If we found the person, store this ID for later project comparisons
                     person_id = person["id"]
@@ -260,18 +287,21 @@ def authors_from_doi(doi):
         website = website_check[0].get("url", None).get("value") if website_check else None
 
         # Use GTR API to get grant information about author using ORCID and their name
-        (grants, org) = GTRInformationGatherer.get_gtr_orgs_grants(orcid, author.get("name"))
+        (grants, org) = GTRInformationGatherer.get_gtr_orgs_grants(orcid, author.get("name"), author_info.get("organisations", []))
 
         # Construct Author object
         author_obj = Author(
             name=author_info.get("name", "Unknown"),
             citations=author_info.get("citations", 0),
             hindex=author_info.get("hIndex", 0),
+            organisation_history=author_info.get("organisations", []),
             orcid=orcid,
             dob=dob,
             grants=grants,
-            org_name=org,
-            website=website
+            grant_org_name=org,
+            website=website,
+            openAlexid=author_info.get("openAlex_id", "Unknown"),
+            works_count=author_info.get("works_count", "Unknown")
         )
 
         author_obj.profile = orcid_data
@@ -282,4 +312,7 @@ def authors_from_doi(doi):
 
 
 if __name__ == "__main__":
-    authors_from_doi("https://doi.org/10.48550/arXiv.2402.01928")
+    authors_from_doi("https://doi.org/10.1016/j.biombioe.2010.11.029")
+    # authors_from_doi("https://doi.org/10.48550/arXiv.2402.01928")
+
+    x = OpenAlexInformationGatherer.get_details_from_paper_id("https://openalex.org/W4400454085")

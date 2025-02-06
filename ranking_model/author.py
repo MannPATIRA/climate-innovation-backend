@@ -1,7 +1,7 @@
 import numpy as np
 
 class Author:
-    def __init__(self, name, citations, dob, orcid, hindex, grants, org_name, website):
+    def __init__(self, name, citations, dob, organisation_history, orcid, hindex, grants, grant_org_name, website, openAlexid, works_count):
         """
         Represents an author.
         :param name: Author's name.
@@ -9,6 +9,9 @@ class Author:
         :param dob: Date of birth.
         :param hindex: h-index.
         """
+        self.works_count = works_count
+        self.openAlexid = openAlexid
+        self.organisation_history = organisation_history
         self.website = website
         self.name = name
         self.citations = citations
@@ -17,7 +20,7 @@ class Author:
         self.score = None  # This will be computed by the Ranker
         self.grants = grants if grants else []
         self.orcid = orcid
-        self.org_name = org_name
+        self.grant_org_name = grant_org_name
 
     def get_feature_vector(self):
         """Return a numpy array of features used for ranking (order: citations, hindex)."""
