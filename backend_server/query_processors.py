@@ -25,18 +25,17 @@ class MockQueryProcessor:
             "displacing communities, damaging infrastructure, and affecting agriculture.\n\n"
             "These climate-related events underscore the need for innovative approaches and strengthened "
             "global collaboration to mitigate the impacts of climate change.\n\n"
-            "{'topics': [{'topic': 'Heat Wave Impacts', 'source': 'Climate Risk Report'}, "
-            "{'topic': 'Wildfire Threats', 'source': 'Environmental Assessment'}, "
-            "{'topic': 'Flood Disasters', 'source': 'Global Climate Study'}]}"
+            "{'topics': [{'topic': 'Heat Wave Impacts', 'source': 'Climate Risk Report', 'url': 'https://climate-innovation-bucket.s3.eu-north-1.amazonaws.com/SOCT_Q32024-Net-Zero-Insights-Report.pdf'}, "
+            "{'topic': 'Wildfire Threats', 'source': 'Environmental Assessment', 'url': 'https://climate-innovation-bucket.s3.eu-north-1.amazonaws.com/SOCT_Q32024-Net-Zero-Insights-Report.pdf'}, "
+            "{'topic': 'Flood Disasters', 'source': 'Global Climate Study', 'url': 'https://climate-innovation-bucket.s3.eu-north-1.amazonaws.com/SOCT_Q32024-Net-Zero-Insights-Report.pdf'}]}"
         )
         
         full_response = ""
         
         # Simulate streaming by yielding chunks with delays
         for chunk in mock_response:
-            
             full_response += chunk
-            # print(chunk)
+            print(chunk)
             await asyncio.sleep(0.01)  # Add delay to simulate real streaming
             yield chunk
         
@@ -47,10 +46,7 @@ class QueryProcessor:
     def __init__(self):
         # Initialize the chain by calling the helper method
         self.chain = self._create_chain()
-        self.pinecone_store =  PineconeStore(
-            index_name="test-index",
-            model="multilingual-e5-large"
-        )
+        self.pinecone_store = PineconeStore()
     
     def _get_relevant_chunks(self, query: str) -> str:
         """Helper function to get and format relevant chunks from Pinecone"""
@@ -67,7 +63,12 @@ class QueryProcessor:
             if match.metadata and 'content' in match.metadata:
                 chunk_text = match.metadata['content']
                 chunk_title = match.metadata["report_title"]
-                formatted_context.append(f"Chunk {i}:\n{chunk_text}\n\nSource:\n{chunk_title}\n\n")
+                chunk_url = match.metadata.get("object_url", "No URL available")
+                formatted_context.append(
+                    f"Chunk {i}:\n{chunk_text}\n\n"
+                    f"Source:\n{chunk_title}\n"
+                    f"URL: {chunk_url}\n\n"
+                )
         
         # Join all formatted chunks
         return "\n".join(formatted_context)
@@ -83,8 +84,9 @@ class QueryProcessor:
             "Your response must directly start with the markdown"
             "After responding, extract 3-5 main points that answer the query from this response along with their sources.\n"
             "When you extract these point, you must ensure that they come from the chunks, don't use your own knowledge"
-            "Format the output as a JSON list of objects, where each object has 'topic' and 'source' keys.\n"
-            "Format: {{'topics': [{{'topic': 'topic 1', 'source': 'source 1'}}, {{'topic': 'topic 2', 'source': 'source 2'}}]}}"
+            "Format the output as a JSON list of objects, where each object has 'topic', 'source', and 'url' keys.\n"
+            "Format: {{'topics': [{{'topic': 'topic 1', 'source': 'source 1', 'url': 'url 1'}}, "
+            "{{'topic': 'topic 2', 'source': 'source 2', 'url': 'url 2'}}]}}"
         )
         parser = StrOutputParser()
 
