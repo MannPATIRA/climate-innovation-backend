@@ -155,7 +155,6 @@ class TestWebReportFetcher:
             results = list(fetcher._process_goal(TEST_GOALS[0]['url'], TEST_GOALS[0]['name']))
             assert len(results) == 0
             
-    @pytest.mark.integration
     def test_process_goal_evidence_tab_navigation(self, fetcher):
         """Test navigation to evidence tab"""
         fetcher.driver = MagicMock()
