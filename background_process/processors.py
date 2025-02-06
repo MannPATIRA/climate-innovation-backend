@@ -8,7 +8,8 @@ from queue import Queue
 import time
 from tenacity import retry, stop_after_attempt, wait_exponential
 from enum import Enum
-
+import boto3
+from urllib.parse import quote_plus
 from supabase import Client
 from common.pinecone_store import PineconeStore
 from PyPDF2 import PdfReader
@@ -17,6 +18,7 @@ from typing import Dict, Any, List, Tuple, Set
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import ChatOpenAI
 from .prompts import CLIMATE_RELEVANCE_PROMPT, TopicAssessment
+
 
 
 class ProcessingTask(Enum):
@@ -96,6 +98,15 @@ class ReportProcessor(Processor):
     def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 500):
         super().__init__(supabase_client, pinecone_store, chunk_size=chunk_size)
         self.task_id = self.create_task(ProcessingTask.REPORT_PROCESSING)
+        # Initialize S3 client
+        self.s3_client = boto3.client(
+            's3',
+            aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+            region_name=os.getenv('AWS_REGION', 'eu-north-1')
+        )
+        self.bucket_name = "climate-innovation-bucket"
+        self.region = "eu-north-1"
 
     def convert_pdf_to_text(self, pdf_path: str) -> PDFDocument:
         """Converts PDF to text using PyPDF2 and extracts title from filename"""
@@ -122,12 +133,25 @@ class ReportProcessor(Processor):
         except Exception as e:
             raise Exception(f"Error converting PDF to text: {str(e)}")
 
-    def add_report_to_db(self, pdf_doc: PDFDocument) -> Dict[str, Any]:
+    def upload_to_s3(self, file_path: str, file_name: str) -> str:
+        """Upload file to S3 and return the object URL"""
+        try:
+            # Upload file
+            self.s3_client.upload_file(file_path, self.bucket_name, file_name)
+            # Construct and return the object URL
+            object_url = f"https://{self.bucket_name}.s3.{self.region}.amazonaws.com/{quote_plus(file_name)}"
+            print(f"Object url: {object_url}")
+            return object_url
+        except Exception as e:
+            raise Exception(f"Error uploading to S3: {str(e)}")
+
+    def add_report_to_db(self, pdf_doc: PDFDocument, object_url: str) -> Dict[str, Any]:
         """Add report to Supabase DB"""
         data = {
             "content": pdf_doc.content,
             "content_hash": pdf_doc.content_hash,
-            "report_title": pdf_doc.title
+            "report_title": pdf_doc.title,
+            "object_url": object_url  # Add the S3 object URL
         }
         response = self.supabase.table('reports').insert(data).execute()
         return response.data[0]
@@ -171,14 +195,19 @@ class ReportProcessor(Processor):
         # Check if report exists and get data if it does
         existing_report = self.get_report(pdf_doc.content_hash)
         if not existing_report:
-            # Add to Supabase
-            report_record = self.add_report_to_db(pdf_doc)
+            # Upload to S3 first
+            file_name = os.path.basename(report_path)
+            object_url = self.upload_to_s3(report_path, file_name)
+            
+            # Add to Supabase with object_url
+            report_record = self.add_report_to_db(pdf_doc, object_url)
 
             # Add to Pinecone
             report_metadata = {
                 "report_id": report_record["id"],
                 "content_hash": pdf_doc.content_hash,
-                "report_title": pdf_doc.title
+                "report_title": pdf_doc.title,
+                "object_url": object_url
             }
             self.chunk_and_embed(pdf_doc, report_metadata)
         else:
