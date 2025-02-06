@@ -2,7 +2,14 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import os
 import asyncio
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+from queue import Queue
+import time
+from tenacity import retry, stop_after_attempt, wait_exponential
+from enum import Enum
+import boto3
+from urllib.parse import quote_plus
 from supabase import Client
 from common.pinecone_store import PineconeStore
 from PyPDF2 import PdfReader
@@ -13,19 +20,68 @@ from langchain_openai import ChatOpenAI
 from .prompts import CLIMATE_RELEVANCE_PROMPT, TopicAssessment
 
 
+
+class ProcessingTask(Enum):
+    REPORT_PROCESSING = "report_processing"
+    PAPER_PROCESSING = "paper_processing" 
+    TOPIC_PROCESSING = "topic_processing"
+
 class Processor(ABC):
-    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore):
+    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 500):
         # Add a ChunkingStrategy class to take in constructor so we can use different chunking strategies LATER
         self.supabase = supabase_client
         self.pinecone_store = pinecone_store
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,
+            chunk_size=chunk_size,
             chunk_overlap=50
         )
+        self.task_id = None
 
     def generate_content_hash(self, content: str) -> str:
         """Generate a hash for the content using SHA-256"""
         return hashlib.sha256(content.encode()).hexdigest()
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def create_task(self, task_type: ProcessingTask) -> int:
+        """Create a new task record if it doesn't exist and return its ID"""
+        # Check for existing task
+        response = self.supabase.table('processor_progress') \
+            .select("*") \
+            .eq('task', task_type.value) \
+            .execute()
+        
+        if response.data:
+            # Return ID of existing task
+            return response.data[0]["id"]
+        
+        # Create new task if none exists
+        response = self.supabase.table('processor_progress').insert({
+            "task": task_type.value
+        }).execute()
+        return response.data[0]["id"]
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def log_progress(self, reference_id: str):
+        """Log individual progress for a task"""
+        if not self.task_id:
+            raise ValueError("No task_id set. Task must be created before logging progress.")
+        
+        self.supabase.table('process_progress_logs').insert({
+            "task_id": self.task_id,
+            "reference_id": reference_id
+        }).execute()
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def remove_from_logs(self, reference_id: str):
+        """Remove the entry from processing logs once completed"""
+        if not self.task_id:
+            raise ValueError("No task_id set. Task must be created before removing from logs.")
+        
+        self.supabase.table('process_progress_logs') \
+            .delete() \
+            .eq('task_id', self.task_id) \
+            .eq('reference_id', reference_id) \
+            .execute()
 
     @abstractmethod
     def process(self, data: Dict[Any, Any]) -> Tuple[str, Dict[str, Any]]:
@@ -39,6 +95,18 @@ class PDFDocument:
     content_hash: str
 
 class ReportProcessor(Processor):
+    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 500):
+        super().__init__(supabase_client, pinecone_store, chunk_size=chunk_size)
+        self.task_id = self.create_task(ProcessingTask.REPORT_PROCESSING)
+        # Initialize S3 client
+        self.s3_client = boto3.client(
+            's3',
+            aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+            region_name=os.getenv('AWS_REGION', 'eu-north-1')
+        )
+        self.bucket_name = "climate-innovation-bucket"
+        self.region = "eu-north-1"
 
     def convert_pdf_to_text(self, pdf_path: str) -> PDFDocument:
         """Converts PDF to text using PyPDF2 and extracts title from filename"""
@@ -65,12 +133,25 @@ class ReportProcessor(Processor):
         except Exception as e:
             raise Exception(f"Error converting PDF to text: {str(e)}")
 
-    def add_report_to_db(self, pdf_doc: PDFDocument) -> Dict[str, Any]:
+    def upload_to_s3(self, file_path: str, file_name: str) -> str:
+        """Upload file to S3 and return the object URL"""
+        try:
+            # Upload file
+            self.s3_client.upload_file(file_path, self.bucket_name, file_name)
+            # Construct and return the object URL
+            object_url = f"https://{self.bucket_name}.s3.{self.region}.amazonaws.com/{quote_plus(file_name)}"
+            print(f"Object url: {object_url}")
+            return object_url
+        except Exception as e:
+            raise Exception(f"Error uploading to S3: {str(e)}")
+
+    def add_report_to_db(self, pdf_doc: PDFDocument, object_url: str) -> Dict[str, Any]:
         """Add report to Supabase DB"""
         data = {
             "content": pdf_doc.content,
             "content_hash": pdf_doc.content_hash,
-            "report_title": pdf_doc.title
+            "report_title": pdf_doc.title,
+            "object_url": object_url  # Add the S3 object URL
         }
         response = self.supabase.table('reports').insert(data).execute()
         return response.data[0]
@@ -114,14 +195,19 @@ class ReportProcessor(Processor):
         # Check if report exists and get data if it does
         existing_report = self.get_report(pdf_doc.content_hash)
         if not existing_report:
-            # Add to Supabase
-            report_record = self.add_report_to_db(pdf_doc)
+            # Upload to S3 first
+            file_name = os.path.basename(report_path)
+            object_url = self.upload_to_s3(report_path, file_name)
+            
+            # Add to Supabase with object_url
+            report_record = self.add_report_to_db(pdf_doc, object_url)
 
             # Add to Pinecone
             report_metadata = {
                 "report_id": report_record["id"],
                 "content_hash": pdf_doc.content_hash,
-                "report_title": pdf_doc.title
+                "report_title": pdf_doc.title,
+                "object_url": object_url
             }
             self.chunk_and_embed(pdf_doc, report_metadata)
         else:
@@ -137,90 +223,152 @@ class Paper:
     openalex_id: str
     doi: str
     title: str
-    content_hash: str
 
 class PaperProcessor(Processor):
+    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 500, 
+                 max_workers: int = 5):
+        super().__init__(supabase_client, pinecone_store, chunk_size=chunk_size)
+        self.max_workers = max_workers
+        self.task_id = self.create_task(ProcessingTask.PAPER_PROCESSING)
+
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def add_paper_to_db(self, paper: Paper) -> Dict[str, Any]:
-        """Add paper to Supabase DB"""
+        """Add paper to Supabase DB with retry logic"""
         data = {
             "openalex_id": paper.openalex_id,
             "doi": paper.doi,
-            "abstract": paper.abstract,
-            "content_hash": paper.content_hash,
             "title": paper.title
         }
         response = self.supabase.table('papers').insert(data).execute()
         return response.data[0]
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def get_paper(self, openalex_id: str) -> Dict[str, Any]:
-        """Get paper from Supabase DB by OpenAlex ID"""
+        """Get paper from Supabase DB with retry logic"""
         response = self.supabase.table('papers') \
             .select("*") \
             .eq('openalex_id', openalex_id) \
             .execute()
         return response.data
 
-    def chunk_and_embed(self, paper: Paper, metadata: Dict[str, Any]) -> bool:
-        """Add paper abstract to Pinecone with metadata"""
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def chunk_and_embed(self, papers: List[Paper], metadata_list: List[Dict[str, Any]]) -> bool:
+        """Batch add paper abstracts to Pinecone with retry logic"""
         try:
-            chunks = self.text_splitter.split_text(paper.abstract)
-            # Add paper details to metadata for each chunk
-            metadatas = [{
-                **metadata,
-                "content": chunk,
-            } for chunk in chunks]
+            all_chunks = []
+            all_metadata = []
+            
+            for paper, metadata in zip(papers, metadata_list):
+                chunks = self.text_splitter.split_text(paper.abstract)
+                chunk_metadata = [{
+                    **metadata,
+                    "content": chunk,
+                } for chunk in chunks]
+                
+                all_chunks.extend(chunks)
+                all_metadata.extend(chunk_metadata)
+            
             success = self.pinecone_store.add_chunks(
-                chunks=chunks,
-                metadata=metadatas,
+                chunks=all_chunks,
+                metadata=all_metadata,
                 namespace="papers"
             )
             return success
         except Exception as e:
-            raise Exception(f"Error adding to Pinecone: {str(e)}")
+            print(f"Error adding to Pinecone: {str(e)}")
+            return False
 
-    def process(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
-        abstract = data['abstract']
-        metadata = data['metadata']
-        
-        # Create Paper object
-        paper = Paper(
-            abstract=abstract,
-            openalex_id=metadata['id'],
-            doi=metadata['doi'],  # Handle potential None value
-            title=metadata['title'],
-            content_hash=self.generate_content_hash(abstract)
-        )
-        
-        # Check if paper exists and get data if it does
-        existing_paper = self.get_paper(paper.openalex_id)
-        if not existing_paper:
-            # Add to Supabase
-            paper_record = self.add_paper_to_db(paper)
+    def process_single_paper(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
+        """Process a single paper with error handling"""
+        try:
+            # Extract openalex_id for logging
+            openalex_id = data['metadata']['id']
+            
+            # Log that we're starting to process this paper
+            self.log_progress(openalex_id)
+            
+            abstract = data['abstract']
+            metadata = data['metadata']
+            
+            paper = Paper(
+                abstract=abstract,
+                openalex_id=openalex_id,
+                doi=metadata.get('doi'),
+                title=metadata['title'],
+            )
+            
+            # Check if paper exists
+            existing_paper = self.get_paper(paper.openalex_id)
+            if not existing_paper:
+                # Add to Supabase
+                paper_record = self.add_paper_to_db(paper)
 
-            # Add to Pinecone
-            paper_metadata = {
-                "paper_id": paper_record["id"],
-                "openalex_id": paper.openalex_id,
-                "doi": paper.doi,
-                "title": paper.title,
-                "content_hash": paper.content_hash
+                # Add to Pinecone
+                paper_metadata = {
+                    "paper_id": paper_record["id"],
+                    "openalex_id": paper.openalex_id,
+                }
+                if paper.doi:  # Only add doi if it exists and is not None
+                    paper_metadata["doi"] = paper.doi
+                self.chunk_and_embed([paper], [paper_metadata])
+            else:
+                print(f"Paper {paper.title[:30]}... already processed.")
+                paper_record = existing_paper[0]
+
+            # Remove from processing logs after successful processing
+            self.remove_from_logs(openalex_id)
+            
+            time.sleep(0.1)
+            return paper, paper_record
+        except Exception as e:
+            print(f"Error processing paper: {str(e)}")
+            return None, None
+
+    def process_batch(self, papers_data: List[Dict[str, Any]]) -> List[Tuple[Paper, Dict[str, Any]]]:
+        """Process a batch of papers using thread pool executor"""
+        results = []
+        
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            # Submit all papers to the thread pool
+            future_to_paper = {
+                executor.submit(self.process_single_paper, paper_data): paper_data 
+                for paper_data in papers_data
             }
-            self.chunk_and_embed(paper, paper_metadata)
-        else:
-            print(f"Paper {paper.title} already processed.")
-            paper_record = existing_paper[0]
-
-        return paper, paper_record
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_paper):
+                paper_data = future_to_paper[future]
+                try:
+                    paper, record = future.result()
+                    if paper and record:
+                        results.append((paper, record))
+                    else:
+                        print(f"Failed to process paper: {paper_data.get('metadata', {}).get('title', 'Unknown')}")
+                except Exception as e:
+                    print(f"Exception processing paper: {str(e)}")
+                    continue
+                
+        return results
+    
+    def process(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
+        """
+        Synchronous process method to satisfy abstract class.
+        For single topic processing, use this.
+        For batch processing, use process_batch.
+        """
+        # Run the async process in the event loop
+        return asyncio.run(self.process_single_paper(data))
 
 
 class TopicProcessor(Processor):
     def __init__(self, supabase_client, model_name: str = "gpt-4o-mini"):
-        self.supabase = supabase_client
+        super().__init__(supabase_client, None)  # No pinecone store needed
         self.evaluator = ChatOpenAI(
             model=model_name,
             temperature=0.2
         ).with_structured_output(TopicAssessment)
-        self._tasks: Set[asyncio.Task] = set()
+        self.task_id = self.create_task(ProcessingTask.TOPIC_PROCESSING)
 
     def format_sample_works(self, works: list) -> str:
         """Format sample works for prompt"""
@@ -231,6 +379,7 @@ class TopicProcessor(Processor):
             formatted += f"Abstract: {work['abstract'][:500]}...\n"  # Truncate long abstracts
         return formatted
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def get_topic_assessment(self, topic_id: str) -> Dict[str, Any]:
         """Get existing topic assessment from Supabase DB by topic_id"""
         response = self.supabase.table('openalex_topic_assessments') \
@@ -239,10 +388,11 @@ class TopicProcessor(Processor):
             .execute()
         return response.data
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def save_to_db(self, assessment: TopicAssessment, topic_id: str) -> Dict[str, Any]:
         """Save assessment to Supabase"""
         data = {
-            "topic_id": topic_id,  # Add topic_id to the data
+            "topic_id": topic_id,
             "is_climate_relevant": assessment.is_climate_relevant,
             "analysis": assessment.analysis
         }

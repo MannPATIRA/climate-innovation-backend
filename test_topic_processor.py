@@ -20,7 +20,7 @@ async def batch_generator(generator, batch_size):
 
 async def main():
     # Load environment variables
-    load_dotenv()
+    load_dotenv(override=True)
     
     # Initialize Supabase client
     supabase_url = os.getenv("SUPABASE_URL")
