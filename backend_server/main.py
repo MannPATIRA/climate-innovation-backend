@@ -54,6 +54,8 @@ class PaperResult(BaseModel):
     openalex_id: str
     score: float
     content: str
+    paper_title: str
+    publication_date: str
 
 # Initialize the query processor
 # query_processor = QueryProcessor()
@@ -164,9 +166,11 @@ async def search_papers(query: PaperQuery):
                 openalex_id=metadata.get("openalex_id"),
                 doi=metadata.get("doi"),
                 score=match.score,
-                content=metadata.get("content")
+                content=metadata.get("content"), 
+                paper_title="TEST", 
+                publication_date="01/01/2025"
             ))
-        
+
         return paper_results
         
     except Exception as e:
