@@ -82,10 +82,11 @@ class OpenAlexInformationGatherer(InformationGatherer):
 
         if work:
             # Extract the DOI
+
             return {
                 "title": work.get("title", "Unknown title"),
                 "publication_date": work.get("publication_date", "Unknown publication date"),
-                "abstract": work.get("abstract", "Can't get abstract")
+                "abstract": work["abstract"]
             }
         else:
             return None

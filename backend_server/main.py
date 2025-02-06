@@ -9,11 +9,12 @@ from langchain.schema.output_parser import StrOutputParser
 from langchain_openai import ChatOpenAI
 from fastapi.responses import StreamingResponse
 from common.pinecone_store import PineconeStore
+from ranking_model.paper import Paper
 from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
-from .gatherers import SemanticScholarInformationGatherer
+from .gatherers import OpenAlexInformationGatherer, authors_from_doi
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -137,13 +138,6 @@ async def stream_query(query: Query):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/construct_graph/{doi}")
-async def construct_graph(doi: str):
-    authors = SemanticScholarInformationGatherer.get_authors_from_doi(doi)
-
-    for author in authors:
-        SemanticScholarInformationGatherer.get_author_info(author["authorId"])
-
 @app.post("/api/papers/search")
 async def search_papers(query: PaperQuery):
     try:
@@ -156,19 +150,22 @@ async def search_papers(query: PaperQuery):
             top_k=query.top_k,
             namespace="papers"
         )
-        
+
         # Format the results
         paper_results = []
         for match in results:
             metadata = match.metadata
-            paper_results.append(PaperResult(
+            authors = authors_from_doi(metadata.get("doi"))
+            details = OpenAlexInformationGatherer.get_details_from_paper_id(metadata.get("openalex_id"))
+            paper_results.append(Paper(
                 paper_id=metadata.get("paper_id"),
                 openalex_id=metadata.get("openalex_id"),
+                title=details["title"],
+                relevancy=match.score,
                 doi=metadata.get("doi"),
-                score=match.score,
-                content=metadata.get("content"), 
-                paper_title="TEST", 
-                publication_date="01/01/2025"
+                abstract=details["abstract"],
+                publication_date=details["publication_date"],
+                authors=authors
             ))
 
         return paper_results
