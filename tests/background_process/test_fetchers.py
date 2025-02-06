@@ -145,20 +145,31 @@ class TestPyAlexFetcher:
         
         # Setup the mock chain for both scenarios
         mock_chain = Mock()
-        mock_chain.execute.side_effect = [empty_response, insert_response]
+        # Provide enough side effects for potential retries (3 empty responses + 3 insert responses)
+        mock_chain.execute.side_effect = [empty_response, insert_response] * 3
         mock_chain.eq.return_value = mock_chain
         mock_chain.select.return_value = mock_chain
         mock_chain.insert.return_value = mock_chain
         mock_supabase_client.table.return_value = mock_chain
 
         with patch.object(PyAlexFetcher, '_get_main_cursor', return_value='test_cursor'), \
-             patch.object(PyAlexFetcher, '_get_current_cursor', return_value='current_test_cursor'), \
-             patch.object(PyAlexFetcher, '_get_climate_relevant_topics', return_value=['topic1']):
+            patch.object(PyAlexFetcher, '_get_current_cursor', return_value='current_test_cursor'), \
+            patch.object(PyAlexFetcher, '_get_climate_relevant_topics', return_value=['topic1']):
             
             fetcher = PyAlexFetcher(mock_supabase_client)
             result = fetcher._get_paper_processing_task_id()
             
             assert result == 456
+            
+            # Verify the correct sequence of calls
+            mock_supabase_client.table.assert_called_with('processor_progress')
+            mock_chain.select.assert_called_with("*")
+            mock_chain.eq.assert_called_with('task', ProcessingTask.PAPER_PROCESSING.value)
+
+            # Verify insert was called with correct arguments, regardless of number of retries
+            mock_chain.insert.assert_called_with({
+                "task": ProcessingTask.PAPER_PROCESSING.value
+            })
 
     def test_get_main_cursor(self, mock_supabase_client):
         cursor_response = Mock()
