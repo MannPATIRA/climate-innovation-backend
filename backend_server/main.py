@@ -58,26 +58,26 @@ class GrantData(BaseModel):
     value: float
     funder: str
     organisation: str
-
 class AuthorData(BaseModel):
     name: str
     citations: int
     dob: str
-    organisation_history: Optional[str] = None
-    orcid: Optional[str] = None
+    organisation_history: str
+    orcid: str
     hindex: int
     grants: Optional[List[GrantData]] = []
     grant_org_name: Optional[str] = None
     website: Optional[str] = None
-    openAlexid: Optional[str] = None
+    openAlexid: str
     works_count: int
-
 class PaperData(BaseModel):
     paper_id: str
-    doi: str
+    openalex_id: str
     title: str
     relevancy: float
-    # Other fields (like abstract, publication_date) can be added if needed.
+    doi: str
+    abstract: str
+    publication_date: str
     authors: List[AuthorData]
 
 # For paper feedback (accept/reject)
@@ -91,49 +91,41 @@ class AuthorFeedback(BaseModel):
     author_name: str
     accepted: bool
 
-
 def build_author_from_dict(data: dict) -> Author:
     grants = []
-    for grant_data in data.get("grants", []):
-        grant = Grant(
-            title=grant_data["title"],
-            category=grant_data["category"],
-            value=grant_data["value"],
-            funder=grant_data["funder"],
-            organisation=grant_data["organisation"]
-        )
-        grants.append(grant)
+    for grant in data.get("grants", []):
+        grants.append(Grant(
+            title=grant["title"],
+            category=grant["category"],
+            value=grant["value"],
+            funder=grant["funder"],
+            organisation=grant["organisation"]
+        ))
     return Author(
-        name=data["name"],
-        citations=data["citations"],
-        dob=data["dob"],
-        organisation_history=data.get("organisation_history", ""),
-        orcid=data.get("orcid", ""),
-        hindex=data["hindex"],
-        grants=grants,
-        grant_org_name=data.get("grant_org_name", ""),
-        website=data.get("website", ""),
-        openAlexid=data.get("openAlexid", ""),
-        works_count=data["works_count"]
+         name=data["name"],
+         citations=data["citations"],
+         dob=data["dob"],
+         organisation_history=data["organisation_history"],
+         orcid=data["orcid"],
+         hindex=data["hindex"],
+         grants=grants,
+         grant_org_name=data.get("grant_org_name"),
+         website=data.get("website"),
+         openAlexid=data["openAlexid"],
+         works_count=data["works_count"]
     )
 
     
 def build_paper_from_dict(data: dict) -> Paper:
-    authors = []
-    for a_data in data.get("authors", []):
-        author = build_author_from_dict(a_data)
-        authors.append(author)
-    # For fields not used in ranking, we set default values.
+    authors = [build_author_from_dict(a) for a in data.get("authors", [])]
     return Paper(
         paper_id=data["paper_id"],
-        doi=data["doi"],
-        name=data.get("name", data["title"]),
+        openalex_id=data["openalex_id"],
         title=data["title"],
-        institution="",
-        institution_size=0,
-        funding=0,
-        citations=0,
         relevancy=data["relevancy"],
+        doi=data["doi"],
+        abstract=data["abstract"],
+        publication_date=data["publication_date"],
         authors=authors
     )
 
@@ -263,7 +255,7 @@ async def paper_feedback(feedback: PaperFeedback):
     The ranker then updates its model weights using the paper's relevancy.
     """
     try:
-        paper_obj = build_paper_from_dict(feedback.paper.dict())
+        paper_obj = build_paper_from_dict(feedback.paper.model_dump())
         if feedback.accepted:
             ranker.accept_paper(paper_obj)
             message = "Paper accepted. Model weights updated."
@@ -283,7 +275,7 @@ async def author_feedback(feedback: AuthorFeedback):
     The ranker then updates its author model weights accordingly.
     """
     try:
-        paper_obj = build_paper_from_dict(feedback.paper.dict())
+        paper_obj = build_paper_from_dict(feedback.paper.model_dump())
         target_author = None
         for author in paper_obj.authors:
             if author.name == feedback.author_name:

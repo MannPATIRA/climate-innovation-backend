@@ -1,6 +1,6 @@
-from author import Author
-from paper import Paper
-from grant import Grant
+from .author import Author
+from .paper import Paper
+from .grant import Grant
 import numpy as np
 from typing import List
 class Ranker:
@@ -118,7 +118,7 @@ class Ranker:
           - Update the author model with a rejection (label = 0).
           - Remove the author from the paper.
         """
-        print(f"Deleting author '{author.name}' from paper '{paper.name}'.")
+        print(f"Deleting author '{author.name}' from paper '{paper.title}'.")
         self.update_author_model(author, label=0)
         paper.authors = [a for a in paper.authors if a.name != author.name]
 
@@ -126,19 +126,19 @@ class Ranker:
         """
         Process an acceptance of an author (update with label = 1).
         """
-        print(f"Accepting author '{author.name}' for paper '{paper.name}'.")
+        print(f"Accepting author '{author.name}' for paper '{paper.title}'.")
         self.update_author_model(author, label=1)
 
     def delete_paper(self, paper: Paper):
         """
         Process a deletion of a paper by updating the paper model with a rejection (label = 0).
         """
-        print(f"Deleting paper '{paper.name}'.")
+        print(f"Deleting paper '{paper.title}'.")
         self.update_paper_model(paper, label=0)
 
     def accept_paper(self, paper: Paper):
         """
         Process an acceptance of a paper (update with label = 1).
         """
-        print(f"Accepting paper '{paper.name}'.")
+        print(f"Accepting paper '{paper.title}'.")
         self.update_paper_model(paper, label=1)
