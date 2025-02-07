@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
+from typing import List, Optional
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from langchain.prompts import ChatPromptTemplate
@@ -13,11 +13,11 @@ from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
-from gatherers import SemanticScholarInformationGatherer
+from .gatherers import SemanticScholarInformationGatherer
 
 supabase: Client = init_supabase()
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 app = FastAPI()
 
@@ -43,6 +43,19 @@ class Query(BaseModel):
     query: str
     chat_id: str
 
+# Add new Pydantic models for the request and response
+class PaperQuery(BaseModel):
+    query: str
+    top_k: Optional[int] = 1000
+
+class PaperResult(BaseModel):
+    paper_id: int
+    doi: Optional[str]
+    openalex_id: str
+    score: float
+    content: str
+    paper_title: str
+    publication_date: str
 
 # Initialize the query processor
 # query_processor = QueryProcessor()
@@ -131,6 +144,37 @@ async def construct_graph(doi: str):
     for author in authors:
         SemanticScholarInformationGatherer.get_author_info(author["authorId"])
 
+@app.post("/api/papers/search")
+async def search_papers(query: PaperQuery):
+    try:
+        # Initialize PineconeStore
+        pinecone_store = PineconeStore(index_name="climate-index")
+        
+        # Query the papers namespace
+        results = pinecone_store.query_chunk(
+            query_text=query.query,
+            top_k=query.top_k,
+            namespace="papers"
+        )
+        
+        # Format the results
+        paper_results = []
+        for match in results:
+            metadata = match.metadata
+            paper_results.append(PaperResult(
+                paper_id=metadata.get("paper_id"),
+                openalex_id=metadata.get("openalex_id"),
+                doi=metadata.get("doi"),
+                score=match.score,
+                content=metadata.get("content"), 
+                paper_title="TEST", 
+                publication_date="01/01/2025"
+            ))
+
+        return paper_results
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn

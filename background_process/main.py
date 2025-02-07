@@ -7,7 +7,7 @@ from .orchestrators import ReportOrchestrator
 import os
 from common.supabase_client import init_supabase
 from dotenv import load_dotenv
-from web_fetcher import WebReportFetcher
+from .web_fetcher import WebReportFetcher
 
 def main():
     # Initialize clients
@@ -27,12 +27,12 @@ def main():
     orchestrator = ReportOrchestrator(fetcher, report_processor, None)
     orchestrator.run()
     
-    # base_url = "https://iris.thegiin.org/share/id/47226x678e3dca05e43/"
+    base_url = "https://iris.thegiin.org/share/id/47226x678e3dca05e43/"
     
-    # with WebReportFetcher(base_url) as fetcher:
-    #     for report_path in fetcher.fetch():
-    #         if report_path:
-    #             print(f"Successfully downloaded: {report_path}")
+    with WebReportFetcher(base_url) as fetcher:
+        for report_path in fetcher.fetch():
+            if report_path:
+                print(f"Successfully downloaded: {report_path}")
 
 
 if __name__ == "__main__":

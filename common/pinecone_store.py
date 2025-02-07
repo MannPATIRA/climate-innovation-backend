@@ -5,36 +5,56 @@ import os
 import hashlib
 from dotenv import load_dotenv
 from typing import List, Dict, Any
+import time
+from openai import OpenAI
 
 class PineconeStore(VectorStore):
-    def __init__(self, index_name: str,
-                 model: str = "multilingual-e5-large"):
+    def __init__(self, index_name: str = "climate-index",
+                 model: str = "text-embedding-3-large"):
         """
         Initialize Pinecone client with API credentials and index information.
         
         Args:
             index_name (str): Name of the Pinecone index to use
-            embedding_dim (int): Dimension of vectors (default 512)
-            model (str): Name of the embedding model to use (default multilingual-e5-large)
+            model (str): Name of the embedding model to use (default text-embedding-3-large)
         """
-        load_dotenv()
+        load_dotenv(override=True)
         self.model = model
-        # Get API key from environment variables
-        api_key = os.getenv('PINECONE_API_KEY')
-        if not api_key:
+        # Get API keys from environment variables
+        pinecone_api_key = os.getenv('PINECONE_API_KEY')
+        openai_api_key = os.getenv('OPENAI_API_KEY')
+        if not pinecone_api_key:
             raise ValueError("PINECONE_API_KEY not found in environment variables")
-        self.pc = Pinecone(api_key=api_key)
+        if not openai_api_key:
+            raise ValueError("OPENAI_API_KEY not found in environment variables")
+            
+        self.pc = Pinecone(api_key=pinecone_api_key)
+        self.openai_client = OpenAI(api_key=openai_api_key)
         self.index_name = index_name
         if not self.pc.has_index(index_name):
-          self.pc.create_index(
-            name=index_name,
-            dimension=1024,
-            metric='cosine',
-            spec=ServerlessSpec(
-              cloud="aws",
-              region="us-east-1"
-            ),
-          )
+            self.pc.create_index(
+                name=index_name,
+                dimension=3072,
+                metric='cosine',
+                spec=ServerlessSpec(
+                cloud="aws",
+                region="us-east-1"
+                ),
+            )
+            # Wait for index to be ready
+            while True:
+                try:
+                    index_description = self.pc.describe_index(index_name)
+                    if index_description.get('status', {}).get('state') == 'Ready':
+                        break
+                    print("Waiting 5 seconds before checking index creation again")
+                    time.sleep(5)  # Wait 5 seconds before checking again
+                except Exception as e:
+                    print(f"Waiting for index creation: {str(e)}")
+                    time.sleep(5)
+                    continue
+
+
         # need to wait before runnning this on creation since the index may not be created yet
         index_description = self.pc.describe_index(index_name)
         index_host = index_description['host']
@@ -121,20 +141,20 @@ class PineconeStore(VectorStore):
                 batch_chunks = chunks[i:i + batch_size]
                 batch_metadata = metadata[i:i + batch_size] if metadata else None
 
-                # Generate embeddings for current batch
-                embeddings = self.pc.inference.embed(
+                # Generate embeddings for current batch using OpenAI
+                response = self.openai_client.embeddings.create(
                     model=self.model,
-                    inputs=batch_chunks,
-                    parameters={"input_type": "passage"}
+                    input=batch_chunks
                 )
+                embeddings = [item.embedding for item in response.data]
 
                 # Prepare records for current batch
                 records = []
                 for j, (chunk, embedding) in enumerate(zip(batch_chunks, embeddings)):
                     chunk_id = hashlib.sha256(chunk.encode()).hexdigest()
                     record = {
-                        "id": chunk_id,  # Ensure unique IDs based on content
-                        "values": embedding['values'],
+                        "id": chunk_id,
+                        "values": embedding,
                         "metadata": batch_metadata[j] if batch_metadata else {"text": chunk}
                     }
                     records.append(record)
@@ -161,17 +181,17 @@ class PineconeStore(VectorStore):
             List[Dict]: List of matching results with scores and metadata
         """
         try:
-            # Generate embedding for query
-            query_embedding = self.pc.inference.embed(
+            # Generate embedding for query using OpenAI
+            response = self.openai_client.embeddings.create(
                 model=self.model,
-                inputs=[query_text],
-                parameters={"input_type": "query"}
+                input=[query_text]
             )
+            query_embedding = response.data[0].embedding
 
             # Query the index
             results = self.index.query(
                 namespace=namespace,
-                vector=query_embedding[0]['values'],
+                vector=query_embedding,
                 top_k=top_k,
                 include_metadata=True
             )
@@ -192,7 +212,7 @@ class PineconeStore(VectorStore):
             bool: True if deletion was successful, False otherwise
         """
         try:
-            load_dotenv()
+            load_dotenv(override=True)
             api_key = os.getenv('PINECONE_API_KEY')
             if not api_key:
                 raise ValueError("PINECONE_API_KEY not found in environment variables")
