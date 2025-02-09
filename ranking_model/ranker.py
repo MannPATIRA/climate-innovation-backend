@@ -1,9 +1,102 @@
+from abc import ABC, abstractmethod
+import numpy as np
+from typing import List
+import numpy as np
+from sklearn.svm import LinearSVC
+from sklearn.preprocessing import StandardScaler
+
 from .author import Author
 from .paper import Paper
 from .grant import Grant
-import numpy as np
-from typing import List
-class Ranker:
+
+
+class Ranker(ABC):
+    """
+    Abstract base class for Ranker implementations.
+    """
+    @abstractmethod
+    def __init__(self, learning_rate: float = 0.01):
+        pass
+
+    def get_extended_feature_vector(self, author: Author) -> np.ndarray:
+        """
+        Build an extended feature vector for the author including:
+            - citations
+            - hindex
+            - total grant value (sum of values of all grants)
+            - number of grants
+            - works count
+        """
+        total_grant_value = sum(grant.value for grant in author.grants) if author.grants else 0.0
+        num_grants = len(author.grants)
+        works_count = author.works_count
+        return np.array([author.citations, author.hindex, total_grant_value, num_grants, works_count], dtype=float)
+
+    @abstractmethod
+    def rank(self, papers: List[Paper]) -> List[Paper]:
+        """
+        Ranks a list of papers based on their authors' metrics and paper relevancy.
+        Each implementation should define its own ranking algorithm.
+
+        Returns a list of papers ranked by their overall score (highest first).
+        """
+        pass
+
+    @abstractmethod
+    def update_author_model(self, author: Author, label: int):
+        """
+        Updates the author ranking model based on feedback.
+        Implementations should define how author metrics affect the ranking model.
+        
+        Args:
+            author: Author object containing metrics (citations, h-index, etc.)
+            label: Binary feedback (1 for positive, 0 for negative)
+        """
+        pass
+
+    @abstractmethod
+    def update_paper_model(self, paper: Paper, label: int):
+        """
+        Updates the paper ranking model based on feedback.
+        Implementations should define how paper metrics affect the ranking model.
+        
+        Args:
+            paper: Paper object containing metrics (relevancy, etc.)
+            label: Binary feedback (1 for positive, 0 for negative)
+        """
+        pass
+
+    @abstractmethod
+    def delete_author(self, paper: Paper, author: Author):
+        """
+        Process a deletion of an author:
+          - Update the author model with a rejection (label = 0).
+          - Remove the author from the paper.
+        """
+        pass
+
+    @abstractmethod
+    def accept_author(self, paper: Paper, author: Author):
+        """
+        Process an acceptance of an author (update with label = 1).
+        """
+        pass
+
+    @abstractmethod
+    def delete_paper(self, paper: Paper):
+        """
+        Process a deletion of a paper by updating the paper model with a rejection (label = 0).
+        """
+        pass
+
+    @abstractmethod
+    def accept_paper(self, paper: Paper):
+        """
+        Process an acceptance of a paper (update with label = 1).
+        """
+        pass
+
+class RegressionRanker(Ranker):
     def __init__(self, learning_rate: float = 0.01):
         """
         The Ranker maintains separate model weights for ranking authors and papers.
@@ -25,20 +118,6 @@ class Ranker:
     def sigmoid(x: float) -> float:
         """Compute the sigmoid function."""
         return 1 / (1 + np.exp(-x))
-
-    def get_extended_feature_vector(self, author: Author) -> np.ndarray:
-        """
-        Build an extended feature vector for the author including:
-            - citations
-            - hindex
-            - total grant value (sum of values of all grants)
-            - number of grants
-            - works count
-        """
-        total_grant_value = sum(grant.value for grant in author.grants) if author.grants else 0.0
-        num_grants = len(author.grants)
-        works_count = author.works_count
-        return np.array([author.citations, author.hindex, total_grant_value, num_grants, works_count], dtype=float)
 
     def rank(self, papers: List[Paper]) -> List[Paper]:
         """
