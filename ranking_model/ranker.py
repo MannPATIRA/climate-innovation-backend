@@ -1,14 +1,11 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from typing import List
-import numpy as np
-from sklearn.svm import LinearSVC
+from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
 
-from .author import Author
-from .paper import Paper
-from .grant import Grant
-
+from author import Author
+from paper import Paper
 
 class Ranker(ABC):
     """
@@ -220,4 +217,171 @@ class RegressionRanker(Ranker):
         Process an acceptance of a paper (update with label = 1).
         """
         print(f"Accepting paper '{paper.title}'.")
+        self.update_paper_model(paper, label=1)
+
+
+class OnlineRankSVMRanker(Ranker):
+    """
+    Ranker that uses Support Vector Machines with online learning capabilities.
+    
+        This ranker maintains two separate SGDClassifier models with hinge loss (SVM):
+        - Author Model: Ranks authors based on their feature vectors:
+            [citations, hindex, total_grant_value, num_grants, works_count]
+        - Paper Model: Ranks papers based on their relevancy score
+    
+    Key features:
+        - Incremental Learning: Uses partial_fit for online updates without full retraining
+        - Feature Scaling: Maintains separate StandardScalers for author and paper features
+        - Scoring: Combines author and paper scores for final paper ranking
+        - Memory Efficient: Suitable for streaming data and continuous updates
+    
+    The ranking process:
+        1. Author scores are computed using the author SVM model
+        2. Authors are sorted within each paper by their scores
+        3. Paper scores are computed using the paper SVM model
+        4. Final paper ranking combines both author and paper scores
+    
+    Note:
+        - Models are initialized on first update
+        - Feature scaling parameters are preserved between updates
+        - Binary feedback (0/1) is used for model updates
+    """
+
+    def __init__(self, learning_rate: float = 0.01):
+        """
+        Initializes the RankSVMRanker with online SVM models for authors and papers.
+        """
+        self.learning_rate = learning_rate
+
+        # Initialize online classifiers for authors and papers
+        self.author_model = SGDClassifier(
+            loss='hinge',
+            learning_rate='constant',
+            eta0=self.learning_rate,
+            max_iter=1,
+            warm_start=True,
+            random_state=42
+        )
+
+        self.paper_model = SGDClassifier(
+            loss='hinge',
+            learning_rate='constant',
+            eta0=self.learning_rate,
+            max_iter=1,
+            warm_start=True,
+            random_state=42
+        )
+
+        self.author_scaler = StandardScaler()
+        self.paper_scaler = StandardScaler()
+
+        # Flags to check if models are initialized
+        self.is_author_model_initialized = False
+        self.is_paper_model_initialized = False
+
+    def get_extended_feature_vector(self, author) -> np.ndarray:
+        """
+        Build an extended feature vector for the author including:
+            - citations
+            - hindex
+            - total grant value (sum of values of all grants)
+            - number of grants
+            - works count
+        """
+        total_grant_value = sum(grant.value for grant in getattr(author, 'grants', [])) if hasattr(author, 'grants') else 0.0
+        num_grants = len(getattr(author, 'grants', [])) if hasattr(author, 'grants') else 0
+        works_count = getattr(author, 'works_count', 0)
+        return np.array([
+            getattr(author, 'citations', 0.0),
+            getattr(author, 'hindex', 0.0),
+            total_grant_value,
+            num_grants,
+            works_count
+        ], dtype=float)
+
+    def rank(self, papers: List) -> List:
+        """
+        Ranks a list of papers using the trained SGDClassifier models.
+        Each author's score is computed, authors are sorted within papers,
+        and papers are sorted based on overall score.
+
+        Returns a list of papers ranked by their overall score (highest first).
+        """
+        for paper in papers:
+            # Collect feature vectors for authors
+            author_features = [self.get_extended_feature_vector(author) for author in getattr(paper, 'authors', [])]
+            author_features = np.array(author_features)
+
+            # Scale features if model is initialized
+            if self.is_author_model_initialized and len(author_features) > 0:
+                author_features_scaled = self.author_scaler.transform(author_features)
+                # Compute scores using decision function
+                scores = self.author_model.decision_function(author_features_scaled)
+                for author, score in zip(paper.authors, scores):
+                    author.score = score
+            else:
+                # Default score if model not initialized
+                for author in getattr(paper, 'authors', []):
+                    author.score = 0.0
+
+            # Sort authors by score
+            paper.authors.sort(key=lambda a: getattr(a, 'score', 0.0), reverse=True)
+
+            # Compute paper score
+            paper_feature = np.array([getattr(paper, 'relevancy', 0.0)]).reshape(1, -1)
+            if self.is_paper_model_initialized:
+                paper_feature_scaled = self.paper_scaler.transform(paper_feature)
+                paper_score = self.paper_model.decision_function(paper_feature_scaled)[0]
+            else:
+                paper_score = 0.0
+
+            # Aggregate paper score with author scores
+            paper.score = paper_score + sum(getattr(author, 'score', 0.0) for author in paper.authors)
+
+        # Sort papers by overall score
+        return sorted(papers, key=lambda p: getattr(p, 'score', 0.0), reverse=True)
+
+    def update_author_model(self, author, label: int):
+        features = self.get_extended_feature_vector(author).reshape(1, -1)
+        labels = np.array([label])
+
+        # Scale features
+        if self.is_author_model_initialized:
+            features_scaled = self.author_scaler.transform(features)
+        else:
+            features_scaled = self.author_scaler.fit_transform(features)
+            self.is_author_model_initialized = True
+
+        # Partial fit of the model
+        self.author_model.partial_fit(features_scaled, labels, classes=np.array([0, 1]))
+
+    def update_paper_model(self, paper, label: int):
+        features = np.array([getattr(paper, 'relevancy', 0.0)]).reshape(1, -1)
+        labels = np.array([label])
+
+        # Scale features
+        if self.is_paper_model_initialized:
+            features_scaled = self.paper_scaler.transform(features)
+        else:
+            features_scaled = self.paper_scaler.fit_transform(features)
+            self.is_paper_model_initialized = True
+
+        # Partial fit of the model
+        self.paper_model.partial_fit(features_scaled, labels, classes=np.array([0, 1]))
+
+    def delete_author(self, paper, author):
+        print(f"Deleting author '{getattr(author, 'name', 'Unknown')}' from paper '{getattr(paper, 'title', 'Unknown')}'.")
+        self.update_author_model(author, label=0)
+        paper.authors = [a for a in paper.authors if getattr(a, 'name', None) != getattr(author, 'name', None)]
+
+    def accept_author(self, paper, author):
+        print(f"Accepting author '{getattr(author, 'name', 'Unknown')}' for paper '{getattr(paper, 'title', 'Unknown')}'.")
+        self.update_author_model(author, label=1)
+
+    def delete_paper(self, paper):
+        print(f"Deleting paper '{getattr(paper, 'title', 'Unknown')}'.")
+        self.update_paper_model(paper, label=0)
+
+    def accept_paper(self, paper):
+        print(f"Accepting paper '{getattr(paper, 'title', 'Unknown')}'.")
         self.update_paper_model(paper, label=1)
