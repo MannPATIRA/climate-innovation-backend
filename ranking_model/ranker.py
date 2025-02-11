@@ -4,8 +4,8 @@ from typing import List
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
 
-from author import Author
-from paper import Paper
+from .author import Author
+from .paper import Paper
 
 class Ranker(ABC):
     """

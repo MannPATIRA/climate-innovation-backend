@@ -15,7 +15,7 @@ from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
 from .gatherers import OpenAlexInformationGatherer, authors_from_doi
-from ranking_model.ranker import Ranker
+from ranking_model.ranker import RegressionRanker
 from ranking_model.author import Author
 from ranking_model.grant import Grant
 
@@ -134,7 +134,7 @@ def build_paper_from_dict(data: dict) -> Paper:
 # query_processor = QueryProcessor()
 query_processor = MockQueryProcessor()
 
-ranker = Ranker(0.000001)
+ranker = RegressionRanker(0.000001)
 
 @app.get("/")
 async def home():
