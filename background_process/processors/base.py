@@ -1,0 +1,76 @@
+from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Dict, Any, Tuple
+from supabase import Client
+from common.pinecone_store import PineconeStore
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from tenacity import retry, stop_after_attempt, wait_exponential
+import hashlib
+
+
+class ProcessingTask(Enum):
+    REPORT_PROCESSING = "report_processing"
+    PAPER_PROCESSING = "paper_processing" 
+    TOPIC_PROCESSING = "topic_processing"
+
+
+class Processor(ABC):
+    def __init__(self, supabase_client: Client, pinecone_store: PineconeStore, chunk_size: int = 500):
+        # Add a ChunkingStrategy class to take in constructor so we can use different chunking strategies LATER
+        self.supabase = supabase_client
+        self.pinecone_store = pinecone_store
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=50
+        )
+        self.task_id = None
+
+    def generate_content_hash(self, content: str) -> str:
+        """Generate a hash for the content using SHA-256"""
+        return hashlib.sha256(content.encode()).hexdigest()
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def create_task(self, task_type: ProcessingTask) -> int:
+        """Create a new task record if it doesn't exist and return its ID"""
+        # Check for existing task
+        response = self.supabase.table('processor_progress') \
+            .select("*") \
+            .eq('task', task_type.value) \
+            .execute()
+        
+        if response.data:
+            # Return ID of existing task
+            return response.data[0]["id"]
+        
+        # Create new task if none exists
+        response = self.supabase.table('processor_progress').insert({
+            "task": task_type.value
+        }).execute()
+        return response.data[0]["id"]
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def log_progress(self, reference_id: str):
+        """Log individual progress for a task"""
+        if not self.task_id:
+            raise ValueError("No task_id set. Task must be created before logging progress.")
+        
+        self.supabase.table('process_progress_logs').insert({
+            "task_id": self.task_id,
+            "reference_id": reference_id
+        }).execute()
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def remove_from_logs(self, reference_id: str):
+        """Remove the entry from processing logs once completed"""
+        if not self.task_id:
+            raise ValueError("No task_id set. Task must be created before removing from logs.")
+        
+        self.supabase.table('process_progress_logs') \
+            .delete() \
+            .eq('task_id', self.task_id) \
+            .eq('reference_id', reference_id) \
+            .execute()
+
+    @abstractmethod
+    def process(self, data: Dict[Any, Any]) -> Tuple[str, Dict[str, Any]]:
+        pass 
