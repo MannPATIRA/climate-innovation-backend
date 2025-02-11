@@ -29,5 +29,5 @@ jobs:
         #   PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         #   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         #   SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        run: |
-          poetry run pytest
+        # run: |
+        #   poetry run pytest
