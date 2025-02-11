@@ -9,11 +9,15 @@ from langchain.schema.output_parser import StrOutputParser
 from langchain_openai import ChatOpenAI
 from fastapi.responses import StreamingResponse
 from common.pinecone_store import PineconeStore
+from ranking_model.paper import Paper
 from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
-from .gatherers import SemanticScholarInformationGatherer
+from .gatherers import OpenAlexInformationGatherer, authors_from_doi
+from ranking_model.ranker import Ranker
+from ranking_model.author import Author
+from ranking_model.grant import Grant
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -48,18 +52,89 @@ class PaperQuery(BaseModel):
     query: str
     top_k: Optional[int] = 1000
 
-class PaperResult(BaseModel):
-    paper_id: int
-    doi: Optional[str]
+class GrantData(BaseModel):
+    title: str
+    category: str
+    value: float
+    funder: str
+    organisation: str
+class AuthorData(BaseModel):
+    name: str
+    citations: int
+    dob: str
+    organisation_history: str
+    orcid: str
+    hindex: int
+    grants: Optional[List[GrantData]] = []
+    grant_org_name: Optional[str] = None
+    website: Optional[str] = None
+    openAlexid: str
+    works_count: int
+class PaperData(BaseModel):
+    paper_id: str
     openalex_id: str
-    score: float
-    content: str
-    paper_title: str
+    title: str
+    relevancy: float
+    doi: str
+    abstract: str
     publication_date: str
+    authors: List[AuthorData]
+
+# For paper feedback (accept/reject)
+class PaperFeedback(BaseModel):
+    paper: PaperData
+    accepted: bool
+
+# For author feedback (accept/reject)
+class AuthorFeedback(BaseModel):
+    paper: PaperData
+    author_name: str
+    accepted: bool
+
+def build_author_from_dict(data: dict) -> Author:
+    grants = []
+    for grant in data.get("grants", []):
+        grants.append(Grant(
+            title=grant["title"],
+            category=grant["category"],
+            value=grant["value"],
+            funder=grant["funder"],
+            organisation=grant["organisation"]
+        ))
+    return Author(
+         name=data["name"],
+         citations=data["citations"],
+         dob=data["dob"],
+         organisation_history=data["organisation_history"],
+         orcid=data["orcid"],
+         hindex=data["hindex"],
+         grants=grants,
+         grant_org_name=data.get("grant_org_name"),
+         website=data.get("website"),
+         openAlexid=data["openAlexid"],
+         works_count=data["works_count"]
+    )
+
+    
+def build_paper_from_dict(data: dict) -> Paper:
+    authors = [build_author_from_dict(a) for a in data.get("authors", [])]
+    return Paper(
+        paper_id=data["paper_id"],
+        openalex_id=data["openalex_id"],
+        title=data["title"],
+        relevancy=data["relevancy"],
+        doi=data["doi"],
+        abstract=data["abstract"],
+        publication_date=data["publication_date"],
+        authors=authors
+    )
+
 
 # Initialize the query processor
 # query_processor = QueryProcessor()
 query_processor = MockQueryProcessor()
+
+ranker = Ranker(0.000001)
 
 @app.get("/")
 async def home():
@@ -137,13 +212,6 @@ async def stream_query(query: Query):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/construct_graph/{doi}")
-async def construct_graph(doi: str):
-    authors = SemanticScholarInformationGatherer.get_authors_from_doi(doi)
-
-    for author in authors:
-        SemanticScholarInformationGatherer.get_author_info(author["authorId"])
-
 @app.post("/api/papers/search")
 async def search_papers(query: PaperQuery):
     try:
@@ -156,25 +224,75 @@ async def search_papers(query: PaperQuery):
             top_k=query.top_k,
             namespace="papers"
         )
-        
+
         # Format the results
         paper_results = []
         for match in results:
             metadata = match.metadata
-            paper_results.append(PaperResult(
+            authors = authors_from_doi(metadata.get("doi"))
+            details = OpenAlexInformationGatherer.get_details_from_paper_id(metadata.get("openalex_id"))
+            paper_results.append(Paper(
                 paper_id=metadata.get("paper_id"),
                 openalex_id=metadata.get("openalex_id"),
+                title=details["title"],
+                relevancy=match.score,
                 doi=metadata.get("doi"),
-                score=match.score,
-                content=metadata.get("content"), 
-                paper_title="TEST", 
-                publication_date="01/01/2025"
+                abstract=details["abstract"],
+                publication_date=details["publication_date"],
+                authors=authors
             ))
 
-        return paper_results
+        return ranker.rank(paper_results)
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/papers/feedback")
+async def paper_feedback(feedback: PaperFeedback):
+    """
+    Endpoint for paper acceptance or rejection.
+    The frontend sends the paper (as JSON) along with a flag (accepted: true/false).
+    The ranker then updates its model weights using the paper's relevancy.
+    """
+    try:
+        paper_obj = build_paper_from_dict(feedback.paper.model_dump())
+        if feedback.accepted:
+            ranker.accept_paper(paper_obj)
+            message = "Paper accepted. Model weights updated."
+        else:
+            ranker.delete_paper(paper_obj)
+            message = "Paper rejected. Model weights updated."
+        return {"message": message}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/authors/feedback")
+async def author_feedback(feedback: AuthorFeedback):
+    """
+    Endpoint for author acceptance or rejection.
+    The frontend sends the paper (with the list of authors), the specific author name,
+    and whether that author is accepted (true) or rejected (false).
+    The ranker then updates its author model weights accordingly.
+    """
+    try:
+        paper_obj = build_paper_from_dict(feedback.paper.model_dump())
+        target_author = None
+        for author in paper_obj.authors:
+            if author.name == feedback.author_name:
+                target_author = author
+                break
+        if target_author is None:
+            raise HTTPException(status_code=404, detail="Author not found in paper.")
+        if feedback.accepted:
+            ranker.accept_author(paper_obj, target_author)
+            message = "Author accepted. Model weights updated."
+        else:
+            ranker.delete_author(paper_obj, target_author)
+            message = "Author rejected. Model weights updated."
+        return {"message": message}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     import uvicorn
