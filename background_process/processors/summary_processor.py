@@ -4,7 +4,7 @@ from common.pinecone_store import PineconeStore
 from typing import Dict, Any, List
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import hashlib
-from .processors import PDFDocument
+from .report_processor import PDFDocument
 
 
 class Summarizer(ABC):

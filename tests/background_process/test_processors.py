@@ -1,6 +1,8 @@
 import pytest
 from unittest.mock import Mock, patch, mock_open, AsyncMock
-from background_process.processors import ReportProcessor, PDFDocument, PaperProcessor, Paper, TopicProcessor, TopicAssessment
+from background_process.processors.report_processor import ReportProcessor, PDFDocument
+from background_process.processors.paper_processor import  PaperProcessor, Paper
+from background_process.processors.topic_processor import TopicProcessor, TopicAssessment
 
 # Fixtures
 @pytest.fixture
@@ -415,7 +417,7 @@ class TestTopicProcessor:
         topic_processor.save_to_db = Mock(return_value=mock_record)
 
         # Mock the chain resulting from 'CLIMATE_RELEVANCE_PROMPT | self.evaluator'
-        with patch('background_process.processors.CLIMATE_RELEVANCE_PROMPT') as mock_prompt:
+        with patch('background_process.prompts.CLIMATE_RELEVANCE_PROMPT') as mock_prompt:
             mock_chain = Mock()
             mock_prompt.__or__.return_value = mock_chain
 
@@ -449,7 +451,7 @@ class TestTopicProcessor:
         assert mock_chain.ainvoke.call_count == 1
 
     @pytest.mark.asyncio
-    @patch('background_process.processors.CLIMATE_RELEVANCE_PROMPT')
+    @patch('background_process.prompts.CLIMATE_RELEVANCE_PROMPT')
     async def test_process_batch_topics(self, mock_prompt, topic_processor):
         """Test processing multiple topics in batch"""
 

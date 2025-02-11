@@ -1,9 +1,9 @@
 from supabase import create_client
 from common.pinecone_store import PineconeStore
-from .fetchers import LocalPDFFetcher
-from .processors import ReportProcessor
-from .summary_processors import SummaryProcessor
-from .orchestrators import ReportOrchestrator
+from fetchers import LocalPDFFetcher
+from processors import ReportProcessor
+from .processors.summary_processors import SummaryProcessor
+from orchestrators import ReportOrchestrator
 import os
 from common.supabase_client import init_supabase
 from dotenv import load_dotenv

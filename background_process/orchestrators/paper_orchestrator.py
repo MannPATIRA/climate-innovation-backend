@@ -1,59 +1,10 @@
-from .fetchers import ReportFetcher, Fetcher, PaperFetcher
-from .processors import ReportProcessor, Processor, PaperProcessor
-from .summary_processors import SummaryProcessor, Summarizer
-from typing import Optional, Dict, Any, Tuple
-import os
-from abc import ABC, abstractmethod
 from itertools import islice
-
-
-class Orchestrator(ABC):
-
-    def __init__(
-            self,
-            fetcher: Fetcher,
-            processor: Processor,
-            summarizer: Optional[SummaryProcessor] = None
-    ):
-        self.fetcher = fetcher
-        self.processor = processor
-        self.summarizer = summarizer
-
-    @abstractmethod
-    def run(self):
-        """Main process to orchestrate the ingestion and vectorising of documents"""
-
-
-class ReportOrchestrator(Orchestrator):
-
-    def process_single_report(self, report_path: str) -> None:
-        """Process a single report"""
-        try:
-
-            data = {'report_path': report_path}
-
-            (document, report_record) = self.processor.process(data)
-
-            # Process summary if summary processor exists
-            if self.summarizer:
-                try:
-                    self.summarizer.summarize(document, report_record, report_path)
-                except Exception as e:
-                    print(f"Error processing summary for {report_path}: {str(e)}")
-
-
-        except Exception as e:
-            print(f"Error processing report {report_path}: {str(e)}")
-        
-        finally:
-            # Clean up the PDF file
-            if os.path.exists(report_path):
-                os.remove(report_path)
-
-    def run(self):
-        """Main process to fetch and process reports"""
-        for report_path in self.fetcher.fetch():
-            self.process_single_report(report_path)
+from typing import Dict, Any, Tuple
+from .base import Orchestrator
+from ..fetchers.paper_fetcher import PaperFetcher
+from ..processors.paper_processor import PaperProcessor
+from ..processors.summary_processor import SummaryProcessor
+from typing import Optional
 
 
 class PaperOrchestrator(Orchestrator):
@@ -117,8 +68,4 @@ class PaperOrchestrator(Orchestrator):
                     
             except Exception as e:
                 print(f"Error processing batch: {str(e)}")
-                continue
-
-
-
-
+                continue 
