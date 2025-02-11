@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from ..fetchers.base import Fetcher
 from ..processors.base import Processor
-from ..summary_processors import SummaryProcessor
+from ..processors.summary_processor import SummaryProcessor
 from typing import Optional
 
 

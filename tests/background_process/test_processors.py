@@ -1,6 +1,8 @@
 import pytest
 from unittest.mock import Mock, patch, mock_open, AsyncMock
-from background_process.processors import ReportProcessor, PDFDocument, PaperProcessor, Paper, TopicProcessor, TopicAssessment
+from background_process.processors.report_processor import ReportProcessor, PDFDocument
+from background_process.processors.paper_processor import  PaperProcessor, Paper
+from background_process.processors.topic_processor import TopicProcessor, TopicAssessment
 
 # Fixtures
 @pytest.fixture

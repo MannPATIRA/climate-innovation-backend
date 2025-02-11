@@ -2,8 +2,10 @@ import pytest
 import os
 import shutil
 from unittest.mock import Mock, patch
-from background_process.fetchers import LocalPDFFetcher, PyAlexFetcher, TopicFetcher
-from background_process.processors import ProcessingTask
+from background_process.fetchers.report_fetcher import LocalPDFFetcher
+from background_process.fetchers.paper_fetcher import PyAlexFetcher
+from background_process.fetchers.topic_fetcher import TopicFetcher
+from background_process.processors.base import ProcessingTask
 
 # Fixtures
 @pytest.fixture

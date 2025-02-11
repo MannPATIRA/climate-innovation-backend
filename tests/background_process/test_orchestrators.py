@@ -1,10 +1,13 @@
 import pytest
 from unittest.mock import Mock, patch, call
 import os
-from background_process.orchestrators import ReportOrchestrator, PaperOrchestrator
-from background_process.fetchers import ReportFetcher, PaperFetcher
-from background_process.processors import ReportProcessor, PaperProcessor
-from background_process.summary_processors import SummaryProcessor
+from background_process.orchestrators.report_orchestrator import ReportOrchestrator
+from background_process.orchestrators.paper_orchestrator import PaperOrchestrator
+from background_process.fetchers.report_fetcher import ReportFetcher
+from background_process.fetchers.paper_fetcher import PaperFetcher
+from background_process.processors.report_processor import ReportProcessor
+from background_process.processors.paper_processor import PaperProcessor
+from background_process.processors.summary_processor import SummaryProcessor
 
 # Fixtures
 @pytest.fixture

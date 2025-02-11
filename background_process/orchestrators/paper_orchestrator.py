@@ -3,7 +3,7 @@ from typing import Dict, Any, Tuple
 from .base import Orchestrator
 from ..fetchers.paper_fetcher import PaperFetcher
 from ..processors.paper_processor import PaperProcessor
-from ..summary_processors import SummaryProcessor
+from ..processors.summary_processor import SummaryProcessor
 from typing import Optional
 
 

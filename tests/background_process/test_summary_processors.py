@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch
-from background_process.summary_processors import Summarizer, SummaryProcessor
-from background_process.processors import PDFDocument
+from background_process.processors.summary_processor import Summarizer, SummaryProcessor
+from background_process.processors.report_processor import PDFDocument
 
 # Mock Summarizer Implementation
 class MockSummarizer(Summarizer):
