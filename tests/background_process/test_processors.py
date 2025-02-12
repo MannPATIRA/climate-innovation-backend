@@ -89,7 +89,7 @@ class TestReportProcessor:
         assert hash1 == hash2  # Same content should produce same hash
         assert hash1 != report_processor.generate_content_hash("different content")
 
-    @patch('background_process.processors.PdfReader')
+    @patch('background_process.processors.report_processor.PdfReader')
     def test_convert_pdf_to_text(self, mock_pdf_reader, report_processor):
         """Test PDF conversion to text"""
         # Setup mock PDF reader
@@ -118,12 +118,13 @@ class TestReportProcessor:
         pdf_doc = PDFDocument(
             content="test content",
             title="test title",
-            content_hash="test hash"
+            content_hash="test hash",
         )
         mock_supabase.table().insert().execute.return_value.data = [{"id": 1}]
+        object_url = "test_url"
 
         # Execute
-        result = report_processor.add_report_to_db(pdf_doc)
+        result = report_processor.add_report_to_db(pdf_doc, object_url)
 
         # Verify
         assert result == {"id": 1}
@@ -131,7 +132,8 @@ class TestReportProcessor:
         mock_supabase.table().insert.assert_called_with({
                 "content": pdf_doc.content,
                 "content_hash": pdf_doc.content_hash,
-                "report_title": pdf_doc.title
+                "report_title": pdf_doc.title,
+                "object_url": object_url
         })
 
     def test_get_report(self, report_processor, mock_supabase):
@@ -462,15 +464,18 @@ class TestTopicProcessor:
         mock_record = {"id": 1, "is_climate_relevant": True, "analysis": "Test analysis"}
         topic_processor.save_to_db = Mock(return_value=mock_record)
 
-        # Mock the chain resulting from 'CLIMATE_RELEVANCE_PROMPT | self.evaluator'
-        mock_chain = Mock()
-        mock_prompt.__or__.return_value = mock_chain
-
-        # Mock the 'ainvoke' method of the chain to return a TopicAssessment
-        mock_chain.ainvoke = AsyncMock(return_value=TopicAssessment(
+        # Create the assessment that should be returned
+        mock_assessment = TopicAssessment(
             is_climate_relevant=True,
             analysis="Test analysis"
-        ))
+        )
+
+        # Create a mock chain that will return our assessment
+        mock_chain = AsyncMock()
+        mock_chain.ainvoke = AsyncMock(return_value=mock_assessment)
+        
+        # Make the | operator return our mock chain
+        mock_prompt.__or__.return_value = mock_chain
 
         test_topics = [
             {
