@@ -200,7 +200,8 @@ class TestReportProcessor:
             report_processor.chunk_and_embed(pdf_doc, {})
         assert "Error adding to Pinecone" in str(exc_info.value)
 
-    def test_process_new_report(self, report_processor, mock_supabase, mock_pinecone_store):
+    @patch.object(ReportProcessor, 'upload_to_s3')
+    def test_process_new_report(self, mock_s3_upload, report_processor, mock_supabase, mock_pinecone_store):
         """Test processing a new report"""
         # Setup
         mock_table = Mock()
@@ -208,6 +209,7 @@ class TestReportProcessor:
         mock_supabase.table().select().eq().execute.return_value.data = []  # No existing report
         mock_supabase.table().insert().execute.return_value.data = [{"id": 1}]
         mock_pinecone_store.add_chunks.return_value = True
+        mock_s3_upload.return_value = "https://test-bucket.s3.region.amazonaws.com/test.pdf"
 
         # Mock PDF conversion
         with patch.object(report_processor, 'convert_pdf_to_text') as mock_convert:
