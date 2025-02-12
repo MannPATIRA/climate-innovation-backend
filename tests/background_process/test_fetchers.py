@@ -193,8 +193,8 @@ class TestPyAlexFetcher:
             assert result == "test_cursor"
 
 class TestTopicFetcher:
-    @patch('background_process.fetchers.Topics')
-    @patch('background_process.fetchers.Works')
+    @patch('background_process.fetchers.topic_fetcher.Topics')
+    @patch('background_process.fetchers.topic_fetcher.Works')
     def test_fetch(self, mock_works_class, mock_topics_class):
         # Arrange
         mock_topics = Mock()
