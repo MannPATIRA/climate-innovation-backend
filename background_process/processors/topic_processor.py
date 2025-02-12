@@ -2,7 +2,7 @@ from typing import Dict, Any, Tuple, List
 from langchain_openai import ChatOpenAI
 from background_process.prompts import CLIMATE_RELEVANCE_PROMPT, TopicAssessment
 from .base import Processor, ProcessingTask
-
+import asyncio
 
 class TopicProcessor(Processor):
     def __init__(self, supabase_client, model_name: str = "gpt-4o-mini"):
