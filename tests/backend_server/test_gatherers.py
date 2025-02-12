@@ -198,7 +198,7 @@ class TestErrorCases:
     def test_openalex_invalid_paper_id(self, mock_works):
         mock_works.return_value.get.return_value = None
         
-        result = OpenAlexInformationGatherer.get_doi_from_paper_id("invalid_paper_id")
+        result = OpenAlexInformationGatherer.get_details_from_paper_id("invalid_paper_id")
         assert result is None
 
     @patch('backend_server.gatherers.Authors')
