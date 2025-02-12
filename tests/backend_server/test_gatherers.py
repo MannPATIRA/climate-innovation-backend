@@ -131,10 +131,10 @@ class TestOpenAlexInformationGatherer:
         assert result['citationCount'] == 1000
 
     @patch('backend_server.gatherers.Works')
-    def test_get_doi_from_paper_id(self, mock_works):
+    def test_get_details_from_paper_id(self, mock_works):
         mock_works.return_value.get.return_value = {'doi': MOCK_REGULAR_DOI}
         
-        result = OpenAlexInformationGatherer.get_doi_from_paper_id(MOCK_PAPER_ID)
+        result = OpenAlexInformationGatherer.get_details_from_paper_id(MOCK_PAPER_ID)
         assert result == MOCK_REGULAR_DOI
 
     def test_get_relevant_concepts_from_paper(self):
