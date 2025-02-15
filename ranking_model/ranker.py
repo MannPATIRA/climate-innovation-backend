@@ -141,7 +141,7 @@ class RegressionRanker(Ranker):
             # Sort authors within the paper (highest score first).
             paper.authors.sort(key=lambda a: a.score, reverse=True)
             # Compute paper relevancy contribution.
-            paper_contrib = self.sigmoid(self.paper_weights['relevancy'] * paper.relevancy)
+            paper_contrib = self.sigmoid(self.paper_weights['relevancy'] * paper.relevancy) # TODO: publication date too?
             # Overall paper score: relevancy contribution plus the sum of its authors' scores.
             paper.score = paper_contrib + sum(author.score for author in paper.authors)
         # Return papers sorted by overall score.
