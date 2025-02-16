@@ -11,7 +11,7 @@ from backend_server.gatherers import (
 MOCK_ARXIV_DOI = "2303.11366"
 MOCK_REGULAR_DOI = "10.1234/example"
 MOCK_AUTHOR_ID = "2212367248"
-MOCK_PAPER_ID = "paper123"
+MOCK_PAPER_ID = "https://openalex.org/W2105503244"
 
 # Mock responses
 MOCK_AUTHORS_RESPONSE = {
@@ -81,11 +81,12 @@ class TestSemanticScholarInformationGatherer:
         assert result == MOCK_AUTHOR_INFO
     
     def test_get_doi_from_paper_id(self, requests_mock):
+
         requests_mock.get(
-            f"http://api.semanticscholar.org/graph/v1/paper/{MOCK_PAPER_ID}?fields=externalIds,name",
+            f"https://api.semanticscholar.org/graph/v1/paper/{MOCK_PAPER_ID}?fields=externalIds,name",
             json=MOCK_PAPER_INFO
         )
-        
+
         result = SemanticScholarInformationGatherer.get_doi_from_paper_id(MOCK_PAPER_ID)
         assert result == MOCK_PAPER_INFO["data"]["externalIds"]
 
@@ -127,15 +128,23 @@ class TestOpenAlexInformationGatherer:
         
         result = OpenAlexInformationGatherer.get_author_info(MOCK_AUTHOR_ID)
         assert result['name'] == 'John Doe'
-        assert result['paperCount'] == 42
-        assert result['citationCount'] == 1000
+        assert result['works_count'] == 42
+        assert result['citations'] == 1000
 
     @patch('backend_server.gatherers.Works')
     def test_get_details_from_paper_id(self, mock_works):
-        mock_works.return_value.get.return_value = {'doi': MOCK_REGULAR_DOI}
-        
+        expected_result = {
+            "title": "Some Title",
+            "publication_date": "2024-01-01",
+            "abstract": "Some abstract"
+        }
+
+        mock_instance = mock_works.return_value
+        mock_instance.__getitem__.return_value = expected_result  # Mock dictionary access
+
         result = OpenAlexInformationGatherer.get_details_from_paper_id(MOCK_PAPER_ID)
-        assert result == MOCK_REGULAR_DOI
+
+        assert result == expected_result
 
     def test_get_relevant_concepts_from_paper(self):
         mock_paper = {
@@ -196,8 +205,9 @@ class TestErrorCases:
 
     @patch('backend_server.gatherers.Works')
     def test_openalex_invalid_paper_id(self, mock_works):
-        mock_works.return_value.get.return_value = None
-        
+        mock_instance = mock_works.return_value
+        mock_instance.__getitem__.return_value = None
+
         result = OpenAlexInformationGatherer.get_details_from_paper_id("invalid_paper_id")
         assert result is None
 
