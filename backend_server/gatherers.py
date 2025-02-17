@@ -75,7 +75,10 @@ class OpenAlexInformationGatherer(InformationGatherer):
         Retrieve the DOI of a paper using its OpenAlex ID.
         """
 
-        id = paper_id.split("org/")[1]
+        try:
+            id = paper_id.split("org/")[1]
+        except:
+            id = paper_id
 
         # Fetch the work (paper) details using the OpenAlex ID
         work = Works()[id]
@@ -107,14 +110,14 @@ class OpenAlexInformationGatherer(InformationGatherer):
     #         else:
     #             return None
     #
-    #     @staticmethod
-    #     def get_relevant_concepts_from_paper(paper):
-    #         concepts = paper["concepts"]
-    #
-    #         relevant_concepts = list(
-    #             filter(lambda x: x[2] > 0.1, map(lambda y: (y["display_name"], y["level"], y["score"]), concepts)))
-    #
-    #         return relevant_concepts
+    @staticmethod
+    def get_relevant_concepts_from_paper(paper):
+        concepts = paper["concepts"]
+
+        relevant_concepts = list(
+            filter(lambda x: x[2] > 0.1, map(lambda y: (y["display_name"], y["level"], y["score"]), concepts)))
+
+        return relevant_concepts
 
 
 class GTRInformationGatherer(InformationGatherer):
@@ -249,7 +252,7 @@ class SemanticScholarInformationGatherer(InformationGatherer):
     def get_doi_from_paper_id(paper_id: str):
 
         r = requests.get(
-            f"/paper/{paper_id}",
+            f"{SemanticScholarInformationGatherer.BASE_URL}/paper/{paper_id}",
             params={"fields": "externalIds,name"}
         )
 
