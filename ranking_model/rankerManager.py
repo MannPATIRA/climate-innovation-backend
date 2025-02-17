@@ -26,26 +26,6 @@ class RankerManager(Ranker):
         self.performance_metrics = defaultdict(list)
         self.weights = {name: 1.0/len(ranker_classes) for name in ranker_classes} # assign equal weights to them
 
-    # for rank i say we choose a  model based on the weight probability of that model.
-    # and then when accept / delete is called, only that model's accept / delete is called.
-    # oh maybe if we calculate the ranking for each model - nah not really
-    # then we still have kinda a ground truth / feedback to update every single model using
-
-    # weighted ensemble:
-    # avg ranking to display
-    # just feed data back to all of them
-    
-    # have to think about how to evalute the ranking TO FIND THE BEST model tho...
-    # store
-
-    # how do we update the weightings of each model:
-    # store test instances n feedback
-    # set of ticks n crosses
-    
-    # []. [], []
-    # [good], [bad]
-        
-
     def rank(self, papers: List[Paper]) -> List[Paper]:
         """
         Implements the rank method from Ranker interface.
