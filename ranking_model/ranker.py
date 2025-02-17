@@ -279,26 +279,6 @@ class OnlineRankSVMRanker(Ranker):
         self.is_author_model_initialized = False
         self.is_paper_model_initialized = False
 
-    def get_extended_feature_vector(self, author) -> np.ndarray:
-        """
-        Build an extended feature vector for the author including:
-            - citations
-            - hindex
-            - total grant value (sum of values of all grants)
-            - number of grants
-            - works count
-        """
-        total_grant_value = sum(grant.value for grant in getattr(author, 'grants', [])) if hasattr(author, 'grants') else 0.0
-        num_grants = len(getattr(author, 'grants', [])) if hasattr(author, 'grants') else 0
-        works_count = getattr(author, 'works_count', 0)
-        return np.array([
-            getattr(author, 'citations', 0.0),
-            getattr(author, 'hindex', 0.0),
-            total_grant_value,
-            num_grants,
-            works_count
-        ], dtype=float)
-
     def rank(self, papers: List) -> List:
         """
         Ranks a list of papers using the trained SGDClassifier models.
