@@ -10,7 +10,7 @@ from openai import OpenAI
 
 class PineconeStore(VectorStore):
     def __init__(self, index_name: str = "climate-index",
-                 model: str = "text-embedding-3-large"):
+                 model: str = "text-embedding-3-small", dimension: int = 1024):
         """
         Initialize Pinecone client with API credentials and index information.
         
@@ -27,14 +27,14 @@ class PineconeStore(VectorStore):
             raise ValueError("PINECONE_API_KEY not found in environment variables")
         if not openai_api_key:
             raise ValueError("OPENAI_API_KEY not found in environment variables")
-            
+        self.dimension = dimension
         self.pc = Pinecone(api_key=pinecone_api_key)
         self.openai_client = OpenAI(api_key=openai_api_key)
         self.index_name = index_name
         if not self.pc.has_index(index_name):
             self.pc.create_index(
                 name=index_name,
-                dimension=3072,
+                dimension=dimension,
                 metric='cosine',
                 spec=ServerlessSpec(
                 cloud="aws",
@@ -143,6 +143,7 @@ class PineconeStore(VectorStore):
 
                 # Generate embeddings for current batch using OpenAI
                 response = self.openai_client.embeddings.create(
+                    dimensions=self.dimension,
                     model=self.model,
                     input=batch_chunks
                 )
@@ -184,7 +185,8 @@ class PineconeStore(VectorStore):
             # Generate embedding for query using OpenAI
             response = self.openai_client.embeddings.create(
                 model=self.model,
-                input=[query_text]
+                input=[query_text],
+                dimensions=self.dimension
             )
             query_embedding = response.data[0].embedding
 

@@ -18,6 +18,7 @@ from .gatherers import OpenAlexInformationGatherer, authors_from_doi
 from ranking_model.ranker import RegressionRanker
 from ranking_model.author import Author
 from ranking_model.grant import Grant
+from enum import Enum
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -90,6 +91,22 @@ class AuthorFeedback(BaseModel):
     paper: PaperData
     author_name: str
     accepted: bool
+
+class AuthorState(str, Enum):
+    UNCONTACTED = "uncontacted"
+    INTERESTED = "interested"
+    UNINTERESTED = "uninterested"
+    BLOCKED = "blocked"
+
+class AuthorCreate(BaseModel):
+    name: str
+    institution: str
+    note: Optional[str] = None
+    openalex_id: str
+
+class AuthorUpdate(BaseModel):
+    note: Optional[str] = None
+    state: Optional[AuthorState] = None
 
 def build_author_from_dict(data: dict) -> Author:
     grants = []
@@ -293,6 +310,51 @@ async def author_feedback(feedback: AuthorFeedback):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/crm/authors")
+async def create_author(author: AuthorCreate):
+    try:
+        # Check if author already exists
+        existing = supabase.table("author_crm").select("*").eq("openalex_id", author.openalex_id).execute()
+        
+        if existing.data:
+            raise HTTPException(status_code=400, detail="Author already exists in CRM")
+        
+        # Create new author
+        result = supabase.table("author_crm").insert({
+            "name": author.name,
+            "institution": author.institution,
+            "note": author.note,
+            "openalex_id": author.openalex_id,
+            "state": AuthorState.UNCONTACTED
+        }).execute()
+        
+        return result.data[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.patch("/api/crm/authors/{author_id}/note")
+async def update_author_note(author_id: int, note: str):
+    try:
+        result = supabase.table("author_crm").update({"note": note}).eq("id", author_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Author not found")
+            
+        return result.data[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.patch("/api/crm/authors/{author_id}/state")
+async def update_author_state(author_id: int, state: AuthorState):
+    try:
+        result = supabase.table("author_crm").update({"state": state}).eq("id", author_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Author not found")
+            
+        return result.data[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn

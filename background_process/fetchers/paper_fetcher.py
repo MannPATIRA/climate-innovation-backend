@@ -76,6 +76,7 @@ class PyAlexFetcher(PaperFetcher):
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def _update_main_cursor(self):
         """Update the main cursor with the current_cursor value"""
+        print("updating main cursor to: ", self.current_cursor)
         self.supabase.table('processor_progress') \
             .update({'cursor': self.current_cursor}) \
             .eq('id', self.task_id) \
@@ -152,7 +153,7 @@ class PyAlexFetcher(PaperFetcher):
                 - metadata (Dict): Dictionary containing id, doi, and title of the paper
         """
         # First yield any failed papers
-        yield from self._get_failed_papers()
+        #yield from self._get_failed_papers()
 
         # Continue with normal fetching process
         query = Works() \
@@ -166,12 +167,15 @@ class PyAlexFetcher(PaperFetcher):
                 authorships={"is_corresponding": "true"}
             ) \
             .filter(
-                publication_year=">2000"
+                publication_year=">2009"
             ) \
             .filter(
                 primary_location={"source": {"type": "journal|repository"}}
             ) \
-            .sort(publication_date="desc")
+            .filter(
+                primary_topic={"domain": {"id": "1|3"}}
+            ) \
+            .sort(publication_date="asc")
         
 
         res, meta = query.get(per_page=1, return_meta=True)

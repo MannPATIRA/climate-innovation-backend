@@ -22,7 +22,7 @@ def test_paper_ingestion():
         supabase, 
         pinecone_store,
         chunk_size=750,
-        max_workers=10
+        max_workers=8
     )
     
     # Create and run orchestrator

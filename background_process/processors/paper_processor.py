@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 from typing import Dict, Any, List, Tuple
 from .base import Processor, ProcessingTask
