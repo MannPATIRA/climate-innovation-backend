@@ -356,6 +356,26 @@ async def update_author_state(author_id: int, state: AuthorState):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/crm/authors")
+async def get_authors():
+    try:
+        result = supabase.table("author_crm").select("*").execute()
+        return result.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/crm/authors/{author_id}")
+async def get_author(author_id: int):
+    try:
+        result = supabase.table("author_crm").select("*").eq("id", author_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Author not found")
+            
+        return result.data[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
