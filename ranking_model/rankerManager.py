@@ -25,7 +25,6 @@ class RankerManager(Ranker):
             name: ranker_class(supabase_client=supabase_client, model_name=f"{model_name}_{name}", learning_rate=learning_rate)
             for name, ranker_class in ranker_classes.items()
         }
-        self.performance_metrics = defaultdict(list)
         self.weights = {name: 1.0/len(ranker_classes) for name in ranker_classes} # assign equal weights to them
         
         self.papers = None
@@ -160,26 +159,14 @@ class RankerManager(Ranker):
             ranker.accept_paper(paper)
         self.accepted_papers.append(paper)
 
-    def _get_best_ranker(self) -> str:
-        """
-        Returns the name of the best performing ranker based on historical performance.
-        """
-        avg_scores = {
-            name: sum(scores) / len(scores)
-            for name, scores in self.performance_metrics.items()
-            if scores
-        }
-        return max(avg_scores.items(), key=lambda x: x[1])[0] if avg_scores else None
-
     def save_model(self):
-        """Saves the RankerManager's mode   l state to Supabase."""
+        """Saves the RankerManager's model state to Supabase."""
         ranker_states = {
             name: ranker.save_model()  # Delegate saving to individual rankers
             for name, ranker in self.rankers.items()
         }
         model_state = {
             'weights': self.weights,
-            'performance_metrics': self.performance_metrics,
             'ranker_states': ranker_states
         }
         serialized_model = pickle.dumps(model_state)
@@ -190,15 +177,46 @@ class RankerManager(Ranker):
         response = self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
         if response.data and response.data[0]:
             serialized_model = response.data[0]['model_data']
-            model_state = pickle.loads(serialized_model)
-            self.weights = model_state['weights']
-            self.performance_metrics = model_state['performance_metrics']
-            # ranker_states = model_state['ranker_states']
-            for name, ranker in self.rankers.items():
-                ranker.load_model() # Delegate loading to individual rankers
-
+            try:
+                model_state = pickle.loads(serialized_model)
+                self.weights = model_state['weights']
+                # Load individual ranker models
+                all_rankers_loaded = True
+                for name, ranker in self.rankers.items():
+                    if not ranker.load_model():
+                        all_rankers_loaded = False
+                        print(f"Failed to load ranker: {name}. Training with historical data...")
+                        # Get historical ranking data
+                        hist_response = self.supabase.table('ranking_data').select('*').execute()
+                        if hist_response.data:
+                            for entry in hist_response.data:
+                                # Reconstruct papers and labels from stored data
+                                papers = [Paper(**p) for p in entry['papers']]
+                                pos_papers = [Paper(**p) for p in entry['positive_papers']]
+                                neg_papers = [Paper(**p) for p in entry['negative_papers']]
+                                
+                                # Train the ranker with this historical data
+                                ranker.rank(papers)  # This initializes internal state if needed
+                                for paper in pos_papers:
+                                    ranker.accept_paper(paper)
+                                    for author in paper.authors:
+                                        ranker.accept_author(paper, author)
+                                
+                                for paper in neg_papers:
+                                    ranker.delete_paper(paper)
+                                    for author in paper.authors:
+                                        ranker.delete_author(paper, author)
+                            
+                            print(f"Completed training {name} with historical data")
+                        else:
+                            print("No historical data found for training")
+                return all_rankers_loaded
+            except (pickle.UnpicklingError, KeyError) as e:
+                print(f"Error loading model '{self.model_name}': {e}")
+                return False
         else:
             print(f"Model '{self.model_name}' not found in Supabase.")
+            return False
 
 if __name__ == "__main__":    
     ranker_classes = {

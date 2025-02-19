@@ -111,7 +111,7 @@ class Ranker(ABC):
         pass
 
     @abstractmethod
-    def load_model(self):
+    def load_model(self) -> bool:
         """Loads the ranker's model state from Supabase."""
         pass
 
@@ -262,8 +262,10 @@ class RegressionRanker(Ranker):
             model_state = pickle.loads(serialized_model)
             self.author_weights = model_state['author_weights']
             self.paper_weights = model_state['paper_weights']
+            return True
         else:
             print(f"Model '{self.model_name}' not found in Supabase.")
+            return False
 
 class OnlineRankSVMRanker(Ranker):
     """
@@ -440,5 +442,7 @@ class OnlineRankSVMRanker(Ranker):
             self.paper_scaler = model_state['paper_scaler']
             self.is_author_model_initialized = model_state['is_author_model_initialized']
             self.is_paper_model_initialized = model_state['is_paper_model_initialized']
+            return True
         else:
             print(f"Model '{self.model_name}' not found in Supabase.")
+            return False
