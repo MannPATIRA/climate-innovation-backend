@@ -106,12 +106,12 @@ class Ranker(ABC):
         pass
 
     @abstractmethod
-    def save_model(self, supabase_client: Client):
+    def save_model(self):
         """Saves the ranker's model state to Supabase."""
         pass
 
     @abstractmethod
-    def load_model(self, supabase_client: Client):
+    def load_model(self):
         """Loads the ranker's model state from Supabase."""
         pass
 

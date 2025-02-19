@@ -171,10 +171,10 @@ class RankerManager(Ranker):
         }
         return max(avg_scores.items(), key=lambda x: x[1])[0] if avg_scores else None
 
-    def save_model(self, supabase_client: Client):
-        """Saves the RankerManager's model state to Supabase."""
+    def save_model(self):
+        """Saves the RankerManager's mode   l state to Supabase."""
         ranker_states = {
-            name: ranker.save_model(supabase_client)  # Delegate saving to individual rankers
+            name: ranker.save_model()  # Delegate saving to individual rankers
             for name, ranker in self.rankers.items()
         }
         model_state = {
@@ -183,19 +183,19 @@ class RankerManager(Ranker):
             'ranker_states': ranker_states
         }
         serialized_model = pickle.dumps(model_state)
-        supabase_client.table('ranker_models').insert({'model_name': self.model_name, 'model_data': serialized_model}).execute()
+        self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': serialized_model}).execute()
 
-    def load_model(self, supabase_client: Client):
+    def load_model(self):
         """Loads the RankerManager's model state from Supabase."""
-        response = supabase_client.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
+        response = self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
         if response.data and response.data[0]:
             serialized_model = response.data[0]['model_data']
             model_state = pickle.loads(serialized_model)
             self.weights = model_state['weights']
             self.performance_metrics = model_state['performance_metrics']
-            ranker_states = model_state['ranker_states']
+            # ranker_states = model_state['ranker_states']
             for name, ranker in self.rankers.items():
-                ranker.load_model(supabase_client) # Delegate loading to individual rankers
+                ranker.load_model() # Delegate loading to individual rankers
 
         else:
             print(f"Model '{self.model_name}' not found in Supabase.")
