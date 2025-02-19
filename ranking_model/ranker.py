@@ -3,6 +3,9 @@ import numpy as np
 from typing import List
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
+from supabase import Client
+import pickle
+import functools
 
 from .author import Author
 from .paper import Paper
@@ -11,9 +14,10 @@ class Ranker(ABC):
     """
     Abstract base class for Ranker implementations.
     """
-    @abstractmethod
-    def __init__(self, learning_rate: float = 0.01):
-        pass
+    def __init__(self, supabase_client: Client, model_name: str, learning_rate: float = 0.01):
+        self.supabase = supabase_client
+        self.model_name = model_name
+        self.learning_rate = learning_rate
 
     def get_extended_feature_vector(self, author: Author) -> np.ndarray:
         """
@@ -29,7 +33,15 @@ class Ranker(ABC):
         works_count = author.works_count
         return np.array([author.citations, author.hindex, total_grant_value, num_grants, works_count], dtype=float)
 
+    def save_model_before_rank(self, func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            self.save_model()
+            return func(*args, **kwargs)
+        return wrapper
+
     @abstractmethod
+    @save_model_before_rank
     def rank(self, papers: List[Paper]) -> List[Paper]:
         """
         Ranks a list of papers based on their authors' metrics and paper relevancy.
@@ -93,15 +105,25 @@ class Ranker(ABC):
         """
         pass
 
+    @abstractmethod
+    def save_model(self, supabase_client: Client):
+        """Saves the ranker's model state to Supabase."""
+        pass
+
+    @abstractmethod
+    def load_model(self, supabase_client: Client):
+        """Loads the ranker's model state from Supabase."""
+        pass
+
 class RegressionRanker(Ranker):
-    def __init__(self, learning_rate: float = 0.01):
+    def __init__(self, supabase_client: Client, model_name: str, learning_rate: float = 0.01):
         """
         The Ranker maintains separate model weights for ranking authors and papers.
           - For authors, we now use an extended feature vector:
                 [citations, hindex, total_grant_value, num_grants, works_count]
           - For papers, we use the paper relevancy score.
         """
-        self.learning_rate = learning_rate
+        super().__init__(supabase_client, model_name, learning_rate)
         self.author_weights = {
             'citations': 0.5,
             'hindex': 0.5,
@@ -219,6 +241,29 @@ class RegressionRanker(Ranker):
         print(f"Accepting paper '{paper.title}'.")
         self.update_paper_model(paper, label=1)
 
+    def save_model(self):
+        """
+        Saves the RegressionRanker's model state to Supabase.
+        """
+        model_state = {
+            'author_weights': self.author_weights,
+            'paper_weights': self.paper_weights
+        }
+        serialized_model = pickle.dumps(model_state)
+        self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': serialized_model}).execute()
+
+    def load_model(self):
+        """
+        Loads the RegressionRanker's model state from Supabase.
+        """
+        response = self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
+        if response.data and response.data[0]:
+            serialized_model = response.data[0]['model_data']
+            model_state = pickle.loads(serialized_model)
+            self.author_weights = model_state['author_weights']
+            self.paper_weights = model_state['paper_weights']
+        else:
+            print(f"Model '{self.model_name}' not found in Supabase.")
 
 class OnlineRankSVMRanker(Ranker):
     """
@@ -247,11 +292,11 @@ class OnlineRankSVMRanker(Ranker):
         - Binary feedback (0/1) is used for model updates
     """
 
-    def __init__(self, learning_rate: float = 0.01):
+    def __init__(self, supabase_client: Client, model_name: str, learning_rate: float = 0.01):
         """
         Initializes the RankSVMRanker with online SVM models for authors and papers.
         """
-        self.learning_rate = learning_rate
+        super().__init__(supabase_client, model_name, learning_rate)
 
         # Initialize online classifiers for authors and papers
         self.author_model = SGDClassifier(
@@ -279,7 +324,7 @@ class OnlineRankSVMRanker(Ranker):
         self.is_author_model_initialized = False
         self.is_paper_model_initialized = False
 
-    def rank(self, papers: List) -> List:
+    def rank(self, papers: List[Paper]) -> List[Paper]:
         """
         Ranks a list of papers using the trained SGDClassifier models.
         Each author's score is computed, authors are sorted within papers,
@@ -365,3 +410,35 @@ class OnlineRankSVMRanker(Ranker):
     def accept_paper(self, paper):
         print(f"Accepting paper '{getattr(paper, 'title', 'Unknown')}'.")
         self.update_paper_model(paper, label=1)
+
+    def save_model(self):
+        """
+        Saves the OnlineRankSVMRanker's model state to Supabase.
+        """
+        model_state = {
+            'author_model': self.author_model,
+            'paper_model': self.paper_model,
+            'author_scaler': self.author_scaler,
+            'paper_scaler': self.paper_scaler,
+            'is_author_model_initialized': self.is_author_model_initialized,
+            'is_paper_model_initialized': self.is_paper_model_initialized
+        }
+        serialized_model = pickle.dumps(model_state)
+        self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': serialized_model}).execute()
+
+    def load_model(self):
+        """
+        Loads the OnlineRankSVMRanker's model state from Supabase.
+        """
+        response = self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
+        if response.data and response.data[0]:
+            serialized_model = response.data[0]['model_data']
+            model_state = pickle.loads(serialized_model)
+            self.author_model = model_state['author_model']
+            self.paper_model = model_state['paper_model']
+            self.author_scaler = model_state['author_scaler']
+            self.paper_scaler = model_state['paper_scaler']
+            self.is_author_model_initialized = model_state['is_author_model_initialized']
+            self.is_paper_model_initialized = model_state['is_paper_model_initialized']
+        else:
+            print(f"Model '{self.model_name}' not found in Supabase.")

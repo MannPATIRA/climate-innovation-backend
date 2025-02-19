@@ -1,16 +1,18 @@
 from typing import Dict, List, Type
 from collections import defaultdict
+import pickle
 
 from .ranker import Ranker, RegressionRanker, OnlineRankSVMRanker
 from .author import Author
 from .paper import Paper
+from supabase import Client
 
 class RankerManager(Ranker):
     """
     A meta-ranker that manages multiple ranker instances.
     Allows for training of multiple implementations, and using the one with the best performance.
     """
-    def __init__(self, ranker_classes: Dict[str, Type[Ranker]], learning_rate: float = 0.01):
+    def __init__(self, supabase_client: Client, model_name: str, ranker_classes: Dict[str, Type[Ranker]], learning_rate: float = 0.01):
         """
         Initialize multiple rankers.
         
@@ -18,26 +20,39 @@ class RankerManager(Ranker):
             ranker_classes: Dictionary mapping ranker names to their classes
             learning_rate: Learning rate for all rankers
         """
-        super().__init__(learning_rate)
+        super().__init__(supabase_client, model_name, learning_rate)
         self.rankers = {
-            name: ranker_class(learning_rate=learning_rate)
+            name: ranker_class(supabase_client=supabase_client, model_name=f"{model_name}_{name}", learning_rate=learning_rate)
             for name, ranker_class in ranker_classes.items()
         }
         self.performance_metrics = defaultdict(list)
         self.weights = {name: 1.0/len(ranker_classes) for name in ranker_classes} # assign equal weights to them
+        
+        self.papers = None
+        self.accepted_authors = []
+        self.rejected_authors = []
+        self.accepted_papers = []
+        self.rejected_papers = []
+        
+        self.all_rankings = None
 
     def rank(self, papers: List[Paper]) -> List[Paper]:
         """
         Implements the rank method from Ranker interface.
         Returns a weighted ensemble ranking from all managed rankers.
         """
-        all_rankings = {
+        # update weights and store the old information
+        if self.all_rankings is not None:
+            self._update_rankers_weights()
+            self._store_ranking_data()
+        self.papers = papers
+        self.all_rankings = {
             name: ranker.rank(papers.copy())
             for name, ranker in self.rankers.items()
         }
         paper_scores = defaultdict(float)
         for paper in papers:
-            for ranker_name, ranked_papers in all_rankings.items():
+            for ranker_name, ranked_papers in self.all_rankings.items():
                 # Find paper's position in this ranker's list
                 position = next(i for i, p in enumerate(ranked_papers) if p == paper)
                 # Convert position to score (higher score for better position)
@@ -49,7 +64,7 @@ class RankerManager(Ranker):
         # Return papers sorted by ensemble score
         return sorted(papers, key=lambda p: p.score, reverse=True)
     
-    def relative_position_loss(ranked_papers, positive_papers, negative_papers):
+    def _relative_position_loss(self, ranked_papers, positive_papers, negative_papers):
         """
         Computes fraction of positive-negative paper pairs where negative is ranked above positive.
         Loss = 0: Perfect ranking (all positive papers above negative ones)
@@ -59,15 +74,33 @@ class RankerManager(Ranker):
         neg_positions = [next(i for i, p in enumerate(ranked_papers) if p == paper) for paper in negative_papers]
         return sum(1 for pos in pos_positions for neg in neg_positions if pos > neg) / (len(pos_positions) * len(neg_positions))
 
-    def update_weights(self, ranked_papers, positive_papers, negative_papers, learning_rate=0.01):
+    def _store_ranking_data(self):
+        """Stores ranking data (papers, positive, negative) as a single entry in Supabase."""
+        try:
+            paper_data = [{'title': p.title, 'abstract': p.abstract, 'authors': p.authors} for p in self.papers]
+            pos_data = [{'title': p.title, 'abstract': p.abstract, 'authors': p.authors} for p in self.accepted_papers]
+            neg_data = [{'title': p.title, 'abstract': p.abstract, 'authors': p.authors} for p in self.rejected_papers]
+
+            data_to_store = {
+                'model_name': self.model_name,
+                'papers': paper_data,
+                'positive_papers': pos_data,
+                'negative_papers': neg_data,
+            }
+            self.supabase_client.table('ranking_data').insert(data_to_store).execute()
+        except Exception as e:
+            print(f"Error storing ranking data in Supabase: {e}")
+
+    def _update_rankers_weights(self, learning_rate=0.01):
         """
+        Evaluate performance of all rankers and update their weights accordingly.
         Updates ranker weights based on feedback using gradient descent.
         Lower weights for rankers that contribute to higher loss.
         """
         for ranker_name in self.weights:
             # Compute loss contribution from this ranker
-            ranker_papers = self.rankers[ranker_name].rank(ranked_papers.copy())
-            ranker_loss = self.relative_position_loss(ranker_papers, positive_papers, negative_papers)
+            ranker_papers = self.all_rankings[ranker_name]
+            ranker_loss = self._relative_position_loss(ranker_papers, self.accepted_papers, self.rejected_papers)
             
             # Update weight (decrease if ranker contributed to high loss)
             self.weights[ranker_name] -= learning_rate * ranker_loss
@@ -97,65 +130,37 @@ class RankerManager(Ranker):
 
     def delete_author(self, paper: Paper, author: Author):
         """
-        Propagates deletion to all managed rankers.
+        Propagates deletion to all managed rankers and stores the rejected author.
         """
         for ranker in self.rankers.values():
             ranker.delete_author(paper, author)
+        self.rejected_authors.append(author)
 
     def accept_author(self, paper: Paper, author: Author):
         """
-        Propagates acceptance to all managed rankers.
+        Propagates acceptance to all managed rankers and stores the accepted author.
         """
         for ranker in self.rankers.values():
             ranker.accept_author(paper, author)
+        self.accepted_authors.append(author)
 
     def delete_paper(self, paper: Paper):
         """
-        Propagates deletion to all managed rankers.
+        Propagates deletion to all managed rankers and stores the rejected paper.
         """
         for ranker in self.rankers.values():
             ranker.delete_paper(paper)
+        self.rejected_papers.append(paper)
 
     def accept_paper(self, paper: Paper):
         """
-        Propagates acceptance to all managed rankers.
+        Propagates acceptance to all managed rankers and stores the accepted paper.
         """
         for ranker in self.rankers.values():
             ranker.accept_paper(paper)
+        self.accepted_papers.append(paper)
 
-    def evaluate_and_update_weights(self, test_papers: List[Paper], ground_truth: List[Paper]):
-        """
-        Evaluate performance of all rankers and update their weights accordingly.
-        """
-        scores = {}
-        for name, ranker in self.rankers.items():
-            ranked_papers = ranker.rank(test_papers.copy())
-            score = self._calculate_ranking_score(ranked_papers, ground_truth)
-            scores[name] = score
-            self.performance_metrics[name].append(score)
-
-        # Update weights based on recent performance
-        total_score = sum(scores.values())
-        if total_score > 0:  # Avoid division by zero
-            self.weights = {
-                name: score/total_score 
-                for name, score in scores.items()
-            }
-
-    def _calculate_ranking_score(self, ranked_papers: List[Paper], ground_truth: List[Paper]) -> float:
-        """
-        Calculate ranking score (e.g., NDCG, MAP, etc.).
-        """
-        # Implementation depends on specific evaluation needs
-        return 0.0  # Replace with actual metric calculation
-
-    def get_ranker_weights(self) -> Dict[str, float]:
-        """
-        Returns the current weights of each ranker.
-        """
-        return self.weights.copy()
-
-    def get_best_ranker(self) -> str:
+    def _get_best_ranker(self) -> str:
         """
         Returns the name of the best performing ranker based on historical performance.
         """
@@ -166,26 +171,39 @@ class RankerManager(Ranker):
         }
         return max(avg_scores.items(), key=lambda x: x[1])[0] if avg_scores else None
 
+    def save_model(self, supabase_client: Client):
+        """Saves the RankerManager's model state to Supabase."""
+        ranker_states = {
+            name: ranker.save_model(supabase_client)  # Delegate saving to individual rankers
+            for name, ranker in self.rankers.items()
+        }
+        model_state = {
+            'weights': self.weights,
+            'performance_metrics': self.performance_metrics,
+            'ranker_states': ranker_states
+        }
+        serialized_model = pickle.dumps(model_state)
+        supabase_client.table('ranker_models').insert({'model_name': self.model_name, 'model_data': serialized_model}).execute()
+
+    def load_model(self, supabase_client: Client):
+        """Loads the RankerManager's model state from Supabase."""
+        response = supabase_client.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
+        if response.data and response.data[0]:
+            serialized_model = response.data[0]['model_data']
+            model_state = pickle.loads(serialized_model)
+            self.weights = model_state['weights']
+            self.performance_metrics = model_state['performance_metrics']
+            ranker_states = model_state['ranker_states']
+            for name, ranker in self.rankers.items():
+                ranker.load_model(supabase_client) # Delegate loading to individual rankers
+
+        else:
+            print(f"Model '{self.model_name}' not found in Supabase.")
+
 if __name__ == "__main__":    
     ranker_classes = {
         'regression': RegressionRanker,
         'svm': OnlineRankSVMRanker,
     }
 
-    ranker = RankerManager(ranker_classes)
-
-    # papers = [...]  # List of papers
-    # ranked_papers = ranker.rank(papers)
-
-    # # Process feedback
-    # ranker.accept_paper(paper)
-    # ranker.delete_author(paper, author)
-
-    # # Evaluate and update ensemble weights
-    # test_papers = [...]
-    # ground_truth = [...]
-    # ranker.evaluate_and_update_weights(test_papers, ground_truth)
-
-    # # Check current weights
-    # weights = ranker.get_ranker_weights()
-    # print(f"Current ranker weights: {weights}")
+    # ranker = RankerManager(supabase_client, model_name, ranker_classes)
