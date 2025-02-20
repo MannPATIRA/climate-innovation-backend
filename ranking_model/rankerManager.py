@@ -80,7 +80,10 @@ class RankerManager(Ranker):
         return sum(1 for pos in pos_positions for neg in neg_positions if pos > neg) / (len(pos_positions) * len(neg_positions))
     
     def _store_ranking_feedback(self):
-        """Stores ranking feedback (paper_ids, positive_paper_ids, negative_paper_ids) in Supabase."""
+        """
+        Stores ranking feedback (paper_ids, positive_paper_ids, negative_paper_ids) in Supabase.
+        Also reset the lists of accepted and rejected.
+        """
         try:
             # Extract paper_ids from the lists of papers
             paper_ids = [p.paper_id for p in self.papers]
@@ -95,6 +98,12 @@ class RankerManager(Ranker):
                 'relevancies': {p.paper_id: p.relevancy for p in self.papers}  # Store relevancy scores
             }
             self.supabase_client.table('ranking_feedback').insert(data_to_store).execute()
+            
+            # Reset lists
+            self.accepted_authors = []
+            self.rejected_authors = []
+            self.accepted_papers = []
+            self.rejected_papers = []
 
         except Exception as e:
             print(f"Error storing ranking feedback in Supabase: {e}")
