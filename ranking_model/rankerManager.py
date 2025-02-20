@@ -95,7 +95,8 @@ class RankerManager(Ranker):
                 'paper_ids': paper_ids,
                 'positive_paper_ids': pos_paper_ids,
                 'negative_paper_ids': neg_paper_ids,
-                'relevancies': {p.paper_id: p.relevancy for p in self.papers}  # Store relevancy scores
+                # Store relevancy scores: Keys must be strings in JSON not int8
+                'relevancies': {str(p.paper_id): p.relevancy for p in self.papers}
             }
             self.supabase_client.table('ranking_feedback').insert(data_to_store).execute()
             
@@ -202,7 +203,7 @@ class RankerManager(Ranker):
         paper_ids = hist_entry['paper_ids']
         pos_paper_ids = hist_entry['positive_paper_ids']
         neg_paper_ids = hist_entry['negative_paper_ids']
-        relevancies = hist_entry['relevancies']  # Fetch relevancy scores
+        relevancies = hist_entry['relevancies']  # Keys are strings of INT8 values
 
         # Fetch paper data from the paper table using the IDs
         papers = []
@@ -219,10 +220,10 @@ class RankerManager(Ranker):
                 
                 # Reconstruct paper object with minimal stored data + retrieved data
                 paper = Paper(
-                    paper_id=paper_data['paper_id'],
+                    paper_id=int(paper_data['id']),
                     openalex_id=paper_data['openalex_id'],
                     title=details['title'],
-                    relevancy=relevancies[paper_data['paper_id']],  # Use stored relevancy
+                    relevancy=relevancies[str(paper_data['id'])],  # Use string key to access relevancy
                     authors=authors,
                     doi=paper_data['doi'],
                     abstract=details['abstract'],
@@ -280,10 +281,21 @@ class RankerManager(Ranker):
             print(f"Model '{self.model_name}' not found in Supabase.")
             return False
 
-if __name__ == "__main__":    
+if __name__ == "__main__":   
+    from common.supabase_client import init_supabase
+    from dotenv import load_dotenv
+    from .test_ranker import papers
     ranker_classes = {
         'regression': RegressionRanker,
         'svm': OnlineRankSVMRanker,
     }
 
-    # ranker = RankerManager(supabase_client, model_name, ranker_classes)
+    supabase: Client = init_supabase()
+    # Load environment variables
+    load_dotenv(override=True)
+    ranker = RankerManager(supabase, "TEST_RANKER_MODEL", ranker_classes)
+    ranker.load_model()
+    ranked_papers = ranker.rank(papers)
+    ranker.save_model()
+    print(papers)
+    print(ranked_papers)
