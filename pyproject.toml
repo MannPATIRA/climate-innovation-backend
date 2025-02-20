@@ -47,10 +47,11 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
 
-# Add these new sections
 [tool.poetry]
 packages = [
-    { include = "background_process" }
+    { include = "background_process" },
+    { include = "backend_server" },
+    { include = "ranking_model" },
 ]
 
 [tool.pytest.ini_options]
