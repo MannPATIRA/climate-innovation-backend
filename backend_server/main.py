@@ -151,7 +151,7 @@ def build_paper_from_dict(data: dict) -> Paper:
 # query_processor = QueryProcessor()
 query_processor = MockQueryProcessor()
 
-ranker = RegressionRanker(0.000001)
+ranker = RegressionRanker(supabase, "regression_ranker", 0.000001)
 
 @app.get("/")
 async def home():
