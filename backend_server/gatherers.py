@@ -9,6 +9,52 @@ from ranking_model.grant import Grant
 import unicodedata
 from fuzzywuzzy import fuzz
 import re
+from scholarly import scholarly
+
+
+def normalize_name(name):
+    """Normalize names by removing accents, converting to lowercase, and stripping whitespace."""
+    name = unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore').decode('utf-8')
+    return name.lower().strip()
+
+
+def fuzzy_match(name1, name2, threshold=85):
+    """Perform fuzzy matching between two names with a given similarity threshold."""
+
+    # partial_ratio works better when there are initials, but we use token_sort_ratio since this function is only called
+    # when org_match is False, so we do not want to match on initials just in case, we match on the name
+    return fuzz.token_sort_ratio(name1, name2) >= threshold
+
+
+def is_name_match(name_variations, person_name, org_match):
+    # Normalise the name given by GtR
+    person_full_name = normalize_name(person_name)
+
+    # Go through all name variations provided by OpenAlex
+    for name in name_variations:
+
+        # Normalise this variation
+        norm_name = normalize_name(name)
+
+        # Split into parts of names
+        sub_var_names = re.split("[ .-]+", norm_name)
+        sub_full_name = re.split("[ .-]+", person_full_name)
+
+        # If the organisations match, we are going to check that any initial matches with the corresponding
+        # sub-name in the other name, e.g., between John K Smith and John Kennedy Smith, the K and Kennedy will
+        # match however John Calvin Smith will not match with John K Smith, we also match all the non-initial sub
+        # names
+        if org_match:
+            if all(n[0] == g[0] for n, g in zip(sub_var_names, sub_full_name) if len(n) == 1 or len(g) == 1) and \
+                    all(n[0] == g[0] for n, g in zip(sub_var_names, sub_full_name) if len(n) > 1 and len(g) > 1):
+                return True
+
+        # If the organisations do not match, we use fuzzywuzzy to see if the names match given a certain threshold
+        else:
+            if fuzzy_match(person_full_name, norm_name, 85):
+                return True
+
+    return False
 
 
 class InformationGatherer(ABC):
@@ -129,38 +175,6 @@ class GTRInformationGatherer(InformationGatherer):
     HEADERS = {"Accept": "application/json"}
 
     @staticmethod
-    def is_name_match(name_variations, person_first, person_last, org_match):
-
-        # Normalise the name given by GtR
-        person_full_name = normalize_name(f"{person_first} {person_last}")
-
-        # Go through all name variations provided by OpenAlex
-        for name in name_variations:
-
-            # Normalise this variation
-            norm_name = normalize_name(name)
-
-            # Split into parts of names
-            sub_var_names = re.split("[ .-]+", norm_name)
-            sub_full_name = re.split("[ .-]+", person_full_name)
-
-            # If the organisations match, we are going to check that any initial matches with the corresponding
-            # sub-name in the other name, e.g., between John K Smith and John Kennedy Smith, the K and Kennedy will
-            # match however John Calvin Smith will not match with John K Smith, we also match all the non-initial sub
-            # names
-            if org_match:
-                if all(n[0] == g[0] for n, g in zip(sub_var_names, sub_full_name) if len(n) == 1 or len(g) == 1) and \
-                        all(n[0] == g[0] for n, g in zip(sub_var_names, sub_full_name) if len(n) > 1 and len(g) > 1):
-                    return True
-
-            # If the organisations do not match, we use fuzzywuzzy to see if the names match given a certain threshold
-            else:
-                if fuzzy_match(person_full_name, norm_name, 85):
-                    return True
-
-        return False
-
-    @staticmethod
     def get_gtr_orgs_grants(orcid_id, name_variations, organisations):
         """Fetches grant information for an author using GTR API."""
 
@@ -189,8 +203,8 @@ class GTRInformationGatherer(InformationGatherer):
 
                     # Get whether organisation, name and ORCID matches
                     org_match = org_name in organisations
-                    name_match = GTRInformationGatherer.is_name_match(name_variations, person_first, person_last,
-                                                                      org_match)
+                    name_match = is_name_match(name_variations, f"{person_first} {person_last}",
+                                               org_match)
                     orcid_match = orcid_id and person_orcid and orcid_id in person_orcid
 
                     # If a suitable combination matches
@@ -321,20 +335,6 @@ class SemanticScholarInformationGatherer(InformationGatherer):
             return -1
 
 
-def normalize_name(name):
-    """Normalize names by removing accents, converting to lowercase, and stripping whitespace."""
-    name = unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore').decode('utf-8')
-    return name.lower().strip()
-
-
-def fuzzy_match(name1, name2, threshold=85):
-    """Perform fuzzy matching between two names with a given similarity threshold."""
-
-    # partial_ratio works better when there are initials, but we use token_sort_ratio since this function is only called
-    # when org_match is False, so we do not want to match on initials just in case, we match on the name
-    return fuzz.token_sort_ratio(name1, name2) >= threshold
-
-
 def authors_from_doi(doi):
     """
     Takes a DOI and retrieves a list of Author objects with additional metadata matching.
@@ -365,6 +365,8 @@ def authors_from_doi(doi):
         org_list = author_info.get("organisations", [])
         grants, org = GTRInformationGatherer.get_gtr_orgs_grants(orcid, author_info.get("all_names"), org_list)
 
+        more_info = GoogleScholarInformationGatherer.get_author_info(author_info.get("all_names"), org_list)
+
         # Get h-index using OpenAlex, if not available then use SemanticScholar to get it
         h_index = author_info.get("hIndex")
         if h_index == -1:
@@ -391,9 +393,54 @@ def authors_from_doi(doi):
 
     return author_objects
 
+###############################################
+##          TO BE USED LATER                 ##
+###############################################
+class GoogleScholarInformationGatherer(InformationGatherer):
+
+    @staticmethod
+    def get_author_info(name_variations, organisations):
+        """
+        Fetches author information from Google Scholar.
+        Tries to match both name and organisation.
+
+        So erm... these lot have SO MANY inconsistencies and holes in their data it basically never works rn, will
+        have to really work on this to get it to be useful
+        """
+        for name in name_variations:
+            search_query = scholarly.search_author(name)
+
+            for author in search_query:
+                scholar_name = author.get("name", "")
+                scholar_org = author.get("affiliation", "").strip().lower()
+
+                org_match = any(org.lower() in scholar_org for org in organisations)
+
+                if is_name_match(name_variations, scholar_name, org_match):
+                    detailed_author = scholarly.fill(author)
+
+                    return {
+                        "name": detailed_author.get("name"),
+                        "affiliations": detailed_author.get("affiliation", "Unknown"),
+                        "hIndex": detailed_author.get("hindex", -1),
+                        "i10Index": detailed_author.get("i10index", -1),
+                        "citations": detailed_author.get("citedby", 0),
+                        "coauthors": [coauthor["name"] for coauthor in detailed_author.get("coauthors", [])],
+                        "publications": [
+                            {
+                                "title": pub["bib"].get("title", "Unknown"),
+                                "citations": pub.get("num_citations", 0),
+                                "year": pub["bib"].get("pub_year", "Unknown"),
+                                "venue": pub["bib"].get("venue", "Unknown"),
+                            }
+                            for pub in detailed_author.get("publications", [])
+                        ],
+                    }
+
+        return {}
+
 
 if __name__ == "__main__":
-
     # Dan van der Horst, Saskia A F Vermeylen
     # y = authors_from_doi("https://doi.org/10.1016/j.biombioe.2010.11.029")
 
