@@ -1,7 +1,10 @@
 from typing import Dict, List, Type
 from collections import defaultdict
 import pickle
+import gzip
+import logging
 
+from backend_server.gatherers import OpenAlexInformationGatherer, authors_from_doi
 from .ranker import Ranker, RegressionRanker, OnlineRankSVMRanker
 from .author import Author
 from .paper import Paper
@@ -39,11 +42,14 @@ class RankerManager(Ranker):
         """
         Implements the rank method from Ranker interface.
         Returns a weighted ensemble ranking from all managed rankers.
+        Additionally:
+        - updates ranker weighting based on feedback
+        - stores the papers / feedback recieved from the last paper set to supabase
         """
         # update weights and store the old information
         if self.all_rankings is not None:
             self._update_rankers_weights()
-            self._store_ranking_data()
+            self._store_ranking_feedback()
         self.papers = papers
         self.all_rankings = {
             name: ranker.rank(papers.copy())
@@ -72,23 +78,26 @@ class RankerManager(Ranker):
         pos_positions = [next(i for i, p in enumerate(ranked_papers) if p == paper) for paper in positive_papers]
         neg_positions = [next(i for i, p in enumerate(ranked_papers) if p == paper) for paper in negative_papers]
         return sum(1 for pos in pos_positions for neg in neg_positions if pos > neg) / (len(pos_positions) * len(neg_positions))
-
-    def _store_ranking_data(self):
-        """Stores ranking data (papers, positive, negative) as a single entry in Supabase."""
+    
+    def _store_ranking_feedback(self):
+        """Stores ranking feedback (paper_ids, positive_paper_ids, negative_paper_ids) in Supabase."""
         try:
-            paper_data = [{'title': p.title, 'abstract': p.abstract, 'authors': p.authors} for p in self.papers]
-            pos_data = [{'title': p.title, 'abstract': p.abstract, 'authors': p.authors} for p in self.accepted_papers]
-            neg_data = [{'title': p.title, 'abstract': p.abstract, 'authors': p.authors} for p in self.rejected_papers]
+            # Extract paper_ids from the lists of papers
+            paper_ids = [p.paper_id for p in self.papers]
+            pos_paper_ids = [p.paper_id for p in self.accepted_papers]
+            neg_paper_ids = [p.paper_id for p in self.rejected_papers]
 
+            # Store paper IDs in ranking_feedback table
             data_to_store = {
-                'model_name': self.model_name,
-                'papers': paper_data,
-                'positive_papers': pos_data,
-                'negative_papers': neg_data,
+                'paper_ids': paper_ids,
+                'positive_paper_ids': pos_paper_ids,
+                'negative_paper_ids': neg_paper_ids,
+                'relevancies': {p.paper_id: p.relevancy for p in self.papers}  # Store relevancy scores
             }
-            self.supabase_client.table('ranking_data').insert(data_to_store).execute()
+            self.supabase_client.table('ranking_feedback').insert(data_to_store).execute()
+
         except Exception as e:
-            print(f"Error storing ranking data in Supabase: {e}")
+            print(f"Error storing ranking feedback in Supabase: {e}")
 
     def _update_rankers_weights(self, learning_rate=0.01):
         """
@@ -161,16 +170,75 @@ class RankerManager(Ranker):
 
     def save_model(self):
         """Saves the RankerManager's model state to Supabase."""
-        ranker_states = {
-            name: ranker.save_model()  # Delegate saving to individual rankers
-            for name, ranker in self.rankers.items()
-        }
-        model_state = {
-            'weights': self.weights,
-            'ranker_states': ranker_states
-        }
-        serialized_model = pickle.dumps(model_state)
-        self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': serialized_model}).execute()
+        try:
+            ranker_states = {
+                name: ranker.save_model()  # Delegate saving to individual rankers
+                for name, ranker in self.rankers.items()
+            }
+            model_state = {
+                'weights': self.weights,
+                'ranker_states': ranker_states
+            }
+            serialized_model = pickle.dumps(model_state)
+            compressed_model = gzip.compress(serialized_model) #Compress the data
+            self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': compressed_model}).execute()
+        except Exception as e:
+            logging.exception(f"Error saving model '{self.model_name}': {e}")
+
+    def _train_new_ranker(self, ranker: Ranker, hist_entry: Dict):
+        """
+        Trains the given ranker with historical data from a single ranking_feedback entry.
+        """
+        # Fetch paper IDs from the ranking_feedback table
+        paper_ids = hist_entry['paper_ids']
+        pos_paper_ids = hist_entry['positive_paper_ids']
+        neg_paper_ids = hist_entry['negative_paper_ids']
+        relevancies = hist_entry['relevancies']  # Fetch relevancy scores
+
+        # Fetch paper data from the paper table using the IDs
+        papers = []
+        for paper_id in paper_ids:
+            paper_response = self.supabase_client.table('papers').select('*').eq('id', paper_id).execute()
+            if paper_response.data:
+                paper_data = paper_response.data[0]
+                
+                # Get authors using DOI
+                authors = authors_from_doi(paper_data['doi'])
+                
+                # Get paper details from OpenAlex
+                details = OpenAlexInformationGatherer.get_details_from_paper_id(paper_data['openalex_id'])
+                
+                # Reconstruct paper object with minimal stored data + retrieved data
+                paper = Paper(
+                    paper_id=paper_data['paper_id'],
+                    openalex_id=paper_data['openalex_id'],
+                    title=details['title'],
+                    relevancy=relevancies[paper_data['paper_id']],  # Use stored relevancy
+                    authors=authors,
+                    doi=paper_data['doi'],
+                    abstract=details['abstract'],
+                    publication_date=details['publication_date']
+                )
+                papers.append(paper)
+            else:
+                print(f"Paper with ID {paper_id} not found.")
+                continue
+
+        # Reconstruct positive and negative papers
+        pos_papers = [p for p in papers if p.id in pos_paper_ids]
+        neg_papers = [p for p in papers if p.id in neg_paper_ids]
+
+        # Train the ranker with this historical data
+        ranker.rank(papers)  # This initializes internal state if needed
+        for paper in pos_papers:
+            ranker.accept_paper(paper)
+            for author in paper.authors:
+                ranker.accept_author(paper, author)
+
+        for paper in neg_papers:
+            ranker.delete_paper(paper)
+            for author in paper.authors:
+                ranker.delete_author(paper, author)
 
     def load_model(self):
         """Loads the RankerManager's model state from Supabase."""
@@ -187,26 +255,11 @@ class RankerManager(Ranker):
                         all_rankers_loaded = False
                         print(f"Failed to load ranker: {name}. Training with historical data...")
                         # Get historical ranking data
-                        hist_response = self.supabase.table('ranking_data').select('*').execute()
+                        hist_response = self.supabase.table('ranking_feedback').select('*').execute()
                         if hist_response.data:
                             for entry in hist_response.data:
-                                # Reconstruct papers and labels from stored data
-                                papers = [Paper(**p) for p in entry['papers']]
-                                pos_papers = [Paper(**p) for p in entry['positive_papers']]
-                                neg_papers = [Paper(**p) for p in entry['negative_papers']]
-                                
-                                # Train the ranker with this historical data
-                                ranker.rank(papers)  # This initializes internal state if needed
-                                for paper in pos_papers:
-                                    ranker.accept_paper(paper)
-                                    for author in paper.authors:
-                                        ranker.accept_author(paper, author)
-                                
-                                for paper in neg_papers:
-                                    ranker.delete_paper(paper)
-                                    for author in paper.authors:
-                                        ranker.delete_author(paper, author)
-                            
+                                self._train_new_ranker(ranker, entry)
+
                             print(f"Completed training {name} with historical data")
                         else:
                             print("No historical data found for training")
