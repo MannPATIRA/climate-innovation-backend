@@ -1,7 +1,7 @@
 import numpy as np
 
 class Author:
-    def __init__(self, name, citations, dob, organisation_history, orcid, hindex, grants, grant_org_name, website, openAlexid, works_count):
+    def __init__(self, name=None, citations=None, dob=None, organisation_history=None, orcid=None, hindex=None, grants=None, grant_org_name=None, website=None, openAlexid=None, works_count=None):
         """
         Represents an author.
         :param name: Author's name.

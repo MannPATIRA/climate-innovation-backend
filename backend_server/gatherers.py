@@ -53,6 +53,25 @@ class OpenAlexInformationGatherer(InformationGatherer):
             return [{'authorId': author['author']['id'], 'name': author['author']['display_name']} for author in
                     authors]
         return []
+    
+    @staticmethod
+    def get_top_authors_from_doi(doi):
+        work = Works().filter(doi=doi).get()
+        top_authors = []
+        if work:
+            authors = work[0].get('authorships', [])
+            for author in authors:
+                if author['author_position'] == 'first' or author['author_position'] == 'last' or author['is_corresponding']:
+                    top_authors.append({'authorId': author['author']['id'], 'name': author['author']['display_name']})
+        return top_authors
+
+    @staticmethod
+    def get_work_from_doi(doi):
+        return Works().filter(doi=doi).get()
+    
+    @staticmethod
+    def get_work_from_paper_id(id):
+        return Works()[id]
 
     @staticmethod
     def get_author_info(author_id):
@@ -68,6 +87,12 @@ class OpenAlexInformationGatherer(InformationGatherer):
                 "openAlex_id": author.get("id", "")
             }
         return {}
+
+    @staticmethod
+    def get_works_from_author_id(author_id):
+        works = Works().filter(**{"authorships.author.id": author_id}).get(per_page = 200)
+        return works if works else []
+
 
     @staticmethod
     def get_details_from_paper_id(paper_id):
@@ -316,7 +341,13 @@ def authors_from_doi(doi):
 
 
 if __name__ == "__main__":
-    authors_from_doi("https://doi.org/10.1016/j.biombioe.2010.11.029")
+    authors = OpenAlexInformationGatherer.get_authors_from_doi("https://doi.org/10.1016/j.biombioe.2010.11.029")
+    ids = [author["authorId"] for author in authors]
+    works = OpenAlexInformationGatherer.get_works_from_author_id(ids[0])
+    print(ids)
     # authors_from_doi("https://doi.org/10.48550/arXiv.2402.01928")
 
-    x = OpenAlexInformationGatherer.get_details_from_paper_id("https://openalex.org/W4400454085")
+    # x = OpenAlexInformationGatherer.get_details_from_paper_id("https://openalex.org/W4400454085")
+
+    # y = OpenAlexInformationGatherer.get_authors_from_doi()
+    
