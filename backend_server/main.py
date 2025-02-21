@@ -151,7 +151,7 @@ def build_paper_from_dict(data: dict) -> Paper:
 # query_processor = QueryProcessor()
 query_processor = MockQueryProcessor()
 
-ranker = RegressionRanker(supabase, "regression_ranker", 0.000001)
+# ranker = RegressionRanker(supabase, "regression_ranker", 0.000001)
 
 @app.get("/")
 async def home():
@@ -259,7 +259,8 @@ async def search_papers(query: PaperQuery):
                 authors=authors
             ))
 
-        return ranker.rank(paper_results)
+        return paper_results
+        # return ranker.rank(paper_results)
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -273,12 +274,13 @@ async def paper_feedback(feedback: PaperFeedback):
     """
     try:
         paper_obj = build_paper_from_dict(feedback.paper.model_dump())
-        if feedback.accepted:
-            ranker.accept_paper(paper_obj)
-            message = "Paper accepted. Model weights updated."
-        else:
-            ranker.delete_paper(paper_obj)
-            message = "Paper rejected. Model weights updated."
+        # if feedback.accepted:
+        #     ranker.accept_paper(paper_obj)
+        #     message = "Paper accepted. Model weights updated."
+        # else:
+        #     ranker.delete_paper(paper_obj)
+        #     message = "Paper rejected. Model weights updated."
+        message = "Paper ranking is disabled"
         return {"message": message}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -300,12 +302,13 @@ async def author_feedback(feedback: AuthorFeedback):
                 break
         if target_author is None:
             raise HTTPException(status_code=404, detail="Author not found in paper.")
-        if feedback.accepted:
-            ranker.accept_author(paper_obj, target_author)
-            message = "Author accepted. Model weights updated."
-        else:
-            ranker.delete_author(paper_obj, target_author)
-            message = "Author rejected. Model weights updated."
+        # if feedback.accepted:
+        #     ranker.accept_author(paper_obj, target_author)
+        #     message = "Author accepted. Model weights updated."
+        # else:
+        #     ranker.delete_author(paper_obj, target_author)
+        #     message = "Author rejected. Model weights updated."
+        message = "Author ranking is disabled"
         return {"message": message}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
