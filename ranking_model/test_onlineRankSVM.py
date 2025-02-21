@@ -1,6 +1,7 @@
-from author import Author
-from paper import Paper
-from ranker import OnlineRankSVMRanker
+from .author import Author
+from .paper import Paper
+from .ranker import OnlineRankSVMRanker
+from .test_ranker import mock_supabase_client, model_name
 
 def test_online_ranksvm():
     # Create test authors with various metrics
@@ -54,7 +55,7 @@ def test_online_ranksvm():
     )
 
     # Initialize the online ranker
-    ranker = OnlineRankSVMRanker(learning_rate=0.01)
+    ranker = OnlineRankSVMRanker(mock_supabase_client, model_name, learning_rate=0.01)
     papers = [paper1, paper2, paper3]
 
     # Test 1: Initial Ranking

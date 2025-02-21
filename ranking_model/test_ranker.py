@@ -1,6 +1,6 @@
-from author import Author
-from paper import Paper
-from ranker import RegressionRanker
+from .author import Author
+from .paper import Paper
+from .ranker import RegressionRanker
 
 authors1 = [
         Author(name="Alice", citations=150, dob="1975-06-15", hindex=20,
@@ -63,30 +63,41 @@ paper3 = Paper(
 papers = [paper1, paper2, paper3]
 
 # Instantiate the Ranker.
-ranker = RegressionRanker(learning_rate=0.01)
+class MockSupabaseClient:
+    def table(self, table_name):
+        return self
+    def upsert(self, data):
+        return self
+    def execute(self):
+        return None
 
-# Rank the papers (this will also rank the authors inside each paper).
-ranked_papers = ranker.rank(papers)
-print("\nRanked Papers and Authors:")
-for p in ranked_papers:
-    print(f"Paper: {p.title} (Score: {p.score:.3f})")
-    for a in p.authors:
-        print(f"   Author: {a.name} (Score: {a.score:.3f})")
+if __name__ == "__main__":
+    mock_supabase_client = MockSupabaseClient()
+    model_name = "test_model"
+    ranker = RegressionRanker(supabase_client=mock_supabase_client, model_name=model_name, learning_rate=0.01)
 
-# Simulate user feedback:
-# Suppose the user rejects author "Bob" from paper1.
-ranker.delete_author(paper1, authors1[1])  # Bob is authors1[1]
+    # Rank the papers (this will also rank the authors inside each paper).
+    ranked_papers = ranker.rank(papers)
+    print("\nRanked Papers and Authors:")
+    for p in ranked_papers:
+        print(f"Paper: {p.title} (Score: {p.score:.3f})")
+        for a in p.authors:
+            print(f"   Author: {a.name} (Score: {a.score:.3f})")
 
-# Suppose the user accepts author "Eve" from paper2.
-ranker.accept_author(paper2, authors2[1])  # Eve is authors2[1]
+    # Simulate user feedback:
+    # Suppose the user rejects author "Bob" from paper1.
+    ranker.delete_author(paper1, authors1[1])  # Bob is authors1[1]
 
-# Suppose the user rejects paper3.
-ranker.delete_paper(paper3)
+    # Suppose the user accepts author "Eve" from paper2.
+    ranker.accept_author(paper2, authors2[1])  # Eve is authors2[1]
 
-# Re-rank after the updates.
-ranked_papers = ranker.rank(papers)
-print("\nAfter Updates - Ranked Papers and Authors:")
-for p in ranked_papers:
-    print(f"Paper: {p.title} (Score: {p.score:.3f})")
-    for a in p.authors:
-        print(f"   Author: {a.name} (Score: {a.score:.3f})")
+    # Suppose the user rejects paper3.
+    ranker.delete_paper(paper3)
+
+    # Re-rank after the updates.
+    ranked_papers = ranker.rank(papers)
+    print("\nAfter Updates - Ranked Papers and Authors:")
+    for p in ranked_papers:
+        print(f"Paper: {p.title} (Score: {p.score:.3f})")
+        for a in p.authors:
+            print(f"   Author: {a.name} (Score: {a.score:.3f})")

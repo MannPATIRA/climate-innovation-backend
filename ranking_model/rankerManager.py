@@ -191,7 +191,11 @@ class RankerManager(Ranker):
             }
             serialized_model = pickle.dumps(model_state)
             compressed_model = gzip.compress(serialized_model) #Compress the data
-            self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': compressed_model}).execute()
+            response = self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': compressed_model}).execute()
+            if response.error:
+                logging.error(f"Error saving model '{self.model_name}': {response.error}")
+            else:
+                logging.info(f"Model '{self.model_name}' saved successfully.")
         except Exception as e:
             logging.exception(f"Error saving model '{self.model_name}': {e}")
 
