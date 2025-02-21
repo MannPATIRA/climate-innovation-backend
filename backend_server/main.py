@@ -333,9 +333,9 @@ async def create_author(author: AuthorCreate):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.patch("/api/crm/authors/{author_id}/note")
-async def update_author_note(author_id: int, note: str):
+async def update_author_note(author_id: int, note_update: AuthorUpdate):
     try:
-        result = supabase.table("author_crm").update({"note": note}).eq("id", author_id).execute()
+        result = supabase.table("author_crm").update({"note": note_update.note}).eq("id", author_id).execute()
         
         if not result.data:
             raise HTTPException(status_code=404, detail="Author not found")
@@ -345,9 +345,9 @@ async def update_author_note(author_id: int, note: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.patch("/api/crm/authors/{author_id}/state")
-async def update_author_state(author_id: int, state: AuthorState):
+async def update_author_state(author_id: int, state_update: AuthorUpdate):
     try:
-        result = supabase.table("author_crm").update({"state": state}).eq("id", author_id).execute()
+        result = supabase.table("author_crm").update({"state": state_update.state}).eq("id", author_id).execute()
         
         if not result.data:
             raise HTTPException(status_code=404, detail="Author not found")
