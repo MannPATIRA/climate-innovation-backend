@@ -4,10 +4,12 @@ from typing import List
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
 from supabase import Client
-import pickle
 import functools
-import gzip
 import logging
+import json
+import pickle
+import gzip
+import base64
 
 from .author import Author
 from .paper import Paper
@@ -44,7 +46,7 @@ class Ranker(ABC):
 
     @abstractmethod
     @save_model_before_rank
-    def rank(self, papers: List[Paper]) -> List[Paper]:
+    def rank_papers(self, papers: List[Paper]) -> List[Paper]:
         """
         Ranks a list of papers based on their authors' metrics and paper relevancy.
         Each implementation should define its own ranking algorithm.
@@ -52,6 +54,16 @@ class Ranker(ABC):
         (Auxilliary function to save the latest model before ranking)
 
         Returns a list of papers ranked by their overall score (highest first).
+        """
+        pass
+
+    @abstractmethod
+    def rank_authors(self, authors: List[Author]) -> List[Author]:
+        """ 
+        Ranks a list of authors based on their metrics.
+        Each implementation should define its own ranking algorithm.
+
+        Returns a list of authors ranked by their overall score (highest first).
         """
         pass
 
@@ -146,7 +158,7 @@ class RegressionRanker(Ranker):
         """Compute the sigmoid function."""
         return 1 / (1 + np.exp(-x))
 
-    def rank(self, papers: List[Paper]) -> List[Paper]:
+    def rank_papers(self, papers: List[Paper]) -> List[Paper]:
         """
         Rank each paper by computing:
           - Each author's score using the extended feature vector.
@@ -156,26 +168,31 @@ class RegressionRanker(Ranker):
         Returns a list of papers ranked by their overall score (highest first).
         """
         for paper in papers:
-            # Compute score for each author using the extended feature vector.
-            for author in paper.authors:
-                features = self.get_extended_feature_vector(author)
-                weights = np.array([
-                    self.author_weights['citations'],
-                    self.author_weights['hindex'],
-                    self.author_weights['total_grant_value'],
-                    self.author_weights['num_grants'],
-                    self.author_weights['works_count']
-                ])
-                raw_score = np.dot(features, weights)
-                author.score = self.sigmoid(raw_score)
-            # Sort authors within the paper (highest score first).
-            paper.authors.sort(key=lambda a: a.score, reverse=True)
+            paper.authors = self.rank_authors(paper.authors)
             # Compute paper relevancy contribution.
             paper_contrib = self.sigmoid(self.paper_weights['relevancy'] * paper.relevancy) # TODO: publication date too?
             # Overall paper score: relevancy contribution plus the sum of its authors' scores.
             paper.score = paper_contrib + sum(author.score for author in paper.authors)
         # Return papers sorted by overall score.
         return sorted(papers, key=lambda p: p.score, reverse=True)
+
+    def rank_authors(self, authors: List[Author]) -> List[Author]:
+        """
+        Ranks a list of authors based on their metrics using a weighted sum and sigmoid function.
+        Returns a list of authors ranked by their overall score (highest first).
+        """
+        for author in authors:
+            features = self.get_extended_feature_vector(author)
+            weights = np.array([
+                self.author_weights['citations'],
+                self.author_weights['hindex'],
+                self.author_weights['total_grant_value'],
+                self.author_weights['num_grants'],
+                self.author_weights['works_count']
+            ])
+            raw_score = np.dot(features, weights)
+            author.score = self.sigmoid(raw_score)
+        return sorted(authors, key=lambda a: a.score, reverse=True)
 
     def update_author_model(self, author: Author, label: int):
         """
@@ -251,18 +268,25 @@ class RegressionRanker(Ranker):
 
     def save_model(self):
         """
-        Saves the RegressionRanker's model state to Supabase.
+        Saves the RegressionRanker's model state to Supabase as JSON.
         """
         try:
             model_state = {
                 'author_weights': self.author_weights,
                 'paper_weights': self.paper_weights
             }
-            serialized_model = pickle.dumps(model_state)
-            compressed_model = gzip.compress(serialized_model)
-            self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': compressed_model}).execute()
+            # Serialize the model state to a JSON string
+            model_data_json = json.dumps(model_state)
+            response = self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
+            if response.error:
+                print(f"Error saving model '{self.model_name}': {response.error}")
+                logging.error(f"Error saving model '{self.model_name}': {response.error}")
+            else:
+                print(f"Model '{self.model_name}' saved successfully.")
+                logging.info(f"Model '{self.model_name}' saved successfully.")
         except Exception as e:
             logging.exception(f"Error saving model '{self.model_name}': {e}")
+            print(f"Error saving model '{self.model_name}': {e}")
 
     def load_model(self):
         """
@@ -270,8 +294,8 @@ class RegressionRanker(Ranker):
         """
         response = self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
         if response.data and response.data[0]:
-            serialized_model = response.data[0]['model_data']
-            model_state = pickle.loads(gzip.decompress(serialized_model))
+            model_data_json = response.data[0]['model_data'] # Load the JSON string
+            model_state = json.loads(model_data_json) # Deserialize the JSON string -> Python dictionary
             self.author_weights = model_state['author_weights']
             self.paper_weights = model_state['paper_weights']
             return True
@@ -338,7 +362,7 @@ class OnlineRankSVMRanker(Ranker):
         self.is_author_model_initialized = False
         self.is_paper_model_initialized = False
 
-    def rank(self, papers: List[Paper]) -> List[Paper]:
+    def rank_papers(self, papers: List[Paper]) -> List[Paper]:
         """
         Ranks a list of papers using the trained SGDClassifier models.
         Each author's score is computed, authors are sorted within papers,
@@ -347,25 +371,7 @@ class OnlineRankSVMRanker(Ranker):
         Returns a list of papers ranked by their overall score (highest first).
         """
         for paper in papers:
-            # Collect feature vectors for authors
-            author_features = [self.get_extended_feature_vector(author) for author in getattr(paper, 'authors', [])]
-            author_features = np.array(author_features)
-
-            # Scale features if model is initialized
-            if self.is_author_model_initialized and len(author_features) > 0:
-                author_features_scaled = self.author_scaler.transform(author_features)
-                # Compute scores using decision function
-                scores = self.author_model.decision_function(author_features_scaled)
-                for author, score in zip(paper.authors, scores):
-                    author.score = score
-            else:
-                # Default score if model not initialized
-                for author in getattr(paper, 'authors', []):
-                    author.score = 0.0
-
-            # Sort authors by score
-            paper.authors.sort(key=lambda a: getattr(a, 'score', 0.0), reverse=True)
-
+            paper.authors = self.rank_authors(paper.authors)
             # Compute paper score
             paper_feature = np.array([getattr(paper, 'relevancy', 0.0)]).reshape(1, -1)
             if self.is_paper_model_initialized:
@@ -379,6 +385,35 @@ class OnlineRankSVMRanker(Ranker):
 
         # Sort papers by overall score
         return sorted(papers, key=lambda p: getattr(p, 'score', 0.0), reverse=True)
+
+    def rank_authors_from_paper(self, paper: Paper) -> List[Author]:
+        return self.rank_authors(paper.authors)
+
+    def rank_authors(self, authors: List[Author]) -> List[Author]:
+        """
+        Ranks a list of authors using the trained SGDClassifier model.
+        Each author's score is computed based on the decision function of the model.
+
+        Returns a list of authors ranked by their overall score (highest first).
+        """
+        # Collect feature vectors for authors
+        author_features = [self.get_extended_feature_vector(author) for author in authors]
+        author_features = np.array(author_features)
+
+        # Scale features if model is initialized
+        if self.is_author_model_initialized and len(author_features) > 0:
+            author_features_scaled = self.author_scaler.transform(author_features)
+            # Compute scores using decision function
+            scores = self.author_model.decision_function(author_features_scaled)
+            for author, score in zip(authors, scores):
+                author.score = score
+        else:
+            # Default score if model not initialized
+            for author in authors:
+                author.score = 0.0
+
+        # Sort authors by score
+        return sorted(authors, key=lambda a: getattr(a, 'score', 0.0), reverse=True)
 
     def update_author_model(self, author, label: int):
         features = self.get_extended_feature_vector(author).reshape(1, -1)
@@ -438,11 +473,24 @@ class OnlineRankSVMRanker(Ranker):
                 'is_author_model_initialized': self.is_author_model_initialized,
                 'is_paper_model_initialized': self.is_paper_model_initialized
             }
+            # Serialize the model state using pickle
             serialized_model = pickle.dumps(model_state)
+            # Compress the serialized data using gzip
             compressed_model = gzip.compress(serialized_model)
-            self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': compressed_model}).execute()
+            # Encode the compressed data to a Base64 string
+            compressed_model_base64 = base64.b64encode(compressed_model).decode('utf-8')
+            # Store the Base64 string in JSON
+            model_data_json = json.dumps({'model_data': compressed_model_base64})
+            response = self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
+            if response.error:
+                print(f"Error saving model '{self.model_name}': {response.error}")
+                logging.error(f"Error saving model '{self.model_name}': {response.error}")
+            else:
+                print(f"Model '{self.model_name}' saved successfully.")
+                logging.info(f"Model '{self.model_name}' saved successfully.")
         except Exception as e:
             logging.exception(f"Error saving model '{self.model_name}': {e}")
+            print(f"Error saving model '{self.model_name}': {e}")
 
     def load_model(self):
         """
@@ -450,8 +498,17 @@ class OnlineRankSVMRanker(Ranker):
         """
         response = self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
         if response.data and response.data[0]:
-            serialized_model = response.data[0]['model_data']
-            model_state = pickle.loads(gzip.decompress(serialized_model))
+            # Load the JSON string from the database
+            model_data_json = response.data[0]['model_data']
+            # Extract the Base64 string from the JSON
+            compressed_model_base64 = json.loads(model_data_json)['model_data']
+            # Decode the Base64 string
+            compressed_model = base64.b64decode(compressed_model_base64)
+            # Decompress the data
+            serialized_model = gzip.decompress(compressed_model)
+            # Deserialize the model state using pickle
+            model_state = pickle.loads(serialized_model)
+
             self.author_model = model_state['author_model']
             self.paper_model = model_state['paper_model']
             self.author_scaler = model_state['author_scaler']
