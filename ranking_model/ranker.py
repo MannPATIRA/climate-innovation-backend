@@ -35,11 +35,11 @@ class Ranker(ABC):
         works_count = author.works_count
         return np.array([author.citations, author.hindex, total_grant_value, num_grants, works_count], dtype=float)
 
-    def save_model_before_rank(self, func):
+    def save_model_before_rank(func):
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(self, *args, **kwargs):
             self.save_model()
-            return func(*args, **kwargs)
+            return func(self, *args, **kwargs)
         return wrapper
 
     @abstractmethod
