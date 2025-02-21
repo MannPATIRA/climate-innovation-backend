@@ -98,7 +98,7 @@ class RankerManager(Ranker):
                 # Store relevancy scores: Keys must be strings in JSON not int8
                 'relevancies': {str(p.paper_id): p.relevancy for p in self.papers}
             }
-            self.supabase_client.table('ranking_feedback').insert(data_to_store).execute()
+            self.supabase.table('ranking_feedback').insert(data_to_store).execute()
             
             # Reset lists
             self.accepted_authors = []
@@ -115,6 +115,8 @@ class RankerManager(Ranker):
         Updates ranker weights based on feedback using gradient descent.
         Lower weights for rankers that contribute to higher loss.
         """
+        if (len(self.accepted_papers) + len(self.rejected_papers)) == 0:
+            return
         for ranker_name in self.weights:
             # Compute loss contribution from this ranker
             ranker_papers = self.all_rankings[ranker_name]
@@ -212,7 +214,7 @@ class RankerManager(Ranker):
         # Fetch paper data from the paper table using the IDs
         papers = []
         for paper_id in paper_ids:
-            paper_response = self.supabase_client.table('papers').select('*').eq('id', paper_id).execute()
+            paper_response = self.supabase.table('papers').select('*').eq('id', paper_id).execute()
             if paper_response.data:
                 paper_data = paper_response.data[0]
                 
