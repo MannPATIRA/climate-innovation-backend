@@ -1,4 +1,5 @@
 import os
+from re import L
 from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -62,6 +63,7 @@ class GraphQuery(BaseModel):
 
 class GraphNextQuery(BaseModel):
     authorid: str
+    precomputed: list[str] 
 
 class GraphPrecomputationQuery(BaseModel):
     authorids: list[str]
@@ -372,6 +374,7 @@ async def background_worker():
                 print("SENDING MESSAGE: ")
                 record["sent"] = True  # mark as sent so it isn’t broadcast repeatedly
         # Wait briefly before iterating again.
+        print(precomputation_store)
         await asyncio.sleep(2)
 
 @app.post('/api/graph/get_initial_connections')
@@ -394,6 +397,7 @@ async def get_inital_connections(data: GraphQuery):
                     "result": None
                 }
         # Return the immediate connections. Precomputations will be sent when they complete.
+        print(precomputation_store)
         return {'connections': authors, 'precomputations': {}}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -407,11 +411,19 @@ async def get_next_connections(gnq: GraphNextQuery):
     """
     try:
         authorid = gnq.authorid
+        precomputed = gnq.precomputed
         # If the author is in our store...
         if authorid in precomputation_store:
             record = precomputation_store[authorid]
             # If already computed, don't the result.
-            if record["computed"]:
+            if record["computed"] and precomputed != []:
+                for aid in precomputed:
+                    precomputation_store[aid] = {
+                    "paperid": global_paperid,
+                    "computed": False,
+                    "result": None
+                }
+                print(precomputation_store)
                 return 
             else:
                 # Otherwise, compute immediately (this prioritizes this author).
@@ -420,9 +432,11 @@ async def get_next_connections(gnq: GraphNextQuery):
                 )
                 precomputation_store[authorid]["result"] = result
                 precomputation_store[authorid]["computed"] = True
+                print(precomputation_store)
                 return {"result": result}
         else:
             # If not present, add it and compute immediately.
+
             result = await asyncio.get_event_loop().run_in_executor(
                 executor, compute_author_connections, authorid, global_paperid
             )
@@ -431,6 +445,7 @@ async def get_next_connections(gnq: GraphNextQuery):
                 "computed": True,
                 "result": result
             }
+            print(precomputation_store)
             return {"result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
