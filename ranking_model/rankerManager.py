@@ -4,7 +4,7 @@ import json
 import pickle
 import logging
 
-from backend_server.gatherers import OpenAlexInformationGatherer, authors_from_doi
+from backend_server.gatherers import OpenAlexInformationGatherer, authors_from_doi, build_author_object
 from .ranker import Ranker, RegressionRanker, OnlineRankSVMRanker
 from .author import Author
 from .paper import Paper
@@ -79,7 +79,7 @@ class RankerManager(Ranker):
         """
         # update weights and store the old information
         if self.all_rankings is not None:
-            print("Updating weights and storing feedback")
+            print("Updating paper model weights and storing feedback")
             self._update_paper_rankers_weights()
             self._store_ranking_papers_feedback()
         self.papers = papers
@@ -90,9 +90,10 @@ class RankerManager(Ranker):
         Implements the rank_authors method from Ranker interface.
         Returns a weighted ensemble ranking from all managed rankers.
         """
-        # if TODO is not None:
-        #     self._update_author_rankers_weights()
-        #     self._store_ranking_authors_feedback()
+        if self.all_rankings is not None:
+            print("Updating author model weights and storing feedback")
+            self._update_author_rankers_weights()
+            self._store_ranking_authors_feedback()
         self.authors = authors
         return self._ensemble_rank(authors, "rank_authors")
 
@@ -267,7 +268,7 @@ class RankerManager(Ranker):
         except Exception as e:
             print(f"Error saving model '{self.model_name}': {e}")
 
-    def _train_new_ranker(self, ranker: Ranker, hist_entry: Dict):
+    def _train_new_papers_ranker(self, ranker: Ranker, hist_entry: Dict):
         """
         Trains the given ranker with historical data from a single ranking_papers_feedback entry.
         """
@@ -324,6 +325,41 @@ class RankerManager(Ranker):
         print(f"Ranker {ranker.model_name} trained with historical data.")
         ranker.save_model()
 
+    def _train_new_authors_ranker(self, ranker: Ranker, hist_entry: Dict):
+        """
+        Trains the given ranker with historical author data from a single ranking_authors_feedback entry.
+        """
+        # Fetch author IDs from the ranking_authors_feedback table
+        author_ids = hist_entry['author_ids']
+        pos_author_ids = hist_entry['positive_author_ids']
+        neg_author_ids = hist_entry['negative_author_ids']
+        scores = hist_entry['scores'][0]  # Keys are strings of openAlexIDs
+
+        # Fetch author data and construct Author objects
+        authors = []
+        for author_id in author_ids:
+            author = build_author_object(author_id)
+            if author:
+                author.score = scores.get(str(author_id)) # setting the score from the historical data
+                authors.append(author)
+            else:
+                print(f"Author with ID {author_id} not found.")
+                continue
+
+        # Reconstruct positive and negative authors
+        pos_authors = [a for a in authors if a.openAlexid in pos_author_ids]
+        neg_authors = [a for a in authors if a.openAlexid in neg_author_ids]
+
+        # Train the ranker with this historical data
+        ranker.rank_authors(authors)  # This initializes internal state
+        for author in pos_authors:
+            ranker.accept_author(None, author) # no paper associated with the author
+
+        for author in neg_authors:
+            ranker.delete_author(None, author) # no paper associated with the author
+        print(f"Ranker {ranker.model_name} trained with historical author data.")
+        ranker.save_model()
+
     def load_model(self):
         """Loads the RankerManager's model state from Supabase."""
         response = self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
@@ -340,15 +376,27 @@ class RankerManager(Ranker):
                     if not ranker.load_model():
                         all_rankers_loaded = False
                         print(f"Failed to load ranker: {name}. Training with historical data...")
-                        # Get historical ranking data
-                        hist_response = self.supabase.table('ranking_papers_feedback').select('*').execute()
-                        if hist_response.data:
-                            for entry in hist_response.data:
-                                self._train_new_ranker(ranker, entry)
 
-                            print(f"Completed training {name} with historical data")
+                        # Get historical paper ranking data
+                        papers_hist_response = self.supabase.table('ranking_papers_feedback').select('*').execute()
+                        if papers_hist_response.data:
+                            print("Historical paper ranking data found")
+                            for entry in papers_hist_response.data:
+                                self._train_new_papers_ranker(ranker, entry)
+                            print(f"Completed training {name} with historical paper ranking data")
                         else:
-                            print("No historical data found for training")
+                            print("No historical paper ranking data found.")
+
+                        # Get historical author ranking data
+                        authors_hist_response = self.supabase.table('ranking_authors_feedback').select('*').execute()
+                        if authors_hist_response.data:
+                            print("Historical author ranking data found")
+                            for entry in authors_hist_response.data:
+                                self._train_new_authors_ranker(ranker, entry)
+                            print(f"Completed training {name} with historical author ranking data")
+                        else:
+                            print("No historical author ranking data found.")
+
                 return all_rankers_loaded
             except (pickle.UnpicklingError, KeyError, json.JSONDecodeError) as e:
                 print(f"Error loading model '{self.model_name}': {e}")
