@@ -349,13 +349,16 @@ def authors_from_doi(doi):
         author_name = normalize_name(author["name"])
 
         # Get author info from OpenAlex
-        author_info = OpenAlexInformationGatherer.get_author_info(author["authorId"])
-        author_obj = build_author_object(author_info)
+        author_obj = build_author_object(author["authorId"])
         author_objects.append(author_obj)
 
     return author_objects
 
-def build_author_object(author_info):
+def build_author_object(author_id):
+    """
+    Given an openalex author id, it builds an Author object by gathering information using various gatherers.
+    """
+    author_info = OpenAlexInformationGatherer.get_author_info(author_id)
     author_name = author_info.get("name")
     if author_name is None:
         raise Exception("Author name is None")
