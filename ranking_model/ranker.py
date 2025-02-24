@@ -37,11 +37,14 @@ class Ranker(ABC):
         works_count = author.works_count
         return np.array([author.citations, author.hindex, total_grant_value, num_grants, works_count], dtype=float)
 
+    @staticmethod
     def save_model_before_rank(func):
         @functools.wraps(func)
-        def wrapper(self, *args, **kwargs):
-            self.save_model()
-            return func(self, *args, **kwargs)
+        def wrapper(*args, **kwargs):
+            # Since this is now a static method, we need to get the instance from args[0]
+            instance = args[0]
+            instance.save_model()
+            return func(*args, **kwargs)
         return wrapper
 
     @abstractmethod
@@ -51,7 +54,7 @@ class Ranker(ABC):
         Ranks a list of papers based on their authors' metrics and paper relevancy.
         Each implementation should define its own ranking algorithm.
         
-        (Auxilliary function to save the latest model before ranking)
+        (Auxiliary function to save the latest model before ranking)
 
         Returns a list of papers ranked by their overall score (highest first).
         """
