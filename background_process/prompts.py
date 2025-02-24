@@ -1,4 +1,6 @@
 from langchain.prompts import ChatPromptTemplate
+from typing import Literal, List
+from pydantic import BaseModel, Field
 
 CLIMATE_RELEVANCE_PROMPT = ChatPromptTemplate.from_messages([
     ("system", """
@@ -29,4 +31,15 @@ class TopicAssessment(BaseModel):
 
     is_climate_relevant: bool = Field(
         description="Whether this topic has direct relevance to climate solutions"
+    )
+
+SEARCH_QUERY_SYSTEM_PROMPT = """You are a search query generator. Generate specific search queries 
+related to climate change and environmental policy documents. Return only the most relevant 
+and focused queries. Don't include search operators like site: or filetype: in the queries.
+Just focus on the main search terms and the most relevant keywords. Your list should contain atleast 10 queries."""
+
+class SearchQueries(BaseModel):
+    """Structure for search query generation output"""
+    queries: List[str] = Field(
+        description="List of specific search queries to find climate change documents"
     )
