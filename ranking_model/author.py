@@ -1,5 +1,3 @@
-import numpy as np
-
 class Author:
     def __init__(self, name, citations, dob, organisation_history, orcid, hindex, grants, grant_org_name, website, openAlexid, works_count):
         """
@@ -21,10 +19,6 @@ class Author:
         self.grants = grants if grants else []
         self.orcid = orcid
         self.grant_org_name = grant_org_name
-
-    def get_feature_vector(self):
-        """Return a numpy array of features used for ranking (order: citations, hindex)."""
-        return np.array([self.citations, self.hindex], dtype=float)
 
     def __repr__(self):
         return f"Author(name={self.name}, score={self.score:.3f})" if self.score is not None else f"Author(name={self.name})"
