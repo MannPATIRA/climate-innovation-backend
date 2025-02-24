@@ -280,13 +280,18 @@ class RegressionRanker(Ranker):
             }
             # Serialize the model state to a JSON string
             model_data_json = json.dumps(model_state)
-            response = self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
-            if response.error:
-                print(f"Error saving model '{self.model_name}': {response.error}")
-                logging.error(f"Error saving model '{self.model_name}': {response.error}")
+            # the ranker manager uses update/insert, so we will too
+            response = self.supabase.table('ranker_models').update({'model_data': model_data_json}).eq('model_name', self.model_name).execute()
+            
+            # If no rows were updated, it means the model doesn't exist, so insert it
+            if not response.data:
+                response = self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
+                if response.data and response.data[0]:
+                    print(f"Model '{self.model_name}' saved successfully.")
+                else:
+                    print(f"Error saving model '{self.model_name}': {response.status_code} - {response.text}")
             else:
-                print(f"Model '{self.model_name}' saved successfully.")
-                logging.info(f"Model '{self.model_name}' saved successfully.")
+                print(f"Model '{self.model_name}' updated successfully.")
         except Exception as e:
             logging.exception(f"Error saving model '{self.model_name}': {e}")
             print(f"Error saving model '{self.model_name}': {e}")
@@ -484,13 +489,18 @@ class OnlineRankSVMRanker(Ranker):
             compressed_model_base64 = base64.b64encode(compressed_model).decode('utf-8')
             # Store the Base64 string in JSON
             model_data_json = json.dumps({'model_data': compressed_model_base64})
-            response = self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
-            if response.error:
-                print(f"Error saving model '{self.model_name}': {response.error}")
-                logging.error(f"Error saving model '{self.model_name}': {response.error}")
+            # the ranker manager uses update/insert, so we will too
+            response = self.supabase.table('ranker_models').update({'model_data': model_data_json}).eq('model_name', self.model_name).execute()
+            
+            # If no rows were updated, it means the model doesn't exist, so insert it
+            if not response.data:
+                response = self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
+                if response.data and response.data[0]:
+                    print(f"Model '{self.model_name}' saved successfully.")
+                else:
+                    print(f"Error saving model '{self.model_name}': {response.status_code} - {response.text}")
             else:
-                print(f"Model '{self.model_name}' saved successfully.")
-                logging.info(f"Model '{self.model_name}' saved successfully.")
+                print(f"Model '{self.model_name}' updated successfully.")
         except Exception as e:
             logging.exception(f"Error saving model '{self.model_name}': {e}")
             print(f"Error saving model '{self.model_name}': {e}")

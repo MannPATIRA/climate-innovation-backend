@@ -48,13 +48,13 @@ class RankerManager(Ranker):
         Returns:
             List of items ranked by their overall score (highest first).
         """
-        all_rankings = {
+        self.all_rankings = {
             name: getattr(ranker, ranker_method)(items.copy())
             for name, ranker in self.rankers.items()
         }
         item_scores = defaultdict(float)
         for item in items:
-            for ranker_name, ranked_items in all_rankings.items():
+            for ranker_name, ranked_items in self.all_rankings.items():
                 # Find item's position in this ranker's list
                 position = next(i for i, ranked_item in enumerate(ranked_items) if ranked_item == item)
                 # Convert position to score (higher score for better position)
@@ -417,13 +417,16 @@ if __name__ == "__main__":
     supabase: Client = init_supabase()
     # Load environment variables
     load_dotenv(override=True)
-    ranker = RankerManager(supabase, "TEST_RANKER_MODEL", ranker_classes)
+    ranker = RankerManager(supabase, "TEST_RANKER_MODEL1", ranker_classes)
     ranker.load_model()
     ranked_papers = ranker.rank_papers(papers)
     ranker.delete_paper(papers[0])
     ranker.accept_paper(papers[1])
+    ranker.accept_author(papers[0], papers[0].authors[0])
+    ranker.delete_author(papers[0], papers[0].authors[-1])
     ranked_papers = ranker.rank_papers(papers)
-    ranked_papers = ranker.save_model(papers)
+    ranker.save_model()
+    ranker.load_model()
     print("\n\n")
     print(papers)
     print("\n\nRANKED:")

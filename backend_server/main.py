@@ -4,9 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema.output_parser import StrOutputParser
-from langchain_openai import ChatOpenAI
 from fastapi.responses import StreamingResponse
 from common.pinecone_store import PineconeStore
 from ranking_model.paper import Paper
@@ -15,10 +12,10 @@ from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
 from .gatherers import OpenAlexInformationGatherer, authors_from_doi
-from ranking_model.ranker import RegressionRanker
 from ranking_model.author import Author
 from ranking_model.grant import Grant
 from enum import Enum
+from ranking_model.ranker_manager import RankerManager
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -153,7 +150,7 @@ def build_paper_from_dict(data: dict) -> Paper:
 # query_processor = QueryProcessor()
 query_processor = QueryProcessor()
 
-ranker = RegressionRanker(supabase, "regression_ranker", 0.000001)
+ranker = RankerManager(supabase, "main_ranker_manager", 0.01)
 
 
 @app.get("/")
@@ -276,13 +273,13 @@ async def paper_feedback(feedback: PaperFeedback):
     """
     try:
         paper_obj = build_paper_from_dict(feedback.paper.model_dump())
-        # if feedback.accepted:
-        #     ranker.accept_paper(paper_obj)
-        #     message = "Paper accepted. Model weights updated."
-        # else:
-        #     ranker.delete_paper(paper_obj)
-        #     message = "Paper rejected. Model weights updated."
-        message = "Paper ranking is disabled"
+        if feedback.accepted:
+            ranker.accept_paper(paper_obj)
+            message = "Paper accepted. Model weights updated."
+        else:
+            ranker.delete_paper(paper_obj)
+            message = "Paper rejected. Model weights updated."
+        # message = "Paper ranking is disabled"
         return {"message": message}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -304,13 +301,13 @@ async def author_feedback(feedback: AuthorFeedback):
                 break
         if target_author is None:
             raise HTTPException(status_code=404, detail="Author not found in paper.")
-        # if feedback.accepted:
-        #     ranker.accept_author(paper_obj, target_author)
-        #     message = "Author accepted. Model weights updated."
-        # else:
-        #     ranker.delete_author(paper_obj, target_author)
-        #     message = "Author rejected. Model weights updated."
-        message = "Author ranking is disabled"
+        if feedback.accepted:
+            ranker.accept_author(paper_obj, target_author)
+            message = "Author accepted. Model weights updated."
+        else:
+            ranker.delete_author(paper_obj, target_author)
+            message = "Author rejected. Model weights updated."
+        # message = "Author ranking is disabled"
         return {"message": message}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
