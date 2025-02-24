@@ -108,6 +108,8 @@ class AuthorUpdate(BaseModel):
     note: Optional[str] = None
     state: Optional[AuthorState] = None
 
+
+
 def build_author_from_dict(data: dict) -> Author:
     grants = []
     for grant in data.get("grants", []):
@@ -149,9 +151,10 @@ def build_paper_from_dict(data: dict) -> Paper:
 
 # Initialize the query processor
 # query_processor = QueryProcessor()
-query_processor = MockQueryProcessor()
+query_processor = QueryProcessor()
 
-# ranker = RegressionRanker(supabase, "regression_ranker", 0.000001)
+ranker = RegressionRanker(supabase, "regression_ranker", 0.000001)
+
 
 @app.get("/")
 async def home():
@@ -259,8 +262,7 @@ async def search_papers(query: PaperQuery):
                 authors=authors
             ))
 
-        return paper_results
-        # return ranker.rank(paper_results)
+        return ranker.rank(paper_results)
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -376,6 +378,38 @@ async def get_author(author_id: int):
             raise HTTPException(status_code=404, detail="Author not found")
             
         return result.data[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/crm/authors/{author_id}")
+async def delete_author(author_id: int):
+    try:
+        result = supabase.table("author_crm").delete().eq("id", author_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Author not found")
+            
+        return {"message": "Author deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/chats")
+async def get_all_chats():
+    try:
+        result = chat_repository.get_all_chats()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/chats/{chat_id}/messages")
+async def get_chat_messages(chat_id: str):
+    try:
+        result = chat_repository.get_chat_history(chat_id)
+        if not result:
+            raise HTTPException(status_code=404, detail=f"No messages found for chat {chat_id}")
+        return result
+    except ChatNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

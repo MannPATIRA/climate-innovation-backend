@@ -54,4 +54,12 @@ class ChatRepository:
         return self.supabase.table("chats")\
             .update({"message_count": count})\
             .eq("id", chat_id)\
-            .execute() 
+            .execute()
+
+    def get_all_chats(self):
+        result = self.supabase.table("chats")\
+            .select("*")\
+            .order("created_at", desc=True)\
+            .execute()
+        
+        return result.data 
