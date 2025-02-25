@@ -10,10 +10,12 @@ from .base import Fetcher
 from pydantic import BaseModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from ..prompts import SEARCH_QUERY_SYSTEM_PROMPT, SearchQueries
+from ..prompts import SEARCH_QUERY_SYSTEM_PROMPT, SearchQueries, REPORT_ASSESSMENT_SYSTEM_PROMPT, REPORT_ASSESSMENT_HUMAN_PROMPT, ReportAssessment
 from common.pinecone_store import PineconeStore
 from collections import deque
 from dataclasses import dataclass
+import PyPDF2
+from background_process.utils.process_log_manager import ProcessLogManager, ProcessingTask
 
 
 class ReportFetcher(Fetcher, ABC):
@@ -61,7 +63,7 @@ class URLNode:
     parent_url: Optional[str] = None
 
 class WebScrapingReportFetcher(ReportFetcher):
-    def __init__(self, llm_model: str = "gpt-4o-mini", max_depth: int = 2, use_cache: bool = True):
+    def __init__(self, process_log_manager: ProcessLogManager, llm_model: str = "gpt-4o-mini", max_depth: int = 1, use_cache: bool = True):
         self.search_operators = [
             "site:gov.uk",
             "site:theccc.org.uk",
@@ -86,6 +88,18 @@ class WebScrapingReportFetcher(ReportFetcher):
         print(self.search_engine_id)
         self.search_url = 'https://www.googleapis.com/customsearch/v1'
 
+        self.report_assessment_prompt = ChatPromptTemplate.from_messages([
+            ("system", REPORT_ASSESSMENT_SYSTEM_PROMPT),
+            ("human", REPORT_ASSESSMENT_HUMAN_PROMPT)
+        ])
+        
+        # Initialize process logging
+        self.process_log_manager = process_log_manager
+        self.task_id = self.process_log_manager.create_task(ProcessingTask.REPORT_FETCHING.value)
+        
+        # Get already processed URLs
+        self.processed_urls = set(self.process_log_manager.get_all_processed_references(self.task_id))
+
     def is_pdf_link(self, url: str) -> bool:
         """Check if URL points to a PDF file"""
         return url.lower().endswith('.pdf')
@@ -103,7 +117,7 @@ class WebScrapingReportFetcher(ReportFetcher):
             print(f"Error downloading PDF {url}: {e}")
         return None
     
-    def get_pdf_links(self, url: str, visited: Set[str]) -> List[str]:
+    def get_pdf_links(self, url: str) -> List[str]:
         """Extract all links (both PDF and non-PDF) from webpage"""
         links = []
         try:
@@ -205,9 +219,44 @@ class WebScrapingReportFetcher(ReportFetcher):
             print(f"Error in Google Search API: {e}")
             return []
 
+    def extract_text_from_pdf(self, pdf_path: str, max_chars: int = 4000) -> str:
+        """Extract the first N characters from a PDF file"""
+        try:
+            text = ""
+            with open(pdf_path, 'rb') as file:
+                reader = PyPDF2.PdfReader(file)
+                for page in reader.pages:
+                    text += page.extract_text()
+                    if len(text) >= max_chars:
+                        break
+            return text[:max_chars]
+        except Exception as e:
+            print(f"Error extracting text from PDF {pdf_path}: {e}")
+            return ""
+    
+    def assess_report_relevance(self, pdf_path: str) -> ReportAssessment:
+        """Assess if the report is about deep tech climate issues"""
+        text = self.extract_text_from_pdf(pdf_path)
+        if not text:
+            return ReportAssessment(analysis="Could not extract text from PDF", result=False)
+        
+        model_with_structure = self.llm.with_structured_output(ReportAssessment)
+        assessment = model_with_structure.invoke(
+            self.report_assessment_prompt.format(text=text)
+        )
+        return assessment
+
+    def is_url_already_processed(self, url: str) -> bool:
+        """Check if URL has already been processed"""
+        return url in self.processed_urls or self.process_log_manager.is_already_processed(self.task_id, url)
+    
+    def mark_url_as_processed(self, url: str):
+        """Mark URL as processed in the database"""
+        self.process_log_manager.log_progress(self.task_id, url)
+        self.processed_urls.add(url)
+
     def fetch(self) -> Generator[str, None, None]:
         """Fetch PDFs using BFS with configurable depth"""
-        visited_urls = set()
         queries = self.generate_search_queries("Generate the climate change reports search queries")
         
         for query in queries[:2]:
@@ -215,7 +264,7 @@ class WebScrapingReportFetcher(ReportFetcher):
                 # Get initial search results using Google Custom Search API
                 search_results = self.get_search_results(query)
                 
-                # Initialize BFS queue with search results
+                # Initialize BFS queue with search results, filtering already processed URLs
                 queue = deque(
                     URLNode(url=url, depth=0) 
                     for url in search_results
@@ -225,30 +274,39 @@ class WebScrapingReportFetcher(ReportFetcher):
                 while queue:
                     node = queue.popleft()
                     
-                    # Skip if URL already visited or depth exceeded
-                    if node.url in visited_urls or node.depth > self.max_depth:
+                    # Skip if URL already processed, or depth exceeded
+                    if (self.is_url_already_processed(node.url) or 
+                        node.depth > self.max_depth):
                         continue
                         
-                    visited_urls.add(node.url)
                     print(f"Processing URL (depth {node.depth}): {node.url}")
                     
                     try:
                         # Handle PDF URLs
                         if self.is_pdf_link(node.url):
                             pdf_path = self.download_pdf(node.url)
+                            
                             if pdf_path:
-                                yield pdf_path
+                                # Assess if the report is about deep tech climate issues
+                                assessment = self.assess_report_relevance(pdf_path)
+                                print(f"Assessment for {node.url}: {assessment.result}")
+                                print(f"Analysis: {assessment.analysis}")
+                                
+                                # Only yield PDFs that are about deep tech climate issues
+                                if assessment.result:
+                                    yield pdf_path
                         # Handle web pages
                         else:
                             # Get all links from the page
-                            for link in self.get_pdf_links(node.url, visited_urls):
-                                # Add unvisited links to queue with incremented depth
-                                if link not in visited_urls:
-                                    queue.append(URLNode(
-                                        url=link,
-                                        depth=node.depth + 1,
-                                        parent_url=node.url
-                                    ))
+                            for link in self.get_pdf_links(node.url):
+                                # Add unvisited and unprocessed links to queue with incremented depth
+                                queue.append(URLNode(
+                                    url=link,
+                                    depth=node.depth + 1,
+                                    parent_url=node.url
+                                ))
+                        # Mark URL as processed after downloading it
+                        self.mark_url_as_processed(node.url)
                                     
                     except Exception as e:
                         print(f"Error processing URL {node.url}: {e}")

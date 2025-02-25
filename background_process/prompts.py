@@ -43,3 +43,25 @@ class SearchQueries(BaseModel):
     queries: List[str] = Field(
         description="List of specific search queries to find climate change documents"
     )
+
+REPORT_ASSESSMENT_SYSTEM_PROMPT = """You are an expert in climate technology. 
+Your task is to determine if a document is specifically about technical climate issues.
+Deep tech climate issues involve innovative technological solutions that address climate change
+through scientific breakthroughs, novel engineering approaches, or cutting-edge research.
+Examples include: advanced carbon capture, fusion energy, next-gen batteries, innovative materials science,
+breakthrough renewable technologies, etc."""
+
+REPORT_ASSESSMENT_HUMAN_PROMPT = """Analyze the following text from a report and determine if it's about deep tech climate issues:
+
+{text}
+
+Provide a brief analysis explaining your decision."""
+
+class ReportAssessment(BaseModel):
+    """Assessment of whether a report is about deep tech climate issues"""
+    analysis: str = Field(
+        description="Explanation of why this report is or isn't about deep tech climate issues"
+    )
+    result: bool = Field(
+        description="Whether this report is about deep tech climate issues"
+    )

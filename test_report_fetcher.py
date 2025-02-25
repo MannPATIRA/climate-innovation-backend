@@ -1,12 +1,19 @@
 from background_process.fetchers.report_fetcher import WebScrapingReportFetcher
+from background_process.utils.process_log_manager import ProcessLogManager
+from supabase import create_client
 from dotenv import load_dotenv
+import os
 
 def test_first_pdf():
     load_dotenv(override=True)
     """Test WebScrapingReportFetcher by getting first PDF"""
     
     print("\nInitializing WebScrapingReportFetcher...")
-    fetcher = WebScrapingReportFetcher(llm_model="gpt-4o-mini", max_depth=2, use_cache=False)
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_KEY")
+    supabase = create_client(supabase_url, supabase_key)
+    process_log_manager = ProcessLogManager(supabase)
+    fetcher = WebScrapingReportFetcher(process_log_manager, llm_model="gpt-4o-mini", max_depth=1, use_cache=False)
     
     print("\nStarting fetch process...")
     try:
