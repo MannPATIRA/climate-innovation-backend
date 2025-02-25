@@ -82,6 +82,9 @@ class RankerManager(Ranker):
             print("Updating paper model weights and storing feedback")
             self._update_paper_rankers_weights()
             self._store_ranking_papers_feedback()
+            print("Updating author model weights and storing feedback")
+            self._update_author_rankers_weights()
+            self._store_ranking_authors_feedback()
         self.papers = papers
         return self._ensemble_rank(papers, "rank_papers")
     
