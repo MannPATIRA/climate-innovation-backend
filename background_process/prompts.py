@@ -65,3 +65,16 @@ class ReportAssessment(BaseModel):
     result: bool = Field(
         description="Whether this report is about deep tech climate issues"
     )
+
+SUMMARY_GENERATION_PROMPT = """You are an expert summarizer of climate-related documents.
+Your task is to create a concise, informative summary of the provided document.
+Focus on the key findings, recommendations, and technical details that would be most relevant
+for climate researchers and policymakers.
+Maintain scientific accuracy while making the content accessible.
+"""
+
+class DocumentSummary(BaseModel):
+    """Structure for document summary generation output"""
+    summary: str = Field(
+        description="Concise summary of the climate document that captures key points and findings"
+    )
