@@ -1,18 +1,26 @@
 from abc import ABC, abstractmethod
 from supabase import Client
 from common.pinecone_store import PineconeStore
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, AsyncIterator
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import hashlib
 from .base import Processor, ProcessingTask
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from ..prompts import SUMMARY_GENERATION_PROMPT, DocumentSummary
+import asyncio
+from langgraph.graph import StateGraph, START
+from typing_extensions import TypedDict, Annotated
+import operator
 
+# Define the state for our LangGraph
+class SummaryState(TypedDict):
+    chunks: List[str]
+    summaries: Annotated[List[str], operator.add]
 
 class Summarizer(ABC):
     @abstractmethod
-    def generate_summary(self, text: str) -> str:
+    async def generate_summary(self, text: str) -> str:
         """Generates a summary for the given text."""
         pass
 
@@ -30,10 +38,11 @@ class LLMSummarizer(Summarizer):
         ])
         self.model_with_structure = self.llm.with_structured_output(DocumentSummary)
     
-    def generate_summary(self, text: str) -> str:
-        """Generates a summary for the given text using an LLM."""
+
+    async def generate_summary(self, text: str) -> str:
+        """Asynchronously generates a summary for the given text using an LLM."""
         try:
-            result = self.model_with_structure.invoke(
+            result = await self.model_with_structure.ainvoke(
                 self.prompt.format(text=text)
             )
             return result.summary
@@ -50,6 +59,25 @@ class SummaryProcessor(Processor):
             chunk_size=chunk_size,
             chunk_overlap=0  # No overlap as requested
         )
+        # Create the LangGraph for summarization
+        self.summary_graph = self._create_summary_graph()
+
+    def _create_summary_graph(self) -> StateGraph:
+        """Create a LangGraph for summarizing chunks in parallel."""
+        
+        # Define the summarization node
+        async def summarize_chunks(state: SummaryState):
+            # Process all chunks in parallel
+            tasks = [self.summarizer.generate_summary(chunk) for chunk in state["chunks"]]
+            summaries = await asyncio.gather(*tasks)
+            return {"summaries": summaries}
+        
+        # Build the graph
+        builder = StateGraph(SummaryState)
+        builder.add_node("summarize", summarize_chunks)
+        builder.add_edge(START, "summarize")
+        
+        return builder.compile()
 
     def get_report_by_id(self, report_id: int) -> Dict[str, Any]:
         """Get report from Supabase DB by ID"""
@@ -126,9 +154,9 @@ class SummaryProcessor(Processor):
         chunks = self.text_splitter.split_text(report_content)
         print(f"Split report into {len(chunks)} chunks")
         
-        # Process each chunk
-        summaries = []
-        summary_records = []
+        # Filter out chunks that already have summaries
+        chunks_to_process = []
+        chunk_indices = []
         
         for i, chunk in enumerate(chunks):
             # Generate hash for this chunk
@@ -138,29 +166,48 @@ class SummaryProcessor(Processor):
             existing_summary = self.get_summary(chunk_hash)
             
             if not existing_summary:
-                # Generate summary for this chunk
-                summary = self.summarizer.generate_summary(chunk)
+                chunks_to_process.append(chunk)
+                chunk_indices.append(i)
+            else:
+                print(f"Summary for chunk {i} of report {report_id} already exists.")
+        
+        # If there are chunks to process, use LangGraph to generate summaries in parallel
+        summaries = []
+        summary_records = []
+        
+        if chunks_to_process:
+            # Run the graph to generate summaries
+            result = self.summary_graph.invoke({
+                "chunks": chunks_to_process,
+                "summaries": []
+            })
+            
+            # Get the summaries from the result
+            generated_summaries = result["summaries"]
+            
+            # Add summaries to database and prepare for vector DB
+            for i, (chunk, summary, original_index) in enumerate(zip(chunks_to_process, generated_summaries, chunk_indices)):
+                chunk_hash = self.generate_content_hash(chunk)
                 
                 # Add to database
                 summary_record = self.add_summary_to_db(
                     original_text=chunk,
                     summary=summary,
                     report_id=report_id,
-                    chunk_index=i,
+                    chunk_index=original_index,
                     content_hash=chunk_hash
                 )
                 
                 summaries.append(summary)
                 summary_records.append(summary_record)
-            else:
-                print(f"Summary for chunk {i} of report {report_id} already exists.")
         
-        # Add all summaries to vector database
-        metadata_base = {
-            "report_id": report_id,
-            "report_title": report_title,
-        }
-        
-        self.chunk_and_embed(summaries, chunks, metadata_base)
+        # Add all summaries to vector database if we have any new ones
+        if summaries:
+            metadata_base = {
+                "report_id": report_id,
+                "report_title": report_title,
+            }
+            
+            self.chunk_and_embed(summaries, chunks_to_process, metadata_base)
         
         return summaries, summary_records
