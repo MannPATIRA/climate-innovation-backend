@@ -89,6 +89,11 @@ class SummaryProcessor(Processor):
             raise Exception(f"Report with ID {report_id} not found")
         return response.data[0]
 
+    def add_summaries_to_db(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Add multiple summaries to Supabase DB in a single batch operation"""
+        response = self.supabase.table('summaries').insert(items).execute()
+        return response.data
+    
     def add_summary_to_db(self, original_text: str, summary: str, report_id: int, 
                           chunk_index: int, content_hash: str) -> Dict[str, Any]:
         """Add summary to Supabase DB"""
@@ -120,6 +125,7 @@ class SummaryProcessor(Processor):
                 metadatas.append({
                     **metadata_base,
                     "content": original,  # Original text in metadata
+                    "summary": summary, # The summary that was generated
                     "chunk_index": i
                 })
             
@@ -157,6 +163,7 @@ class SummaryProcessor(Processor):
         # Filter out chunks that already have summaries
         chunks_to_process = []
         chunk_indices = []
+        chunk_hashes = []  # Store hashes to avoid recomputing them
         
         for i, chunk in enumerate(chunks):
             # Generate hash for this chunk
@@ -168,6 +175,7 @@ class SummaryProcessor(Processor):
             if not existing_summary:
                 chunks_to_process.append(chunk)
                 chunk_indices.append(i)
+                chunk_hashes.append(chunk_hash)  # Store the hash
             else:
                 print(f"Summary for chunk {i} of report {report_id} already exists.")
         
@@ -185,21 +193,24 @@ class SummaryProcessor(Processor):
             # Get the summaries from the result
             generated_summaries = result["summaries"]
             
-            # Add summaries to database and prepare for vector DB
-            for i, (chunk, summary, original_index) in enumerate(zip(chunks_to_process, generated_summaries, chunk_indices)):
-                chunk_hash = self.generate_content_hash(chunk)
+            # Prepare batch data for database insertion
+            batch_data = []
+            for i, (chunk, summary, original_index, chunk_hash) in enumerate(zip(
+                chunks_to_process, generated_summaries, chunk_indices, chunk_hashes)):
                 
-                # Add to database
-                summary_record = self.add_summary_to_db(
-                    original_text=chunk,
-                    summary=summary,
-                    report_id=report_id,
-                    chunk_index=original_index,
-                    content_hash=chunk_hash
-                )
+                batch_data.append({
+                    "original_content": chunk,
+                    "summary_content": summary,
+                    "content_hash": chunk_hash,  # Use the stored hash
+                    "report_id": report_id,
+                    "chunk_index": original_index
+                })
                 
                 summaries.append(summary)
-                summary_records.append(summary_record)
+            
+            # Add all summaries to database in a single batch operation
+            if batch_data:
+                summary_records = self.add_summaries_to_db(batch_data)
         
         # Add all summaries to vector database if we have any new ones
         if summaries:
