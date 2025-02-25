@@ -77,7 +77,7 @@ if __name__ == "__main__":
     ranker = RegressionRanker(supabase_client=mock_supabase_client, model_name=model_name, learning_rate=0.01)
 
     # Rank the papers (this will also rank the authors inside each paper).
-    ranked_papers = ranker.rank(papers)
+    ranked_papers = ranker.rank_papers(papers)
     print("\nRanked Papers and Authors:")
     for p in ranked_papers:
         print(f"Paper: {p.title} (Score: {p.score:.3f})")
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     ranker.delete_paper(paper3)
 
     # Re-rank after the updates.
-    ranked_papers = ranker.rank(papers)
+    ranked_papers = ranker.rank_papers(papers)
     print("\nAfter Updates - Ranked Papers and Authors:")
     for p in ranked_papers:
         print(f"Paper: {p.title} (Score: {p.score:.3f})")

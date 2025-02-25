@@ -259,7 +259,7 @@ async def search_papers(query: PaperQuery):
                 authors=authors
             ))
 
-        return ranker.rank(paper_results)
+        return ranker.rank_papers(paper_results)
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
