@@ -339,6 +339,41 @@ def authors_from_doi(doi):
 
     return author_objects
 
+def get_all_author_info(authorid):
+    author_info = OpenAlexInformationGatherer.get_author_info(authorid)
+    orcid = author_info["externalIds"].get("orcid") if "externalIds" in author_info else None
+    orcid = orcid.split("org/")[1] if orcid else None
+
+    # Use ORCID's API to get more information about the author
+    orcid_data = ORCIDInformationGatherer.get_profile(orcid) if orcid else {}
+    employment_data = ORCIDInformationGatherer.get_employments(orcid) if orcid else {}
+    dob = ORCIDInformationGatherer.get_dob(orcid) if orcid else None
+    website_check = orcid_data.get("researcher-urls", {}).get("researcher-url", [])
+    website = website_check[0].get("url", None).get("value") if website_check else None
+
+    # Use GTR API to get grant information about author using ORCID and their name
+    (grants, org) = GTRInformationGatherer.get_gtr_orgs_grants(orcid, author_info.get("name"), author_info.get("organisations", []))
+
+    # Construct Author object
+    author_obj = Author(
+        name=author_info.get("name", "Unknown"),
+        citations=author_info.get("citations", 0),
+        hindex=author_info.get("hIndex", 0),
+        organisation_history=author_info.get("organisations", []),
+        orcid=orcid,
+        dob=dob,
+        grants=grants,
+        grant_org_name=org,
+        website=website,
+        openAlexid=author_info.get("openAlex_id", "Unknown"),
+        works_count=author_info.get("works_count", "Unknown")
+    )
+
+    author_obj.profile = orcid_data
+    author_obj.employment = employment_data
+
+    return author_obj
+
 
 if __name__ == "__main__":
     authors = OpenAlexInformationGatherer.get_authors_from_doi("https://doi.org/10.1016/j.biombioe.2010.11.029")

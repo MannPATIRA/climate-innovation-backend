@@ -15,7 +15,7 @@ from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
-from .gatherers import OpenAlexInformationGatherer, authors_from_doi
+from .gatherers import OpenAlexInformationGatherer, authors_from_doi, get_all_author_info
 from ranking_model.ranker import RegressionRanker
 from ranking_model.author import Author
 from ranking_model.grant import Grant
@@ -60,6 +60,9 @@ class PaperQuery(BaseModel):
 class GraphQuery(BaseModel):
     authorid: str
     paperid: str
+
+class AuthQuery(BaseModel):
+    authorid: str
 
 class GraphNextQuery(BaseModel):
     authorid: str
@@ -338,6 +341,7 @@ async def author_feedback(feedback: AuthorFeedback):
 # Create a thread pool for blocking calls.
 executor = ThreadPoolExecutor(max_workers=5)
 precomputation_store = {}
+computed_store = set()
 
 def compute_author_connections(authorid: str, paperid: str) -> dict:
     """
@@ -358,30 +362,47 @@ async def background_worker():
     while True:
         # Iterate over a static copy of the keys
         for authorid in list(precomputation_store.keys()):
-            record = precomputation_store[authorid]
-            if not record["computed"]:
-                # Compute connections using a thread pool to avoid blocking the event loop.
-                result = await asyncio.get_event_loop().run_in_executor(
-                    executor, compute_author_connections, authorid, record["paperid"]
-                )
-                # Update the record once computed.
-                record["result"] = result
-                record["computed"] = True
-                record["sent"] = False  # mark as not yet sent
-            # If computed and not yet sent, broadcast the result.
-            if record["computed"] and not record.get("sent", False):
-                await manager.broadcast({authorid: record["result"]})
-                print("SENDING MESSAGE: ")
-                record["sent"] = True  # mark as sent so it isn’t broadcast repeatedly
-        # Wait briefly before iterating again.
-        print(precomputation_store)
+            if authorid in precomputation_store:
+                record = precomputation_store[authorid]
+                if not record["computed"]:
+                    # Compute connections using a thread pool to avoid blocking the event loop.
+                    result = await asyncio.get_event_loop().run_in_executor(
+                        executor, compute_author_connections, authorid, record["paperid"]
+                    )
+                    # Update the record once computed.
+                    record["result"] = result
+                    record["computed"] = True
+                    record["sent"] = False  # mark as not yet sent
+                # If computed and not yet sent, broadcast the result.
+                if record["computed"] and not record.get("sent", False):
+                    await manager.broadcast({authorid: record["result"]})
+                    print("SENDING MESSAGE: ")
+                    record["sent"] = True  # mark as sent so it isn’t broadcast repeatedly
+                    del precomputation_store[authorid]
+                    computed_store.add(authorid)
+            # Wait briefly before iterating again.'
+            print("PRECOMP ", precomputation_store)
+            print("COMP ", computed_store)
         await asyncio.sleep(2)
+
+@app.post('/api/graph/get_auth_info')
+async def get_auth_info(data: AuthQuery):
+    try:
+        authorid = data.authorid
+
+        author_info = get_all_author_info(authorid)
+        return author_info
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 @app.post('/api/graph/get_initial_connections')
 async def get_inital_connections(data: GraphQuery):
     try:
         authorid = data.authorid
         paperid = data.paperid
+        global global_paperid
         global_paperid = paperid
         
         # Compute immediate connections for the given author.
@@ -397,7 +418,8 @@ async def get_inital_connections(data: GraphQuery):
                     "result": None
                 }
         # Return the immediate connections. Precomputations will be sent when they complete.
-        print(precomputation_store)
+        print("PRECOMP ", precomputation_store)
+        print("COMP ", computed_store)
         return {'connections': authors, 'precomputations': {}}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -413,40 +435,45 @@ async def get_next_connections(gnq: GraphNextQuery):
         authorid = gnq.authorid
         precomputed = gnq.precomputed
         # If the author is in our store...
-        if authorid in precomputation_store:
-            record = precomputation_store[authorid]
+        if authorid in computed_store:
+            # record = precomputation_store[authorid]
             # If already computed, don't the result.
-            if record["computed"] and precomputed != []:
-                for aid in precomputed:
-                    precomputation_store[aid] = {
-                    "paperid": global_paperid,
-                    "computed": False,
-                    "result": None
-                }
-                print(precomputation_store)
-                return 
-            else:
-                # Otherwise, compute immediately (this prioritizes this author).
-                result = await asyncio.get_event_loop().run_in_executor(
-                    executor, compute_author_connections, authorid, global_paperid
-                )
-                precomputation_store[authorid]["result"] = result
-                precomputation_store[authorid]["computed"] = True
-                print(precomputation_store)
-                return {"result": result}
+            # if record["computed"] and precomputed != []:
+            for aid in precomputed:
+                precomputation_store[aid] = {
+                "paperid": global_paperid,
+                "computed": False,
+                "result": None
+            }
+                
+            print("PRECOMP ", precomputation_store)
+            print("COMP ", computed_store)
+            # print(precomputation_store)
+            return {"connections": []}
+        elif authorid in precomputation_store:
+            # Otherwise, compute immediately (this prioritizes this author).
+            result = await asyncio.get_event_loop().run_in_executor(
+                executor, compute_author_connections, authorid, global_paperid
+            )
+            del precomputation_store[authorid]
+            computed_store.add(authorid)
+
+            print("PRECOMP ", precomputation_store)
+            print("COMP ", computed_store)
+            # print(precomputation_store)
+            return {"connections": result}
         else:
             # If not present, add it and compute immediately.
 
             result = await asyncio.get_event_loop().run_in_executor(
                 executor, compute_author_connections, authorid, global_paperid
             )
-            precomputation_store[authorid] = {
-                "paperid": global_paperid,
-                "computed": True,
-                "result": result
-            }
-            print(precomputation_store)
-            return {"result": result}
+            computed_store.add(authorid)
+            print("PRECOMP ", precomputation_store)
+            print("COMP ", computed_store)
+
+            # print(precomputation_store)
+            return {"connections": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
