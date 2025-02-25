@@ -16,6 +16,7 @@ from ranking_model.author import Author
 from ranking_model.grant import Grant
 from enum import Enum
 from ranking_model.ranker_manager import RankerManager
+from ranking_model.ranker import RegressionRanker, OnlineRankSVMRanker
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -150,7 +151,11 @@ def build_paper_from_dict(data: dict) -> Paper:
 # query_processor = QueryProcessor()
 query_processor = QueryProcessor()
 
-ranker = RankerManager(supabase, "main_ranker_manager", 0.01)
+ranker_classes = {
+    'regression': RegressionRanker,
+    'svm': OnlineRankSVMRanker,
+}
+ranker = RankerManager(supabase, "main_ranker_manager", ranker_classes, 0.01)
 ranker.load_model()
 
 @app.get("/")
