@@ -28,12 +28,15 @@ class RankerManager(Ranker):
             name: ranker_class(supabase_client=supabase_client, model_name=f"{model_name}_{name}", learning_rate=learning_rate)
             for name, ranker_class in ranker_classes.items()
         }
+        for name, ranker in self.rankers.items():
+            logging.info(f"Initialized ranker: {name} of type {ranker.__class__.__name__} with model name {ranker.model_name}")
         self.paper_weights = {name: 1.0/len(ranker_classes) for name in ranker_classes}
         self.author_weights = {name: 1.0/len(ranker_classes) for name in ranker_classes}
         
-        self.papers = None
+        self.authors = None
         self.accepted_authors = []
         self.rejected_authors = []
+        self.papers = None
         self.accepted_papers = []
         self.rejected_papers = []
         
@@ -79,10 +82,10 @@ class RankerManager(Ranker):
         """
         # update weights and store the old information
         if self.all_rankings is not None:
-            print("Updating paper model weights and storing feedback")
+            logging.info("Updating paper model weights and storing feedback")
             self._update_paper_rankers_weights()
             self._store_ranking_papers_feedback()
-            print("Updating author model weights and storing feedback")
+            logging.info("Updating author model weights and storing feedback")
             self._update_author_rankers_weights()
             self._store_ranking_authors_feedback()
         self.papers = papers
@@ -94,22 +97,51 @@ class RankerManager(Ranker):
         Returns a weighted ensemble ranking from all managed rankers.
         """
         if self.all_rankings is not None:
-            print("Updating author model weights and storing feedback")
+            logging.info("Updating author model weights and storing feedback")
             self._update_author_rankers_weights()
             self._store_ranking_authors_feedback()
         self.authors = authors
         return self._ensemble_rank(authors, "rank_authors")
 
-    def _relative_position_loss(self, ranked_papers, positive_papers, negative_papers):
+    def _pairwise_position_loss(self, ranked_items, positive_items, negative_items):
         """
-        Computes fraction of positive-negative paper pairs where negative is ranked above positive.
-        Loss = 0: Perfect ranking (all positive papers above negative ones)
-        Loss = 1: Worst ranking (all negative papers above positive ones)
+        Computes fraction of positive-negative item pairs where negative is ranked above positive.
+        Loss = 0: Perfect ranking (all positive items above negative ones)
+        Loss = 1: Worst ranking (all negative items above positive ones)
         """
-        pos_positions = [next(i for i, p in enumerate(ranked_papers) if p == paper) for paper in positive_papers]
-        neg_positions = [next(i for i, p in enumerate(ranked_papers) if p == paper) for paper in negative_papers]
+        pos_positions = [next(i for i, p in enumerate(ranked_items) if p == item) for item in positive_items]
+        neg_positions = [next(i for i, p in enumerate(ranked_items) if p == item) for item in negative_items]
         return sum(1 for pos in pos_positions for neg in neg_positions if pos > neg) / (len(pos_positions) * len(neg_positions))
     
+    def _relative_position_loss(self, ranked_items, accepted_items, rejected_items):
+        """
+        Loss based on normalized positions (0-1 range):
+        - For accepted: avg position / (n-1) (lower better - want accepted items at top)
+        - For rejected: 1 - avg position / (n-1) (lower better - want rejected items at bottom) 
+        - Returns average of both losses when both types exist
+        """
+        n = len(ranked_items)
+        if n <= 1: return 0.0
+        
+        loss_components = []
+
+        if accepted_items:
+            acc_positions = [next(i for i, item in enumerate(ranked_items) if item == acc) 
+                            for acc in accepted_items]
+            # First calculate average position: sum(positions)/len(positions)
+            # Then normalize by (n-1) to get value between 0-1
+            # n-1 because in zero-based indexing, last position is n-1
+            avg_pos = sum(acc_positions)/len(acc_positions)
+            loss_components.append(avg_pos / (n - 1))
+        
+        if rejected_items:
+            rej_positions = [next(i for i, item in enumerate(ranked_items) if item == rej) 
+                            for rej in rejected_items]
+            avg_pos = sum(rej_positions)/len(rej_positions)  
+            loss_components.append(1.0 - avg_pos / (n - 1))
+        
+        return sum(loss_components) / len(loss_components) if loss_components else 0.0
+
     def _store_ranking_papers_feedback(self):
         """
         Stores ranking feedback (paper_ids, positive_paper_ids, negative_paper_ids) in Supabase.
@@ -130,14 +162,14 @@ class RankerManager(Ranker):
                 'relevancies': [{str(p.paper_id): p.relevancy for p in self.papers}]
             }
             self.supabase.table('ranking_papers_feedback').insert(data_to_store).execute()
-            print(f"Ranking feedback stored successfully in Supabase.")
+            logging.info(f"Ranking feedback stored successfully in Supabase.")
             
             # Reset lists
             self.accepted_papers = []
             self.rejected_papers = []
 
         except Exception as e:
-            print(f"Error storing ranking feedback in Supabase: {e}")
+            logging.error(f"Error storing ranking feedback in Supabase: {e}")
 
     def _store_ranking_authors_feedback(self):
         """
@@ -159,29 +191,27 @@ class RankerManager(Ranker):
                 'scores': [{str(a.openAlexid): a.score for a in self.authors}]
             }
             self.supabase.table('ranking_authors_feedback').insert(data_to_store).execute()
-            print(f"Ranking feedback stored successfully in Supabase.")
+            logging.info(f"Ranking feedback stored successfully in Supabase.")
             # Reset lists
             self.accepted_authors = []
             self.rejected_authors = []
 
         except Exception as e:
-            print(f"Error storing ranking feedback in Supabase: {e}")
+            logging.error(f"Error storing ranking feedback in Supabase: {e}")
 
-    def _update_rankers_weights(self, weights: Dict[str, float], accepted_items: List, rejected_items: List, learning_rate: float = 0.01):
+    def _update_rankers_weights(self, weights: Dict[str, float], all_items: List, accepted_items: List, rejected_items: List, learning_rate: float = 0.01):
         """
         Evaluate performance of all rankers and update the given weights dictionary accordingly.
         Updates ranker weights based on feedback using gradient descent.
         Lower weights for rankers that contribute to higher loss.
         """
-        if (len(accepted_items) + len(rejected_items)) == 0:
-            return
+        if not (accepted_items or rejected_items):
+            return weights
         
         # Update weights
         for ranker_name in weights:
             # Compute loss contribution from this ranker
-            # Assuming ranker_items is the ranking by this specific ranker
-            ranker_items = self.all_rankings[ranker_name]
-            ranker_loss = self._relative_position_loss(ranker_items, accepted_items, rejected_items)
+            ranker_loss = self._relative_position_loss(all_items, accepted_items, rejected_items)
             
             # Update weight (decrease if ranker contributed to high loss)
             weights[ranker_name] -= learning_rate * ranker_loss
@@ -196,10 +226,16 @@ class RankerManager(Ranker):
         return weights
 
     def _update_paper_rankers_weights(self, learning_rate=0.01):
-        self.paper_weights = self._update_rankers_weights(self.paper_weights, self.accepted_papers, self.rejected_papers, learning_rate)
+        self.paper_weights = self._update_rankers_weights(self.paper_weights, self.papers, self.accepted_papers, self.rejected_papers, learning_rate)
 
     def _update_author_rankers_weights(self, learning_rate=0.01):
-        self.author_weights = self._update_rankers_weights(self.author_weights, self.accepted_authors, self.rejected_authors, learning_rate)
+        if self.accepted_authors:
+            first_author = self.accepted_authors[0]
+        elif self.rejected_authors:
+            first_author = self.rejected_authors[0]
+        if first_author not in self.authors:
+            raise RuntimeError("Author not in papers")
+        self.author_weights = self._update_rankers_weights(self.author_weights, self.authors, self.accepted_authors, self.rejected_authors, learning_rate)
 
     def update_author_model(self, author: Author, label: int):
         """
@@ -219,15 +255,19 @@ class RankerManager(Ranker):
     def delete_author(self, paper: Paper, author: Author):
         """
         Propagates deletion to all managed rankers and stores the rejected author.
+        Removes the deleted author from the paper's author list.
         """
+        self.authors = paper.init_authors
         for ranker in self.rankers.values():
             ranker.delete_author(paper, author)
         self.rejected_authors.append(author)
+        paper.authors = [a for a in paper.authors if a.name != author.name]
 
     def accept_author(self, paper: Paper, author: Author):
         """
         Propagates acceptance to all managed rankers and stores the accepted author.
         """
+        self.authors = paper.init_authors
         for ranker in self.rankers.values():
             ranker.accept_author(paper, author)
         self.accepted_authors.append(author)
@@ -262,14 +302,14 @@ class RankerManager(Ranker):
             if not response.data:
                 response = self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
                 if response.data and response.data[0]:
-                    print(f"Model '{self.model_name}' saved successfully.")
+                    logging.info(f"Model '{self.model_name}' saved successfully.")
                 else:
-                    print(f"Error saving model '{self.model_name}': {response.status_code} - {response.text}")
+                    logging.error(f"Error saving model '{self.model_name}': {response.status_code} - {response.text}")
             else:
-                print(f"Model '{self.model_name}' updated successfully.")
+                logging.info(f"Model '{self.model_name}' updated successfully.")
                 
         except Exception as e:
-            print(f"Error saving model '{self.model_name}': {e}")
+            logging.error(f"Error saving model '{self.model_name}': {e}")
 
     def _train_new_papers_ranker(self, ranker: Ranker, hist_entry: Dict):
         """
@@ -307,7 +347,7 @@ class RankerManager(Ranker):
                 )
                 papers.append(paper)
             else:
-                print(f"Paper with ID {paper_id} not found.")
+                logging.warning(f"Paper with ID {paper_id} not found.")
                 continue
 
         # Reconstruct positive and negative papers
@@ -325,7 +365,7 @@ class RankerManager(Ranker):
             ranker.delete_paper(paper)
             for author in paper.authors:
                 ranker.delete_author(paper, author)
-        print(f"Ranker {ranker.model_name} trained with historical data.")
+        logging.info(f"Ranker {ranker.model_name} trained with historical data.")
         ranker.save_model()
 
     def _train_new_authors_ranker(self, ranker: Ranker, hist_entry: Dict):
@@ -346,7 +386,7 @@ class RankerManager(Ranker):
                 author.score = scores.get(str(author_id)) # setting the score from the historical data
                 authors.append(author)
             else:
-                print(f"Author with ID {author_id} not found.")
+                logging.warning(f"Author with ID {author_id} not found.")
                 continue
 
         # Reconstruct positive and negative authors
@@ -360,7 +400,7 @@ class RankerManager(Ranker):
 
         for author in neg_authors:
             ranker.delete_author(None, author) # no paper associated with the author
-        print(f"Ranker {ranker.model_name} trained with historical author data.")
+        logging.info(f"Ranker {ranker.model_name} trained with historical author data.")
         ranker.save_model()
 
     def load_model(self):
@@ -372,40 +412,44 @@ class RankerManager(Ranker):
                 model_state = json.loads(model_data_json)
                 self.paper_weights = model_state['paper_weights']
                 self.author_weights = model_state['author_weights']
-                print(f"Model weights loaded successfully for '{self.model_name}'.")
+                logging.info(f"Model weights loaded successfully for '{self.model_name}'.")
                 # Load individual ranker models
                 all_rankers_loaded = True
                 for name, ranker in self.rankers.items():
                     if not ranker.load_model():
                         all_rankers_loaded = False
-                        print(f"Failed to load ranker: {name}. Training with historical data...")
+                        logging.info(f"Failed to load ranker: {name}. Training with historical data...")
 
                         # Get historical paper ranking data
                         papers_hist_response = self.supabase.table('ranking_papers_feedback').select('*').execute()
                         if papers_hist_response.data:
-                            print("Historical paper ranking data found")
+                            logging.info("Historical paper ranking data found")
                             for entry in papers_hist_response.data:
                                 self._train_new_papers_ranker(ranker, entry)
-                            print(f"Completed training {name} with historical paper ranking data")
+                            logging.info(f"Completed training {name} with historical paper ranking data")
                         else:
-                            print("No historical paper ranking data found.")
+                            logging.info("No historical paper ranking data found.")
 
                         # Get historical author ranking data
                         authors_hist_response = self.supabase.table('ranking_authors_feedback').select('*').execute()
                         if authors_hist_response.data:
-                            print("Historical author ranking data found")
+                            logging.info("Historical author ranking data found")
                             for entry in authors_hist_response.data:
                                 self._train_new_authors_ranker(ranker, entry)
-                            print(f"Completed training {name} with historical author ranking data")
+                            logging.info(f"Completed training {name} with historical author ranking data")
                         else:
-                            print("No historical author ranking data found.")
+                            logging.info("No historical author ranking data found.")
 
+                if all_rankers_loaded:
+                    logging.info(f"All ranker models loaded successfully for '{self.model_name}'.")
+                else:
+                    logging.warning(f"Some ranker models failed to load for '{self.model_name}' and were retrained.")
                 return all_rankers_loaded
             except (pickle.UnpicklingError, KeyError, json.JSONDecodeError) as e:
-                print(f"Error loading model '{self.model_name}': {e}")
+                logging.error(f"Error loading model '{self.model_name}': {e}")
                 return False
         else:
-            print(f"Model '{self.model_name}' not found in Supabase.")
+            logging.info(f"Model '{self.model_name}' not found in Supabase.")
             return False
 
 if __name__ == "__main__":   
@@ -422,11 +466,13 @@ if __name__ == "__main__":
     load_dotenv(override=True)
     ranker = RankerManager(supabase, "TEST_RANKER_MODEL1", ranker_classes)
     ranker.load_model()
+    print("FIRST RANKING")
     ranked_papers = ranker.rank_papers(papers)
     ranker.delete_paper(papers[0])
     ranker.accept_paper(papers[1])
     ranker.accept_author(papers[0], papers[0].authors[0])
     ranker.delete_author(papers[0], papers[0].authors[-1])
+    print("SECOND RANKING")
     ranked_papers = ranker.rank_papers(papers)
     ranker.save_model()
     ranker.load_model()

@@ -99,7 +99,6 @@ class Ranker(ABC):
         """
         Process a deletion of an author:
           - Update the author model with a rejection (label = 0).
-          - Remove the author from the paper.
         """
         pass
 
@@ -223,7 +222,7 @@ class RegressionRanker(Ranker):
         self.author_weights['num_grants'] = updated_weights[3]
         self.author_weights['works_count'] = updated_weights[4]
 
-        print("Updated author weights:", self.author_weights)
+        logging.info(f"Updated author weights: {self.author_weights}")
 
     def update_paper_model(self, paper: Paper, label: int):
         """
@@ -236,37 +235,35 @@ class RegressionRanker(Ranker):
         error = label - prediction
         updated_weight = weight + self.learning_rate * error * feature
         self.paper_weights['relevancy'] = updated_weight
-        print("Updated paper weights:", self.paper_weights)
+        logging.info(f"Updated paper weights: {self.paper_weights}")
 
     def delete_author(self, paper: Paper, author: Author):
         """
         Process a deletion of an author:
           - Update the author model with a rejection (label = 0).
-          - Remove the author from the paper.
         """
-        print(f"Deleting author '{author.name}' from paper '{paper.title}'.")
+        logging.info(f"Deleting author '{author.name}' from paper '{paper.title}'.")
         self.update_author_model(author, label=0)
-        paper.authors = [a for a in paper.authors if a.name != author.name]
 
     def accept_author(self, paper: Paper, author: Author):
         """
         Process an acceptance of an author (update with label = 1).
         """
-        print(f"Accepting author '{author.name}' for paper '{paper.title}'.")
+        logging.info(f"Accepting author '{author.name}' for paper '{paper.title}'.")
         self.update_author_model(author, label=1)
 
     def delete_paper(self, paper: Paper):
         """
         Process a deletion of a paper by updating the paper model with a rejection (label = 0).
         """
-        print(f"Deleting paper '{paper.title}'.")
+        logging.info(f"Deleting paper '{paper.title}'.")
         self.update_paper_model(paper, label=0)
 
     def accept_paper(self, paper: Paper):
         """
         Process an acceptance of a paper (update with label = 1).
         """
-        print(f"Accepting paper '{paper.title}'.")
+        logging.info(f"Accepting paper '{paper.title}'.")
         self.update_paper_model(paper, label=1)
 
     def save_model(self):
@@ -287,14 +284,14 @@ class RegressionRanker(Ranker):
             if not response.data:
                 response = self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
                 if response.data and response.data[0]:
-                    print(f"Model '{self.model_name}' saved successfully.")
+                    logging.info(f"Model '{self.model_name}' saved successfully.")
                 else:
-                    print(f"Error saving model '{self.model_name}': {response.status_code} - {response.text}")
+                    logging.error(f"Error saving model '{self.model_name}': {response.status_code} - {response.text}")
             else:
-                print(f"Model '{self.model_name}' updated successfully.")
+                logging.info(f"Model '{self.model_name}' updated successfully.")
         except Exception as e:
             logging.exception(f"Error saving model '{self.model_name}': {e}")
-            print(f"Error saving model '{self.model_name}': {e}")
+            logging.error(f"Error saving model '{self.model_name}': {e}")
 
     def load_model(self):
         """
@@ -308,7 +305,7 @@ class RegressionRanker(Ranker):
             self.paper_weights = model_state['paper_weights']
             return True
         else:
-            print(f"Model '{self.model_name}' not found in Supabase.")
+            logging.info(f"Model '{self.model_name}' not found in Supabase.")
             return False
 
 class OnlineRankSVMRanker(Ranker):
@@ -452,20 +449,19 @@ class OnlineRankSVMRanker(Ranker):
         self.paper_model.partial_fit(features_scaled, labels, classes=np.array([0, 1]))
 
     def delete_author(self, paper, author):
-        print(f"Deleting author '{getattr(author, 'name', 'Unknown')}' from paper '{getattr(paper, 'title', 'Unknown')}'.")
+        logging.info(f"Deleting author '{getattr(author, 'name', 'Unknown')}' from paper '{getattr(paper, 'title', 'Unknown')}'.")
         self.update_author_model(author, label=0)
-        paper.authors = [a for a in paper.authors if getattr(a, 'name', None) != getattr(author, 'name', None)]
 
     def accept_author(self, paper, author):
-        print(f"Accepting author '{getattr(author, 'name', 'Unknown')}' for paper '{getattr(paper, 'title', 'Unknown')}'.")
+        logging.info(f"Accepting author '{getattr(author, 'name', 'Unknown')}' for paper '{getattr(paper, 'title', 'Unknown')}'.")
         self.update_author_model(author, label=1)
 
     def delete_paper(self, paper):
-        print(f"Deleting paper '{getattr(paper, 'title', 'Unknown')}'.")
+        logging.info(f"Deleting paper '{getattr(paper, 'title', 'Unknown')}'.")
         self.update_paper_model(paper, label=0)
 
     def accept_paper(self, paper):
-        print(f"Accepting paper '{getattr(paper, 'title', 'Unknown')}'.")
+        logging.info(f"Accepting paper '{getattr(paper, 'title', 'Unknown')}'.")
         self.update_paper_model(paper, label=1)
 
     def save_model(self):
@@ -496,14 +492,14 @@ class OnlineRankSVMRanker(Ranker):
             if not response.data:
                 response = self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
                 if response.data and response.data[0]:
-                    print(f"Model '{self.model_name}' saved successfully.")
+                    logging.info(f"Model '{self.model_name}' saved successfully.")
                 else:
-                    print(f"Error saving model '{self.model_name}': {response.status_code} - {response.text}")
+                    logging.error(f"Error saving model '{self.model_name}': {response.status_code} - {response.text}")
             else:
-                print(f"Model '{self.model_name}' updated successfully.")
+                logging.info(f"Model '{self.model_name}' updated successfully.")
         except Exception as e:
             logging.exception(f"Error saving model '{self.model_name}': {e}")
-            print(f"Error saving model '{self.model_name}': {e}")
+            logging.error(f"Error saving model '{self.model_name}': {e}")
 
     def load_model(self):
         """
@@ -530,5 +526,5 @@ class OnlineRankSVMRanker(Ranker):
             self.is_paper_model_initialized = model_state['is_paper_model_initialized']
             return True
         else:
-            print(f"Model '{self.model_name}' not found in Supabase.")
+            logging.info(f"Model '{self.model_name}' not found in Supabase.")
             return False
