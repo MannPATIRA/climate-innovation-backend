@@ -5,8 +5,8 @@ from urllib.parse import quote_plus
 from typing import Dict, Any, List, Tuple
 from PyPDF2 import PdfReader
 from .base import Processor, ProcessingTask
-
-
+from background_process.utils.process_log_manager import ProcessLogManager
+from common.pinecone_store import PineconeStore
 @dataclass
 class PDFDocument:
     content: str
@@ -15,8 +15,8 @@ class PDFDocument:
 
 
 class ReportProcessor(Processor):
-    def __init__(self, supabase_client, pinecone_store, chunk_size: int = 500):
-        super().__init__(supabase_client, pinecone_store, chunk_size=chunk_size)
+    def __init__(self, supabase_client, process_log_manager: ProcessLogManager, pinecone_store: PineconeStore, chunk_size: int = 500):
+        super().__init__(process_log_manager=process_log_manager, pinecone_store=pinecone_store, chunk_size=chunk_size)
         self.task_id = self.create_task(ProcessingTask.REPORT_PROCESSING)
         # Initialize S3 client
         self.s3_client = boto3.client(
@@ -27,6 +27,7 @@ class ReportProcessor(Processor):
         )
         self.bucket_name = "climate-innovation-bucket"
         self.region = "eu-north-1"
+        self.supabase = supabase_client
 
     def convert_pdf_to_text(self, pdf_path: str) -> PDFDocument:
         """Converts PDF to text using PyPDF2 and extracts title from filename"""

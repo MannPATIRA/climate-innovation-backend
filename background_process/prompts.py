@@ -46,12 +46,10 @@ class SearchQueries(BaseModel):
 
 REPORT_ASSESSMENT_SYSTEM_PROMPT = """You are an expert in climate technology. 
 Your task is to determine if a document is specifically about technical climate issues.
-Deep tech climate issues involve innovative technological solutions that address climate change
-through scientific breakthroughs, novel engineering approaches, or cutting-edge research.
-Examples include: advanced carbon capture, fusion energy, next-gen batteries, innovative materials science,
-breakthrough renewable technologies, etc."""
+You must ensure the document details actual problems that contribute to climate change.
+You should ensuret that it does not have an excessive focus on policy or politics."""
 
-REPORT_ASSESSMENT_HUMAN_PROMPT = """Analyze the following text from a report and determine if it's about deep tech climate issues:
+REPORT_ASSESSMENT_HUMAN_PROMPT = """Analyze the following text from a report and determine if it's about climate issues:
 
 {text}
 
@@ -69,8 +67,7 @@ class ReportAssessment(BaseModel):
 SUMMARY_GENERATION_PROMPT = """You are an expert summarizer of climate-related documents.
 Your task is to create a concise, informative summary of the provided document.
 Focus on the key findings, recommendations, and technical details that would be most relevant
-for climate researchers and policymakers.
-Maintain scientific accuracy while making the content accessible.
+for climate researchers. Maintain scientific accuracy while making the content accessible.
 """
 
 class DocumentSummary(BaseModel):

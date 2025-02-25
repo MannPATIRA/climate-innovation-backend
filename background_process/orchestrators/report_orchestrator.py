@@ -6,8 +6,7 @@ from ..processors.summary_processor import SummaryProcessor
 class ReportOrchestrator(Orchestrator):
 
     def __init__(self, fetcher, processor, summarizer=None):
-        super().__init__(fetcher, processor)
-        self.summarizer = summarizer
+        super().__init__(fetcher, processor, summarizer)
 
     def process_single_report(self, report_path: str) -> None:
         """Process a single report"""

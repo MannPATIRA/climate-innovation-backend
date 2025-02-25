@@ -12,11 +12,14 @@ import asyncio
 from langgraph.graph import StateGraph, START
 from typing_extensions import TypedDict, Annotated
 import operator
+from background_process.utils.process_log_manager import ProcessLogManager
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 # Define the state for our LangGraph
 class SummaryState(TypedDict):
     chunks: List[str]
     summaries: Annotated[List[str], operator.add]
+    successful_indices: Annotated[List[int], operator.add]
 
 class Summarizer(ABC):
     @abstractmethod
@@ -51,30 +54,59 @@ class LLMSummarizer(Summarizer):
 
 
 class SummaryProcessor(Processor):
-    def __init__(self, supabase_client, pinecone_store, summarizer: Summarizer = None, chunk_size: int = 500):
-        super().__init__(supabase_client, pinecone_store, chunk_size=chunk_size)
+    def __init__(self, supabase_client, process_log_manager: ProcessLogManager, pinecone_store: PineconeStore, summarizer: Summarizer = None, chunk_size: int = 500):
+        super().__init__(process_log_manager=process_log_manager, pinecone_store=pinecone_store, chunk_size=chunk_size)
         self.task_id = self.create_task(ProcessingTask.SUMMARY_PROCESSING)
         self.summarizer = summarizer or LLMSummarizer()
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
-            chunk_overlap=0  # No overlap as requested
+            chunk_overlap=0
         )
         # Create the LangGraph for summarization
         self.summary_graph = self._create_summary_graph()
+        self.supabase = supabase_client
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=15, max=60),
+        reraise=True
+    )
+    async def _generate_summary_with_semaphore(self, chunk: str, semaphore: asyncio.Semaphore) -> str:
+        """Generate a summary for a chunk with semaphore control and retry logic"""
+        try:
+            async with semaphore:
+                return await self.summarizer.generate_summary(chunk)
+        except Exception as e:
+            print(f"Summary generation failed: {str(e)}")
+            raise
+
+    async def summarize_chunks(self, state: SummaryState):
+        """Process chunks with semaphore control"""
+        # Create semaphore in the current event loop
+        semaphore = asyncio.Semaphore(10)
+        
+        tasks = [self._generate_summary_with_semaphore(chunk, semaphore) for chunk in state["chunks"]]
+        summaries = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Filter out failed summaries and track successful indices
+        successful_summaries = []
+        successful_indices = []
+        
+        for i, summary in enumerate(summaries):
+            if not isinstance(summary, Exception):
+                successful_summaries.append(summary)
+                successful_indices.append(i)
+        
+        return {
+            "summaries": successful_summaries,
+            "successful_indices": successful_indices
+        }
 
     def _create_summary_graph(self) -> StateGraph:
         """Create a LangGraph for summarizing chunks in parallel."""
-        
-        # Define the summarization node
-        async def summarize_chunks(state: SummaryState):
-            # Process all chunks in parallel
-            tasks = [self.summarizer.generate_summary(chunk) for chunk in state["chunks"]]
-            summaries = await asyncio.gather(*tasks)
-            return {"summaries": summaries}
-        
         # Build the graph
         builder = StateGraph(SummaryState)
-        builder.add_node("summarize", summarize_chunks)
+        builder.add_node("summarize", self.summarize_chunks)
         builder.add_edge(START, "summarize")
         
         return builder.compile()
@@ -185,40 +217,40 @@ class SummaryProcessor(Processor):
         
         if chunks_to_process:
             # Run the graph to generate summaries
-            result = self.summary_graph.invoke({
+            result = asyncio.run(self.summary_graph.ainvoke({
                 "chunks": chunks_to_process,
-                "summaries": []
-            })
+                "summaries": [],
+                "successful_indices": []
+            }))
             
-            # Get the summaries from the result
+            # Get the results
             generated_summaries = result["summaries"]
+            successful_indices = result["successful_indices"]
             
             # Prepare batch data for database insertion
+            print(f"Generated {len(generated_summaries)} summaries successfully")
             batch_data = []
-            for i, (chunk, summary, original_index, chunk_hash) in enumerate(zip(
-                chunks_to_process, generated_summaries, chunk_indices, chunk_hashes)):
-                
+            for summary, idx in zip(generated_summaries, successful_indices):
                 batch_data.append({
-                    "original_content": chunk,
+                    "original_content": chunks_to_process[idx],
                     "summary_content": summary,
-                    "content_hash": chunk_hash,  # Use the stored hash
+                    "content_hash": chunk_hashes[idx],
                     "report_id": report_id,
-                    "chunk_index": original_index
+                    "chunk_index": chunk_indices[idx]
                 })
-                
                 summaries.append(summary)
             
             # Add all summaries to database in a single batch operation
             if batch_data:
                 summary_records = self.add_summaries_to_db(batch_data)
-        
-        # Add all summaries to vector database if we have any new ones
-        if summaries:
-            metadata_base = {
-                "report_id": report_id,
-                "report_title": report_title,
-            }
-            
-            self.chunk_and_embed(summaries, chunks_to_process, metadata_base)
+                
+                # Add to vector database using the correct chunks
+                metadata_base = {
+                    "report_id": report_id,
+                    "report_title": report_title,
+                }
+                
+                successful_original_chunks = [chunks_to_process[idx] for idx in successful_indices]
+                self.chunk_and_embed(generated_summaries, successful_original_chunks, metadata_base)
         
         return summaries, summary_records
