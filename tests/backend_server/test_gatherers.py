@@ -102,7 +102,7 @@ class TestOpenAlexInformationGatherer:
         }]
         mock_works.return_value = mock_work
         
-        result = OpenAlexInformationGatherer.get_authors_from_doi(MOCK_REGULAR_DOI)
+        result = OpenAlexInformationGatherer.get_UK_authors_from_doi(MOCK_REGULAR_DOI)
         expected = [
             {'authorId': 'author1', 'name': 'John Doe'},
             {'authorId': 'author2', 'name': 'Jane Smith'}
@@ -200,7 +200,7 @@ class TestErrorCases:
     def test_openalex_invalid_doi(self, mock_works):
         mock_works.return_value.filter.return_value.get.return_value = None
         
-        result = OpenAlexInformationGatherer.get_authors_from_doi("invalid_doi")
+        result = OpenAlexInformationGatherer.get_UK_authors_from_doi("invalid_doi")
         assert result == []
 
     @patch('backend_server.gatherers.Works')

@@ -95,12 +95,20 @@ class ORCIDInformationGatherer(InformationGatherer):
 
 class OpenAlexInformationGatherer(InformationGatherer):
     @staticmethod
-    def get_authors_from_doi(doi):
+    def get_UK_authors_from_doi(doi):
         work = Works().filter(doi=doi).get()
         if work:
-            authors = work[0].get('authorships', [])
-            return [{'authorId': author['author']['id'], 'name': author['author']['display_name']} for author in
-                    authors]
+            authorships = work[0].get('authorships', [])
+            uk_authors = []
+            for authorship in authorships:
+                institutions = authorship.get('institutions', [])
+                # Check if any of the institutions has a country code of "GB"
+                if any(inst.get('country_code') == "GB" for inst in institutions):
+                    uk_authors.append({
+                        'authorId': authorship['author']['id'],
+                        'name': authorship['author']['display_name']
+                    })
+            return uk_authors
         return []
 
     @staticmethod
@@ -340,7 +348,7 @@ def authors_from_doi(doi):
     Takes a DOI and retrieves a list of Author objects with additional metadata matching.
     """
     # Get authors from OpenAlex
-    authors = OpenAlexInformationGatherer.get_authors_from_doi(doi)
+    authors = OpenAlexInformationGatherer.get_UK_authors_from_doi(doi)
     author_objects = []
 
     for author in authors:
