@@ -99,7 +99,7 @@ class SummaryProcessor(Processor):
             success = self.pinecone_store.add_chunks(
                 chunks=summaries,  # Summaries are what gets embedded
                 metadata=metadatas,  # Original content in metadata
-                namespace="summaries"
+                namespace="report_summaries"
             )
             return success
         except Exception as e:
