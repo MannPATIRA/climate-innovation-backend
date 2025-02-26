@@ -83,7 +83,7 @@ class QueryProcessor:
             "Context \n\n: {context}\n"
             "Your response must directly start with the markdown"
             "After responding, extract 3-5 main points that answer the query from this response along with their sources.\n"
-            "You must ensure that the main points focus on climate challenges that are technical, not solcail "
+            "You must ensure that the main points focus on climate challenges that are technical, not social or health"
             "When you extract these point, you must ensure that they come from the chunks, don't use your own knowledge"
             "Format the output as a JSON list of objects, where each object has 'topic', 'source', and 'url' keys.\n"
             "Format: {{'topics': [{{'topic': 'topic 1', 'source': 'source 1', 'url': 'url 1'}}, "
