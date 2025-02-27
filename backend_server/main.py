@@ -367,10 +367,6 @@ async def background_worker():
                 # Move the computed result into the computed_store.
                 computed_store[authorid] = record["result"]
                 del precomputation_store[authorid]
-            
-        print("PRECOMP: ", precomputation_store)
-        print("COMP: ", computed_store)
-
         await asyncio.sleep(2)
 
 @app.post('/api/graph/get_auth_info')
@@ -477,6 +473,10 @@ async def get_next_connections(gnq: GraphNextQuery):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# # A simple connection manager for handling websocket connections.
+# class ConnectionManager:
+#     def __init__(self):
+#         self.active_connections: List[WebSocket] = []
 # # A simple connection manager for handling websocket connections.
 # class ConnectionManager:
 #     def __init__(self):
