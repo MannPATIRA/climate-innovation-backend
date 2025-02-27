@@ -340,7 +340,7 @@ async def author_feedback(feedback: AuthorFeedback):
 # Create a thread pool for blocking calls.
 executor = ThreadPoolExecutor(max_workers=5)
 precomputation_store = {}
-computed_store = set()
+computed_store = {}
 
 def compute_author_connections(authorid: str, paperid: str) -> dict:
     """
@@ -367,6 +367,10 @@ async def background_worker():
                 # Move the computed result into the computed_store.
                 computed_store[authorid] = record["result"]
                 del precomputation_store[authorid]
+            
+        print("PRECOMP: ", precomputation_store)
+        print("COMP: ", computed_store)
+
         await asyncio.sleep(2)
 
 @app.post('/api/graph/get_auth_info')
@@ -401,6 +405,8 @@ async def get_initial_connections(data: GraphQuery):
                     "computed": False,
                     "result": None
                 }
+        print("PRECOMP: ", precomputation_store)
+        print("COMP: ", computed_store)
         return {'connections': immediate_connections}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -409,23 +415,63 @@ async def get_initial_connections(data: GraphQuery):
 @app.post('/api/graph/get_next_connections')
 async def get_next_connections(gnq: GraphNextQuery):
     try:
+        print("ENTERING GNC")
         authorid = gnq.authorid
         if authorid in computed_store:
+            print("Authpr In Computed Store")
+
+            for connection in computed_store[authorid]:
+                precomputation_store[connection['authorId']] = {
+                    "paperid": global_paperid,
+                    "computed": False,
+                    "result": None
+                }
+
+            print("PRECOMP: ", precomputation_store)
+            print("COMP: ", computed_store)
             return {"connections": computed_store[authorid]}
         elif authorid in precomputation_store:
+            print("Authpr In PRECOMP Store")
+
             # Prioritize this author: compute immediately.
             result = await asyncio.get_event_loop().run_in_executor(
                 executor, compute_author_connections, authorid, global_paperid
             )
+
+            print("Authpr has been computed")
+
             computed_store[authorid] = result
             del precomputation_store[authorid]
+
+            print("deleted from precomp and returning")
+
+            precomputation_store[authorid] = {
+                "paperid": global_paperid,
+                "computed": False,
+                "result": None
+            }
+
+            print("PRECOMP: ", precomputation_store)
+            print("COMP: ", computed_store)
             return {"connections": result}
         else:
+            print("Author not queued")
+
+
             # Not queued; compute on demand and store.
             result = await asyncio.get_event_loop().run_in_executor(
                 executor, compute_author_connections, authorid, global_paperid
             )
             computed_store[authorid] = result
+            print("Has been computed")
+
+            precomputation_store[authorid] = {
+                "paperid": global_paperid,
+                "computed": False,
+                "result": None
+            }
+            print("PRECOMP: ", precomputation_store)
+            print("COMP: ", computed_store)
             return {"connections": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
