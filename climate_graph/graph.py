@@ -82,7 +82,7 @@ def get_title_and_abstract(work):
     return {'abstact_existence': False, 'content': title, 'doi' : work.get('doi')}
 
 def embed_content(work):
-    OPENAI_API_KEY='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'
+    # OPENAI_API_KEY='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'
     openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
     response = openai_client.embeddings.create(
