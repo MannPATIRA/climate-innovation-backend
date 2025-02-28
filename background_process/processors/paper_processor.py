@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 from typing import Dict, Any, List, Tuple
 from .base import Processor, ProcessingTask
-
+from background_process.utils.process_log_manager import ProcessLogManager
 
 @dataclass
 class Paper:
@@ -17,7 +17,8 @@ class Paper:
 class PaperProcessor(Processor):
     def __init__(self, supabase_client, pinecone_store, chunk_size: int = 500, 
                  max_workers: int = 5):
-        super().__init__(supabase_client, pinecone_store, chunk_size=chunk_size)
+        super().__init__(ProcessLogManager(supabase_client), pinecone_store, chunk_size=chunk_size)
+        self.supabase = supabase_client
         self.max_workers = max_workers
         self.task_id = self.create_task(ProcessingTask.PAPER_PROCESSING)
 
@@ -145,4 +146,5 @@ class PaperProcessor(Processor):
         For batch processing, use process_batch.
         """
         # Run the async process in the event loop
+        return asyncio.run(self.process_single_paper(data)) 
         return asyncio.run(self.process_single_paper(data)) 
