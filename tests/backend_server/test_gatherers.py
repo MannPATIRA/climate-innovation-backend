@@ -92,12 +92,13 @@ class TestSemanticScholarInformationGatherer:
 
 class TestOpenAlexInformationGatherer:
     @patch('backend_server.gatherers.Works')
-    def test_get_authors_from_doi(self, mock_works):
+    def test_get_UK_authors_from_doi(self, mock_works):
         mock_work = Mock()
         mock_work.filter.return_value.get.return_value = [{
             'authorships': [
-                {'author': {'id': 'author1', 'display_name': 'John Doe'}},
-                {'author': {'id': 'author2', 'display_name': 'Jane Smith'}}
+                {'author': {'id': 'author1', 'display_name': 'John Doe'}, 'institutions': [{'country_code': 'GB'}]},
+                {'author': {'id': 'author2', 'display_name': 'Jane Smith'}, 'institutions': [{'country_code': 'US'}]},
+                {'author': {'id': 'author3', 'display_name': 'Peter Pan'}, 'institutions': [{'country_code': 'GB'}, {'country_code': 'CA'}]}
             ]
         }]
         mock_works.return_value = mock_work
@@ -105,7 +106,7 @@ class TestOpenAlexInformationGatherer:
         result = OpenAlexInformationGatherer.get_UK_authors_from_doi(MOCK_REGULAR_DOI)
         expected = [
             {'authorId': 'author1', 'name': 'John Doe'},
-            {'authorId': 'author2', 'name': 'Jane Smith'}
+            {'authorId': 'author3', 'name': 'Peter Pan'}
         ]
         assert result == expected
 
