@@ -121,5 +121,5 @@ class QueryProcessor:
             "Just return the title directly, nothing else."
         )
         
-        chain = prompt | ChatOpenAI(model="gpt-4o") | StrOutputParser()
+        chain = prompt | ChatOpenAI(model="gpt-4o-mini") | StrOutputParser()
         return await chain.ainvoke({"query": query})
