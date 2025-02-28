@@ -5,6 +5,7 @@ from ranking_model.OnlineSVMRanker import OnlineSVMRanker
 from ranking_model.author import Author
 from ranking_model.paper import Paper
 from ranking_model.RegressionRanker import RegressionRanker
+from supabase import Client
 
 from tests.ranking_model.common_fixtures import test_authors, test_papers
 

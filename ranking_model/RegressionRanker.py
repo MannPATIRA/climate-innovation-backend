@@ -1,7 +1,7 @@
 from ranking_model.author import Author
 from ranking_model.paper import Paper
 from ranking_model.ranker import Ranker
-
+from supabase import Client
 
 import numpy as np
 
