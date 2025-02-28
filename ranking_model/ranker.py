@@ -177,6 +177,24 @@ class RegressionRanker(Ranker):
         # Return papers sorted by overall score.
         return sorted(papers, key=lambda p: p.score, reverse=True)
 
+    def rank_authors(self, authors: List[Author]) -> List[Author]:
+        """
+        Rank a list of authors by computing their scores using the extended feature vector.
+        Returns a list of authors sorted by their score (highest first).
+        """
+        for author in authors:
+            features = self.get_extended_feature_vector(author)
+            weights = np.array([
+                self.author_weights['citations'],
+                self.author_weights['hindex'],
+                self.author_weights['total_grant_value'],
+                self.author_weights['num_grants'],
+                self.author_weights['works_count']
+            ])
+            raw_score = np.dot(features, weights)
+            author.score = self.sigmoid(raw_score)
+        return sorted(authors, key=lambda a: a.score, reverse=True)
+
     def update_author_model(self, author: Author, label: int):
         """
         Update the author model weights using an online logistic regression update.

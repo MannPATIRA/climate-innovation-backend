@@ -2,10 +2,17 @@ import urllib.parse
 from abc import ABC
 
 import requests
+import pyalex
 from pyalex import Works, Authors
 
 from ranking_model.author import Author
 from ranking_model.grant import Grant
+import os
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+pyalex.config.api_key = os.getenv("OPENALEX_API_KEY") 
+
 import unicodedata
 from fuzzywuzzy import fuzz
 import re
@@ -102,6 +109,25 @@ class OpenAlexInformationGatherer(InformationGatherer):
             return [{'authorId': author['author']['id'], 'name': author['author']['display_name']} for author in
                     authors]
         return []
+    
+    @staticmethod
+    def get_top_authors_from_doi(doi):
+        work = Works().filter(doi=doi).get()
+        top_authors = []
+        if work:
+            authors = work[0].get('authorships', [])
+            for author in authors:
+                if author['author_position'] == 'first' or author['author_position'] == 'last' or author['is_corresponding']:
+                    top_authors.append({'authorId': author['author']['id'], 'name': author['author']['display_name']})
+        return top_authors
+
+    @staticmethod
+    def get_work_from_doi(doi):
+        return Works().filter(doi=doi).get()
+    
+    @staticmethod
+    def get_work_from_paper_id(id):
+        return Works()[id]
 
     @staticmethod
     def get_author_info(author_id):
@@ -119,6 +145,12 @@ class OpenAlexInformationGatherer(InformationGatherer):
                 "openAlex_id": author.get("id", "")
             }
         return {}
+
+    @staticmethod
+    def get_works_from_author_id(author_id):
+        works = Works().filter(**{"authorships.author.id": author_id}).get(per_page = 200)
+        return works if works else []
+
 
     @staticmethod
     def get_details_from_paper_id(paper_id):
@@ -393,6 +425,41 @@ def authors_from_doi(doi):
 
     return author_objects
 
+def get_all_author_info(authorid):
+    author_info = OpenAlexInformationGatherer.get_author_info(authorid)
+    orcid = author_info["externalIds"].get("orcid") if "externalIds" in author_info else None
+    orcid = orcid.split("org/")[1] if orcid else None
+
+    # Use ORCID's API to get more information about the author
+    orcid_data = ORCIDInformationGatherer.get_profile(orcid) if orcid else {}
+    employment_data = ORCIDInformationGatherer.get_employments(orcid) if orcid else {}
+    dob = ORCIDInformationGatherer.get_dob(orcid) if orcid else None
+    website_check = orcid_data.get("researcher-urls", {}).get("researcher-url", [])
+    website = website_check[0].get("url", None).get("value") if website_check else None
+
+    # Use GTR API to get grant information about author using ORCID and their name
+    (grants, org) = GTRInformationGatherer.get_gtr_orgs_grants(orcid, author_info.get("name"), author_info.get("organisations", []))
+
+    # Construct Author object
+    author_obj = Author(
+        name=author_info.get("name", "Unknown"),
+        citations=author_info.get("citations", 0),
+        hindex=author_info.get("hIndex", 0),
+        organisation_history=author_info.get("organisations", []),
+        orcid=orcid,
+        dob=dob,
+        grants=grants,
+        grant_org_name=org,
+        website=website,
+        openAlexid=author_info.get("openAlex_id", "Unknown"),
+        works_count=author_info.get("works_count", "Unknown")
+    )
+
+    author_obj.profile = orcid_data
+    author_obj.employment = employment_data
+
+    return author_obj
+
 ###############################################
 ##          TO BE USED LATER                 ##
 ###############################################
@@ -441,10 +508,14 @@ class GoogleScholarInformationGatherer(InformationGatherer):
 
 
 if __name__ == "__main__":
-    # Dan van der Horst, Saskia A F Vermeylen
-    # y = authors_from_doi("https://doi.org/10.1016/j.biombioe.2010.11.029")
+    authors = OpenAlexInformationGatherer.get_authors_from_doi("https://doi.org/10.1016/j.biombioe.2010.11.029")
+    print(authors)
+    ids = [author["authorId"] for author in authors]
+    works = OpenAlexInformationGatherer.get_works_from_author_id(ids[0])
+    print(ids)
+    # authors_from_doi("https://doi.org/10.48550/arXiv.2402.01928")
 
-    # Saskia E Bakker
-    y = authors_from_doi("https://doi.org/10.1099/vir.0.053025-0")
+    # x = OpenAlexInformationGatherer.get_details_from_paper_id("https://openalex.org/W4400454085")
 
-    x = OpenAlexInformationGatherer.get_details_from_paper_id("https://openalex.org/W4400454085")
+    # y = OpenAlexInformationGatherer.get_authors_from_doi()
+    

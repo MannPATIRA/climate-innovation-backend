@@ -1,5 +1,6 @@
 import os
-from fastapi import FastAPI, HTTPException
+from re import L
+from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from dotenv import load_dotenv
@@ -14,10 +15,14 @@ from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
-from .gatherers import OpenAlexInformationGatherer, authors_from_doi
+from .gatherers import OpenAlexInformationGatherer, authors_from_doi, get_all_author_info
 from ranking_model.ranker import RegressionRanker
 from ranking_model.author import Author
 from ranking_model.grant import Grant
+import climate_graph.graph
+from typing import List
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
 
 supabase: Client = init_supabase()
@@ -52,6 +57,20 @@ class Query(BaseModel):
 class PaperQuery(BaseModel):
     query: str
     top_k: Optional[int] = 1000
+
+class GraphQuery(BaseModel):
+    authorid: str
+    paperid: str
+
+class AuthQuery(BaseModel):
+    authorid: str
+
+class GraphNextQuery(BaseModel):
+    authorid: str
+
+class GraphPrecomputationQuery(BaseModel):
+    authorids: list[str]
+    paperid: str
 
 class GrantData(BaseModel):
     title: str
@@ -108,6 +127,9 @@ class AuthorUpdate(BaseModel):
     note: Optional[str] = None
     state: Optional[AuthorState] = None
 
+author_queue = []
+global_paperid = ""
+
 def build_author_from_dict(data: dict) -> Author:
     grants = []
     for grant in data.get("grants", []):
@@ -148,8 +170,8 @@ def build_paper_from_dict(data: dict) -> Paper:
 
 
 # Initialize the query processor
-# query_processor = QueryProcessor()
-query_processor = MockQueryProcessor()
+query_processor = QueryProcessor()
+# query_processor = MockQueryProcessor()
 
 ranker = RegressionRanker(supabase, "regression_ranker", 0.000001)
 
@@ -233,33 +255,53 @@ async def stream_query(query: Query):
 async def search_papers(query: PaperQuery):
     try:
         # Initialize PineconeStore
-        pinecone_store = PineconeStore(index_name="climate-index")
+        # pinecone_store = PineconeStore(index_name="climate-index")
         
-        # Query the papers namespace
-        results = pinecone_store.query_chunk(
-            query_text=query.query,
-            top_k=query.top_k,
-            namespace="papers"
-        )
+        # # Query the papers namespace
+        # results = pinecone_store.query_chunk(
+        #     query_text=query.query,
+        #     top_k=query.top_k,
+        #     namespace="papers"
+        # )
 
         # Format the results
+        # paper_results = []
+        # for match in results:
+        #     metadata = match.metadata
+        #     authors = authors_from_doi(metadata.get("doi"))
+        #     details = OpenAlexInformationGatherer.get_details_from_paper_id(metadata.get("openalex_id"))
+        #     paper_results.append(Paper(
+        #         paper_id=metadata.get("paper_id"),
+        #         openalex_id=metadata.get("openalex_id"),
+        #         title=details["title"],
+        #         relevancy=match.score,
+        #         doi=metadata.get("doi"),
+        #         abstract=details["abstract"],
+        #         publication_date=details["publication_date"],
+        #         authors=authors
+        #     ))
+
+        sample_paper_id = "https://openalex.org/W4400454085"
+        sample_doi = 'https://doi.org/10.48550/arXiv.2303.11366'
+
+
+        details = OpenAlexInformationGatherer.get_details_from_paper_id(sample_paper_id)
+        authors = authors_from_doi(sample_doi)
+
         paper_results = []
-        for match in results:
-            metadata = match.metadata
-            authors = authors_from_doi(metadata.get("doi"))
-            details = OpenAlexInformationGatherer.get_details_from_paper_id(metadata.get("openalex_id"))
-            paper_results.append(Paper(
-                paper_id=metadata.get("paper_id"),
-                openalex_id=metadata.get("openalex_id"),
-                title=details["title"],
-                relevancy=match.score,
-                doi=metadata.get("doi"),
-                abstract=details["abstract"],
+        paper_results.append(Paper(
+                paper_id=sample_paper_id,
+                openalex_id=sample_paper_id,
+                title="REFLEXION PAPER",
+                relevancy=10,
+                doi='https://doi.org/10.48550/arXiv.2303.11366',
+                abstract="This is a paper on Reflexion",
                 publication_date=details["publication_date"],
                 authors=authors
-            ))
+        ))
 
-        return ranker.rank(paper_results)
+        return paper_results
+        # return ranker.rank(paper_results)
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -282,6 +324,8 @@ async def paper_feedback(feedback: PaperFeedback):
         return {"message": message}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
 
 @app.post("/api/authors/feedback")
 async def author_feedback(feedback: AuthorFeedback):
@@ -310,6 +354,186 @@ async def author_feedback(feedback: AuthorFeedback):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# Create a thread pool for blocking calls.
+executor = ThreadPoolExecutor(max_workers=5)
+precomputation_store = {}
+computed_store = {}
+
+def compute_author_connections(authorid: str, paperid: str) -> dict:
+    """
+    This function wraps the slow computation.
+    It calls the blocking function to compute connections for a given author.
+    """
+    # Here, climate_graph.graph.get_relevant_authors is assumed to be a blocking call.
+    result = climate_graph.graph.get_relevant_authors(author_id=authorid, paper_id=paperid)
+    return result
+
+# Background worker to precompute queued author connections.
+async def background_worker():
+    while True:
+        # Iterate over a snapshot of keys in the precomputation store.
+        for authorid in list(precomputation_store.keys()):
+            record = precomputation_store.get(authorid)
+            if record and not record["computed"]:
+                result = await asyncio.get_event_loop().run_in_executor(
+                    executor, compute_author_connections, authorid, record["paperid"]
+                )
+                record["result"] = result
+                record["computed"] = True
+            if record and record["computed"]:
+                # Move the computed result into the computed_store.
+                computed_store[authorid] = record["result"]
+                del precomputation_store[authorid]
+        await asyncio.sleep(2)
+
+@app.post('/api/graph/get_auth_info')
+async def get_auth_info(data: AuthQuery):
+    try:
+        authorid = data.authorid
+
+        author_info = get_all_author_info(authorid)
+        return author_info
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/api/graph/get_initial_connections')
+async def get_initial_connections(data: GraphQuery):
+    try:
+        authorid = data.authorid
+        paperid = data.paperid
+        global global_paperid
+        global_paperid = paperid
+
+        # Synchronously compute immediate connections.
+        immediate_connections = climate_graph.graph.get_relevant_authors(author_id=authorid, paper_id=paperid)
+
+        # Queue each connected author for background precomputation,
+        # if not already computed.
+        for author in immediate_connections:
+            aid = author.get('authorId')
+            if aid and aid not in computed_store and aid not in precomputation_store:
+                precomputation_store[aid] = {
+                    "paperid": paperid,
+                    "computed": False,
+                    "result": None
+                }
+        print("PRECOMP: ", precomputation_store)
+        print("COMP: ", computed_store)
+        return {'connections': immediate_connections}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/api/graph/get_next_connections')
+async def get_next_connections(gnq: GraphNextQuery):
+    try:
+        print("ENTERING GNC")
+        authorid = gnq.authorid
+        if authorid in computed_store:
+            print("Authpr In Computed Store")
+
+            for connection in computed_store[authorid]:
+                precomputation_store[connection['authorId']] = {
+                    "paperid": global_paperid,
+                    "computed": False,
+                    "result": None
+                }
+
+            print("PRECOMP: ", precomputation_store)
+            print("COMP: ", computed_store)
+            return {"connections": computed_store[authorid]}
+        elif authorid in precomputation_store:
+            print("Authpr In PRECOMP Store")
+
+            # Prioritize this author: compute immediately.
+            result = await asyncio.get_event_loop().run_in_executor(
+                executor, compute_author_connections, authorid, global_paperid
+            )
+
+            print("Authpr has been computed")
+
+            computed_store[authorid] = result
+            del precomputation_store[authorid]
+
+            print("deleted from precomp and returning")
+
+            precomputation_store[authorid] = {
+                "paperid": global_paperid,
+                "computed": False,
+                "result": None
+            }
+
+            print("PRECOMP: ", precomputation_store)
+            print("COMP: ", computed_store)
+            return {"connections": result}
+        else:
+            print("Author not queued")
+
+
+            # Not queued; compute on demand and store.
+            result = await asyncio.get_event_loop().run_in_executor(
+                executor, compute_author_connections, authorid, global_paperid
+            )
+            computed_store[authorid] = result
+            print("Has been computed")
+
+            precomputation_store[authorid] = {
+                "paperid": global_paperid,
+                "computed": False,
+                "result": None
+            }
+            print("PRECOMP: ", precomputation_store)
+            print("COMP: ", computed_store)
+            return {"connections": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# # A simple connection manager for handling websocket connections.
+# class ConnectionManager:
+#     def __init__(self):
+#         self.active_connections: List[WebSocket] = []
+# # A simple connection manager for handling websocket connections.
+# class ConnectionManager:
+#     def __init__(self):
+#         self.active_connections: List[WebSocket] = []
+
+#     async def connect(self, websocket: WebSocket):
+#         await websocket.accept()
+#         self.active_connections.append(websocket)
+
+#     def disconnect(self, websocket: WebSocket):
+#         if websocket in self.active_connections:
+#             self.active_connections.remove(websocket)
+
+#     async def broadcast(self, message: dict):
+#         for connection in self.active_connections:
+#             try:
+#                 await connection.send_json(message)
+#             except Exception:
+#                 # In production, add logging or error handling here.
+#                 pass
+
+# manager = ConnectionManager()
+
+# @app.websocket("/ws/precomputations")
+# async def websocket_precomputations(websocket: WebSocket):
+#     """
+#     WebSocket endpoint that sends computed records to the front end as soon as they are ready.
+#     """
+#     await manager.connect(websocket)
+#     try:
+#         while True:
+#             # Keep the connection open. You can also include a ping/pong or
+#             # simply await for any message (if two-way communication is needed).
+#             await asyncio.sleep(1)
+#     except WebSocketDisconnect:
+#         manager.disconnect(websocket)
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(background_worker())
 @app.post("/api/crm/authors")
 async def create_author(author: AuthorCreate):
     try:

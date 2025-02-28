@@ -1,8 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
-
+import pyalex
 from pyalex import Works
 from common.pinecone_store import PineconeStore
+import os
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+pyalex.config.api_key = os.getenv("OPENALEX_API_KEY") 
 
 
 # Abstract interface for paper sources
