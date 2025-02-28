@@ -5,7 +5,9 @@ import pickle
 import logging
 
 from backend_server.gatherers import OpenAlexInformationGatherer, authors_from_doi, build_author_object
-from .ranker import Ranker, RegressionRanker, OnlineRankSVMRanker
+from .RegressionRanker import RegressionRanker
+from .OnlineSVMRanker import OnlineSVMRanker
+from .ranker import Ranker
 from .author import Author
 from .paper import Paper
 from supabase import Client
@@ -458,7 +460,7 @@ if __name__ == "__main__":
     from .test_ranker import papers
     ranker_classes = {
         'regression': RegressionRanker,
-        'svm': OnlineRankSVMRanker,
+        'svm': OnlineSVMRanker,
     }
 
     supabase: Client = init_supabase()

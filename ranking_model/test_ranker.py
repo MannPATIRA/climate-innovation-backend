@@ -1,6 +1,6 @@
 from .author import Author
 from .paper import Paper
-from .ranker import RegressionRanker
+from .RegressionRanker import RegressionRanker
 
 authors1 = [
         Author(name="Alice", citations=150, dob="1975-06-15", hindex=20,

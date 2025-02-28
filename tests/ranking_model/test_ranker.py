@@ -1,9 +1,10 @@
 import pytest
 import numpy as np
 from unittest.mock import MagicMock
+from ranking_model.OnlineSVMRanker import OnlineSVMRanker
 from ranking_model.author import Author
 from ranking_model.paper import Paper
-from ranking_model.ranker import RegressionRanker, OnlineRankSVMRanker
+from ranking_model.RegressionRanker import RegressionRanker
 
 from tests.ranking_model.common_fixtures import test_authors, test_papers
 
@@ -34,7 +35,7 @@ def mock_supabase_client(model_name):
 @pytest.fixture
 def online_ranksvm_ranker(mock_supabase_client, model_name):
     # High learning rate = 0.5
-    ranker = OnlineRankSVMRanker(mock_supabase_client, model_name, learning_rate=0.5)
+    ranker = OnlineSVMRanker(mock_supabase_client, model_name, learning_rate=0.5)
     return ranker
 
 @pytest.fixture
@@ -106,7 +107,7 @@ class TestRegressionRanker:
         assert len(ranked_authors) == 1
         assert ranked_authors[0].score is not None
 
-class TestOnlineRankSVMRanker:
+class TestOnlineSVMRanker:
     def test_online_ranksvm_initial_ranking(self, online_ranksvm_ranker, test_papers):
         ranked_papers = online_ranksvm_ranker.rank_papers(test_papers)
         assert len(ranked_papers) == 3

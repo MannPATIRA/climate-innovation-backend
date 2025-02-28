@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
 from common.pinecone_store import PineconeStore
+from ranking_model.OnlineSVMRanker import OnlineSVMRanker
 from ranking_model.paper import Paper
 from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
@@ -16,7 +17,7 @@ from ranking_model.author import Author
 from ranking_model.grant import Grant
 from enum import Enum
 from ranking_model.ranker_manager import RankerManager
-from ranking_model.ranker import RegressionRanker, OnlineRankSVMRanker
+from ranking_model.RegressionRanker import RegressionRanker
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -153,7 +154,7 @@ query_processor = QueryProcessor()
 
 ranker_classes = {
     'regression': RegressionRanker,
-    'svm': OnlineRankSVMRanker,
+    'svm': OnlineSVMRanker,
 }
 ranker = RankerManager(supabase, "main_ranker_manager", ranker_classes, 0.01)
 ranker.load_model()
