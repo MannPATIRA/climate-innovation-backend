@@ -1,7 +1,13 @@
 from typing import Generator, Dict, Any
 from itertools import chain
+import pyalex
 from pyalex import Works, Topics
 from .base import Fetcher
+import os
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+pyalex.config.api_key = os.getenv("OPENALEX_API_KEY") 
 
 
 class TopicFetcher(Fetcher):

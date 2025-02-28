@@ -2,6 +2,7 @@ import urllib.parse
 from abc import ABC
 
 import requests
+import pyalex
 from pyalex import Works, Authors
 
 from ranking_model.author import Author
@@ -10,7 +11,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
-OPENALEX_API_KEY = os.getenv("OPENALEX_API_KEY")
+pyalex.config.api_key = os.getenv("OPENALEX_API_KEY") 
 
 
 
@@ -383,6 +384,7 @@ def get_all_author_info(authorid):
 
 if __name__ == "__main__":
     authors = OpenAlexInformationGatherer.get_authors_from_doi("https://doi.org/10.1016/j.biombioe.2010.11.029")
+    print(authors)
     ids = [author["authorId"] for author in authors]
     works = OpenAlexInformationGatherer.get_works_from_author_id(ids[0])
     print(ids)
