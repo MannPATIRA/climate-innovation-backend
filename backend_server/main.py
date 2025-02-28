@@ -270,50 +270,50 @@ async def stream_query(query: Query):
 async def search_papers(query: PaperQuery):
     try:
         # Initialize PineconeStore
-        # pinecone_store = PineconeStore(index_name="climate-index")
+        pinecone_store = PineconeStore(index_name="climate-index")
         
-        # # Query the papers namespace
-        # results = pinecone_store.query_chunk(
-        #     query_text=query.query,
-        #     top_k=query.top_k,
-        #     namespace="papers"
-        # )
+        # Query the papers namespace
+        results = pinecone_store.query_chunk(
+            query_text=query.query,
+            top_k=query.top_k,
+            namespace="papers"
+        )
 
         # Format the results
-        # paper_results = []
-        # for match in results:
-        #     metadata = match.metadata
-        #     authors = authors_from_doi(metadata.get("doi"))
-        #     details = OpenAlexInformationGatherer.get_details_from_paper_id(metadata.get("openalex_id"))
-        #     paper_results.append(Paper(
-        #         paper_id=metadata.get("paper_id"),
-        #         openalex_id=metadata.get("openalex_id"),
-        #         title=details["title"],
-        #         relevancy=match.score,
-        #         doi=metadata.get("doi"),
-        #         abstract=details["abstract"],
-        #         publication_date=details["publication_date"],
-        #         authors=authors
-        #     ))
-
-        sample_paper_id = "https://openalex.org/W4400454085"
-        sample_doi = 'https://doi.org/10.48550/arXiv.2303.11366'
-
-
-        details = OpenAlexInformationGatherer.get_details_from_paper_id(sample_paper_id)
-        authors = authors_from_doi(sample_doi)
-
         paper_results = []
-        paper_results.append(Paper(
-                paper_id=sample_paper_id,
-                openalex_id=sample_paper_id,
-                title="REFLEXION PAPER",
-                relevancy=10,
-                doi='https://doi.org/10.48550/arXiv.2303.11366',
-                abstract="This is a paper on Reflexion",
+        for match in results:
+            metadata = match.metadata
+            authors = authors_from_doi(metadata.get("doi"))
+            details = OpenAlexInformationGatherer.get_details_from_paper_id(metadata.get("openalex_id"))
+            paper_results.append(Paper(
+                paper_id=metadata.get("paper_id"),
+                openalex_id=metadata.get("openalex_id"),
+                title=details["title"],
+                relevancy=match.score,
+                doi=metadata.get("doi"),
+                abstract=details["abstract"],
                 publication_date=details["publication_date"],
                 authors=authors
-        ))
+             ))
+
+        # sample_paper_id = "https://openalex.org/W4400454085"
+        # sample_doi = 'https://doi.org/10.48550/arXiv.2303.11366'
+
+
+        # details = OpenAlexInformationGatherer.get_details_from_paper_id(sample_paper_id)
+        # authors = authors_from_doi(sample_doi)
+
+        # paper_results = []
+        # paper_results.append(Paper(
+        #         paper_id=sample_paper_id,
+        #         openalex_id=sample_paper_id,
+        #         title="REFLEXION PAPER",
+        #         relevancy=10,
+        #         doi='https://doi.org/10.48550/arXiv.2303.11366',
+        #         abstract="This is a paper on Reflexion",
+        #         publication_date=details["publication_date"],
+        #         authors=authors
+        # ))
 
         return paper_results
         # return ranker.rank(paper_results)

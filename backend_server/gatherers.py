@@ -1,23 +1,19 @@
 import urllib.parse
 from abc import ABC
-
 import requests
 import pyalex
 from pyalex import Works, Authors
-
 from ranking_model.author import Author
 from ranking_model.grant import Grant
 import os
 from dotenv import load_dotenv
-
-load_dotenv(override=True)
-pyalex.config.api_key = os.getenv("OPENALEX_API_KEY") 
-
 import unicodedata
 from fuzzywuzzy import fuzz
 import re
 from scholarly import scholarly
 
+load_dotenv(override=True)
+pyalex.config.api_key = os.getenv("OPENALEX_API_KEY") 
 
 def normalize_name(name):
     """Normalize names by removing accents, converting to lowercase, and stripping whitespace."""
