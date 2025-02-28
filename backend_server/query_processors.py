@@ -112,3 +112,14 @@ class QueryProcessor:
         
         # After the stream is complete, call the completion callback
         await completion_callback(full_response)
+
+    async def generate_chat_name(self, query: str) -> str:
+        """Generate a concise chat name based on the user's query"""
+        prompt = ChatPromptTemplate.from_template(
+            "Generate a brief (3-6 words) title for a chat that starts with this query: {query}\n"
+            "The title should be descriptive but concise. Don't use quotes or punctuation.\n"
+            "Just return the title directly, nothing else."
+        )
+        
+        chain = prompt | ChatOpenAI(model="gpt-4o") | StrOutputParser()
+        return await chain.ainvoke({"query": query})

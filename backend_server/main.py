@@ -190,6 +190,9 @@ async def stream_query(query: Query):
         chat = chat_repository.get_chat(query.chat_id)
         current_count = chat.get('message_count', 0)
         
+        # Check if this is the first message (current_count == 0)
+        is_first_message = current_count == 0
+        
         # Get chat history
         chat_history = chat_repository.get_chat_history(query.chat_id)
         
@@ -218,6 +221,11 @@ async def stream_query(query: Query):
                 
             # Update message count again
             chat_repository.update_message_count(query.chat_id, response_order)
+            
+            # Generate and update chat name if this is the first message
+            if is_first_message:
+                chat_name = await query_processor.generate_chat_name(query.query)
+                chat_repository.update_chat_name(query.chat_id, chat_name)
             
             print(f"Completed processing query:\n {query.query}")
             print(f"Full response:\n {full_response}")
