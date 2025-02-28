@@ -3,6 +3,7 @@ import json
 import pytest
 from unittest.mock import MagicMock
 from typing import List
+from supabase import Client
 
 from ranking_model.ranker_manager import RankerManager
 from ranking_model.ranker import Ranker
