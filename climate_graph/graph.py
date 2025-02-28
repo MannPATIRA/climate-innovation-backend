@@ -1,4 +1,6 @@
 import os
+
+import openai
 from backend_server.gatherers import OpenAlexInformationGatherer
 from openai import OpenAI
 import numpy as np
@@ -6,8 +8,8 @@ from collections import Counter
 from ranking_model.ranker import RegressionRanker
 import concurrent.futures
 
-# from dotenv import load_dotenv
-# load_dotenv('../.env')
+from dotenv import load_dotenv
+load_dotenv('../.env')
 
 sample_author_id = 'https://openalex.org/A5060519067'
 sample_doi = 'https://doi.org/10.48550/arXiv.2303.11366'
@@ -82,9 +84,9 @@ def get_title_and_abstract(work):
     return {'abstact_existence': False, 'content': title, 'doi' : work.get('doi')}
 
 def embed_content(work):
-    # OPENAI_API_KEY='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'
-    openai_client = OpenAI(api_key=OPENAI_API_KEY)
-
+    openai_api_key = os.getenv('OPENAI_API_KEY')
+    # NOTE OPENAI API KEY MAY NOT WORK HERE
+    openai_client = OpenAI(api_key=openai_api_key)
     response = openai_client.embeddings.create(
                     model="text-embedding-3-large",
                     input=[work]
