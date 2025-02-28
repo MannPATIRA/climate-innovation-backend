@@ -83,6 +83,7 @@ class QueryProcessor:
             "Context \n\n: {context}\n"
             "Your response must directly start with the markdown"
             "After responding, extract 3-5 main points that answer the query from this response along with their sources.\n"
+            "You must ensure that the main points focus on climate challenges that are technical, not social or health"
             "When you extract these point, you must ensure that they come from the chunks, don't use your own knowledge"
             "Format the output as a JSON list of objects, where each object has 'topic', 'source', and 'url' keys.\n"
             "Format: {{'topics': [{{'topic': 'topic 1', 'source': 'source 1', 'url': 'url 1'}}, "
@@ -111,3 +112,14 @@ class QueryProcessor:
         
         # After the stream is complete, call the completion callback
         await completion_callback(full_response)
+
+    async def generate_chat_name(self, query: str) -> str:
+        """Generate a concise chat name based on the user's query"""
+        prompt = ChatPromptTemplate.from_template(
+            "Generate a brief (3-6 words) title for a chat that starts with this query: {query}\n"
+            "The title should be descriptive but concise. Don't use quotes or punctuation.\n"
+            "Just return the title directly, nothing else."
+        )
+        
+        chain = prompt | ChatOpenAI(model="gpt-4o-mini") | StrOutputParser()
+        return await chain.ainvoke({"query": query})

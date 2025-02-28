@@ -1,13 +1,8 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from typing import List
-from sklearn.linear_model import SGDClassifier
-from sklearn.preprocessing import StandardScaler
 from supabase import Client
-import pickle
 import functools
-import gzip
-import logging
 
 from .author import Author
 from .paper import Paper
@@ -35,23 +30,36 @@ class Ranker(ABC):
         works_count = author.works_count
         return np.array([author.citations, author.hindex, total_grant_value, num_grants, works_count], dtype=float)
 
-    def save_model_before_rank(self, func):
+    @staticmethod
+    def save_model_before_rank(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            self.save_model()
+            # Since this is now a static method, we need to get the instance from args[0]
+            instance = args[0]
+            instance.save_model()
             return func(*args, **kwargs)
         return wrapper
 
     @abstractmethod
     @save_model_before_rank
-    def rank(self, papers: List[Paper]) -> List[Paper]:
+    def rank_papers(self, papers: List[Paper]) -> List[Paper]:
         """
         Ranks a list of papers based on their authors' metrics and paper relevancy.
         Each implementation should define its own ranking algorithm.
         
-        (Auxilliary function to save the latest model before ranking)
+        (Auxiliary function to save the latest model before ranking)
 
         Returns a list of papers ranked by their overall score (highest first).
+        """
+        pass
+
+    @abstractmethod
+    def rank_authors(self, authors: List[Author]) -> List[Author]:
+        """ 
+        Ranks a list of authors based on their metrics.
+        Each implementation should define its own ranking algorithm.
+
+        Returns a list of authors ranked by their overall score (highest first).
         """
         pass
 
@@ -84,7 +92,6 @@ class Ranker(ABC):
         """
         Process a deletion of an author:
           - Update the author model with a rejection (label = 0).
-          - Remove the author from the paper.
         """
         pass
 

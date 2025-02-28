@@ -1,9 +1,9 @@
-from author import Author
-from paper import Paper
-from ranker import OnlineRankSVMRanker
+import pytest
+from ranking_model.author import Author
+from ranking_model.paper import Paper
 
-def test_online_ranksvm():
-    # Create test authors with various metrics
+@pytest.fixture
+def test_authors():
     authors1 = [
         Author(name="Alice", citations=150, dob="1975-06-15", hindex=20, organisation_history=["Uni A"], orcid="0000-0001-1234-5678", grants=[], grant_org_name="Research Foundation", website="https://alice.com", openAlexid="A12345", works_count=45),
         Author(name="Bob", citations=100, dob="1980-03-22", hindex=15, organisation_history=["Uni B"], orcid="0000-0002-2345-6789", grants=[], grant_org_name="Science Foundation", website="https://bob.com", openAlexid="B12345", works_count=30),
@@ -20,8 +20,11 @@ def test_online_ranksvm():
         Author(name="Grace", citations=120, dob="1982-07-07", hindex=18, organisation_history=["Uni G"], orcid="0000-0007-7890-1234", grants=[], grant_org_name="Science Trust", website="https://grace.com", openAlexid="G12345", works_count=40),
         Author(name="Heidi", citations=90, dob="1988-05-20", hindex=14, organisation_history=["Uni H"], orcid="0000-0008-8901-2345", grants=[], grant_org_name="Research Council", website="https://heidi.com", openAlexid="H12345", works_count=30)
     ]
+    return authors1, authors2, authors3
 
-    # Create sample papers
+@pytest.fixture
+def test_papers(test_authors):
+    authors1, authors2, authors3 = test_authors
     paper1 = Paper(
         paper_id=1,
         openalex_id="W1234567890",
@@ -52,71 +55,4 @@ def test_online_ranksvm():
         abstract="Novel approaches in biotechnology and their potential impact on medicine.",
         publication_date="2023-03-10"
     )
-
-    # Initialize the online ranker
-    ranker = OnlineRankSVMRanker(learning_rate=0.01)
-    papers = [paper1, paper2, paper3]
-
-    # Test 1: Initial Ranking
-    print("\nTest 1: Initial Ranking (Before any feedback)")
-    ranked_papers = ranker.rank(papers)
-    for p in ranked_papers:
-        print(f"Paper: {p.title} (Score: {p.score:.3f})")
-        for a in p.authors:
-            print(f"   Author: {a.name} (Score: {a.score:.3f})")
-
-    # Test 2: Online Learning - Single Update
-    print("\nTest 2: After Single Update")
-    ranker.delete_author(paper1, authors1[1])  # Reject Bob
-    ranked_papers = ranker.rank(papers)
-    for p in ranked_papers:
-        print(f"Paper: {p.title} (Score: {p.score:.3f})")
-        for a in p.authors:
-            print(f"   Author: {a.name} (Score: {a.score:.3f})")
-
-    # Test 3: Multiple Sequential Updates
-    print("\nTest 3: After Multiple Sequential Updates")
-    ranker.accept_author(paper2, authors2[1])  # Accept Eve
-    ranker.delete_paper(paper3)  # Reject paper3
-    ranked_papers = ranker.rank(papers)
-    for p in ranked_papers:
-        print(f"Paper: {p.title} (Score: {p.score:.3f})")
-        for a in p.authors:
-            print(f"   Author: {a.name} (Score: {a.score:.3f})")
-
-    # Test 4: Model Consistency
-    print("\nTest 4: Testing Model Consistency")
-    # Create a new similar author to test model consistency
-    new_author = Author(
-        name="NewBob", 
-        citations=100, 
-        dob="1980-03-22", 
-        hindex=15,
-        organisation_history=["Uni X"],
-        orcid="0000-0009-9012-3456",
-        grants=[],
-        grant_org_name="New Foundation",
-        website="https://newbob.com",
-        openAlexid="NB12345",
-        works_count=30
-    )
-    paper1.authors.append(new_author)
-    ranked_papers = ranker.rank(papers)
-    for p in ranked_papers:
-        print(f"Paper: {p.title} (Score: {p.score:.3f})")
-        for a in p.authors:
-            print(f"   Author: {a.name} (Score: {a.score:.3f})")
-
-    # Test 5: Incremental Learning
-    print("\nTest 5: Testing Incremental Learning")
-    # Sequential updates to verify incremental learning
-    for i in range(3):
-        ranker.accept_author(paper2, authors2[1])  # Repeatedly accept Eve
-        print(f"\nAfter {i+1} additional accepts for Eve:")
-        ranked_papers = ranker.rank(papers)
-        for p in ranked_papers:
-            if authors2[1] in p.authors:
-                print(f"Eve's score in {p.title}: {authors2[1].score:.3f}")
-
-if __name__ == "__main__":
-    test_online_ranksvm()
+    return [paper1, paper2, paper3]

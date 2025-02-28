@@ -1,30 +1,30 @@
-from author import Author
-from paper import Paper
-from ranker import RegressionRanker
+from .author import Author
+from .paper import Paper
+from .RegressionRanker import RegressionRanker
 
 authors1 = [
         Author(name="Alice", citations=150, dob="1975-06-15", hindex=20,
-         organisation_history=["Uni A"], orcid="0000-0001-1234-5678", grants=[], grant_org_name="Research Foundation", website="https://alice.com", openAlexid="A12345", works_count=45),
+         organisation_history=["Uni A"], orcid="0000-0001-1234-5678", grants=[], grant_org_name="Research Foundation", website="https://alice.com", openAlexid="a5038999513", works_count=45),
         Author(name="Bob", citations=100, dob="1980-03-22", hindex=15,
-         organisation_history=["Uni B"], orcid="0000-0002-2345-6789", grants=[], grant_org_name="Science Foundation", website="https://bob.com", openAlexid="B12345", works_count=30),
+         organisation_history=["Uni B"], orcid="0000-0002-2345-6789", grants=[], grant_org_name="Science Foundation", website="https://bob.com", openAlexid="a5028999511", works_count=30),
         Author(name="Carol", citations=200, dob="1972-11-05", hindex=25,
-         organisation_history=["Uni C"], orcid="0000-0003-3456-7890", grants=[], grant_org_name="Innovation Fund", website="https://carol.com", openAlexid="C12345", works_count=60)
+         organisation_history=["Uni C"], orcid="0000-0003-3456-7890", grants=[], grant_org_name="Innovation Fund", website="https://carol.com", openAlexid="a5028999510", works_count=60)
     ]
 
 authors2 = [
     Author(name="Dave", citations=80, dob="1985-01-10", hindex=12, 
-           organisation_history=["Uni D"], orcid="0000-0004-4567-8901", grants=[], grant_org_name="Tech Foundation", website="https://dave.com", openAlexid="D12345", works_count=25),
+           organisation_history=["Uni D"], orcid="0000-0004-4567-8901", grants=[], grant_org_name="Tech Foundation", website="https://dave.com", openAlexid="a5038999513", works_count=25),
     Author(name="Eve", citations=300, dob="1970-09-30", hindex=30,
-     organisation_history=["Uni E"], orcid="0000-0005-5678-9012", grants=[], grant_org_name="Global Research Fund", website="https://eve.com", openAlexid="E12345", works_count=80)
+     organisation_history=["Uni E"], orcid="0000-0005-5678-9012", grants=[], grant_org_name="Global Research Fund", website="https://eve.com", openAlexid="a5028999511", works_count=80)
 ]
 
 authors3 = [
     Author(name="Frank", citations=50, dob="1990-12-01", hindex=8, 
-     organisation_history=["Uni F"], orcid="0000-0006-6789-0123", grants=[], grant_org_name="Young Researchers Fund", website="https://frank.com", openAlexid="F12345", works_count=15),
+     organisation_history=["Uni F"], orcid="0000-0006-6789-0123", grants=[], grant_org_name="Young Researchers Fund", website="https://frank.com", openAlexid="a5028999511", works_count=15),
     Author(name="Grace", citations=120, dob="1982-07-07", hindex=18,
-     organisation_history=["Uni G"], orcid="0000-0007-7890-1234", grants=[], grant_org_name="Science Trust", website="https://grace.com", openAlexid="G12345", works_count=40),
+     organisation_history=["Uni G"], orcid="0000-0007-7890-1234", grants=[], grant_org_name="Science Trust", website="https://grace.com", openAlexid="a5028999515", works_count=40),
     Author(name="Heidi", citations=90, dob="1988-05-20", hindex=14,
-     organisation_history=["Uni H"], orcid="0000-0008-8901-2345", grants=[], grant_org_name="Research Council", website="https://heidi.com", openAlexid="H12345", works_count=30)
+     organisation_history=["Uni H"], orcid="0000-0008-8901-2345", grants=[], grant_org_name="Research Council", website="https://heidi.com", openAlexid="a5028999514", works_count=30)
 ]
 
 # Create some sample Paper instances.
@@ -63,30 +63,41 @@ paper3 = Paper(
 papers = [paper1, paper2, paper3]
 
 # Instantiate the Ranker.
-ranker = RegressionRanker(learning_rate=0.01)
+class MockSupabaseClient:
+    def table(self, table_name):
+        return self
+    def upsert(self, data):
+        return self
+    def execute(self):
+        return None
 
-# Rank the papers (this will also rank the authors inside each paper).
-ranked_papers = ranker.rank(papers)
-print("\nRanked Papers and Authors:")
-for p in ranked_papers:
-    print(f"Paper: {p.title} (Score: {p.score:.3f})")
-    for a in p.authors:
-        print(f"   Author: {a.name} (Score: {a.score:.3f})")
+if __name__ == "__main__":
+    mock_supabase_client = MockSupabaseClient()
+    model_name = "test_model"
+    ranker = RegressionRanker(supabase_client=mock_supabase_client, model_name=model_name, learning_rate=0.01)
 
-# Simulate user feedback:
-# Suppose the user rejects author "Bob" from paper1.
-ranker.delete_author(paper1, authors1[1])  # Bob is authors1[1]
+    # Rank the papers (this will also rank the authors inside each paper).
+    ranked_papers = ranker.rank_papers(papers)
+    print("\nRanked Papers and Authors:")
+    for p in ranked_papers:
+        print(f"Paper: {p.title} (Score: {p.score:.3f})")
+        for a in p.authors:
+            print(f"   Author: {a.name} (Score: {a.score:.3f})")
 
-# Suppose the user accepts author "Eve" from paper2.
-ranker.accept_author(paper2, authors2[1])  # Eve is authors2[1]
+    # Simulate user feedback:
+    # Suppose the user rejects author "Bob" from paper1.
+    ranker.delete_author(paper1, authors1[1])  # Bob is authors1[1]
 
-# Suppose the user rejects paper3.
-ranker.delete_paper(paper3)
+    # Suppose the user accepts author "Eve" from paper2.
+    ranker.accept_author(paper2, authors2[1])  # Eve is authors2[1]
 
-# Re-rank after the updates.
-ranked_papers = ranker.rank(papers)
-print("\nAfter Updates - Ranked Papers and Authors:")
-for p in ranked_papers:
-    print(f"Paper: {p.title} (Score: {p.score:.3f})")
-    for a in p.authors:
-        print(f"   Author: {a.name} (Score: {a.score:.3f})")
+    # Suppose the user rejects paper3.
+    ranker.delete_paper(paper3)
+
+    # Re-rank after the updates.
+    ranked_papers = ranker.rank_papers(papers)
+    print("\nAfter Updates - Ranked Papers and Authors:")
+    for p in ranked_papers:
+        print(f"Paper: {p.title} (Score: {p.score:.3f})")
+        for a in p.authors:
+            print(f"   Author: {a.name} (Score: {a.score:.3f})")

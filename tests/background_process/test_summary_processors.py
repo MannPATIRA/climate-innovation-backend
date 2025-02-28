@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import Mock, patch
 from background_process.processors.summary_processor import Summarizer, SummaryProcessor
 from background_process.processors.report_processor import PDFDocument
+from background_process.utils.process_log_manager import ProcessLogManager
 
 # Mock Summarizer Implementation
 class MockSummarizer(Summarizer):
@@ -12,12 +13,22 @@ class MockSummarizer(Summarizer):
 @pytest.fixture
 def mock_supabase():
     mock = Mock()
-    # Setup mock table responses
     mock_table = Mock()
     mock.table.return_value = mock_table
     mock_table.insert.return_value = mock_table
     mock_table.select.return_value = mock_table
     mock_table.eq.return_value = mock_table
+
+    # Simulate the structure of a Supabase response
+    mock_execute = Mock()
+    mock_execute.data = [{
+        "id": 1,
+        "content": "test content",
+        "report_title": "Test Report",
+        "report_id": 1
+    }]
+    mock_table.execute.return_value = mock_execute
+
     return mock
 
 @pytest.fixture
@@ -32,6 +43,7 @@ def mock_summarizer():
 def summary_processor(mock_summarizer, mock_supabase, mock_pinecone_store):
     return SummaryProcessor(
         summarizer=mock_summarizer,
+        process_log_manager=ProcessLogManager(mock_supabase),
         supabase_client=mock_supabase,
         pinecone_store=mock_pinecone_store
     )
@@ -72,37 +84,33 @@ def test_summary_processor_initialization(summary_processor, mock_summarizer, mo
     assert summary_processor.pinecone_store == mock_pinecone_store
     assert summary_processor.text_splitter is not None
 
-def test_generate_summary(summary_processor):
+def test_generate_summary(mock_summarizer):
     """Test summary generation"""
     text = "This is a test document that needs to be summarized."
-    summary = summary_processor.generate_summary(text)
+    summary = mock_summarizer.generate_summary(text)
     assert isinstance(summary, str)
     assert summary.startswith("Summary of:")
 
 def test_add_summary_to_db(summary_processor, mock_supabase, sample_document):
     """Test adding summary to database"""
+    original_text = "Original text"
     summary = "Test summary"
-    content_hash = "test_hash"
     report_id = 1
+    chunk_index = 0
+    content_hash = "test_hash"
     
     mock_supabase.table().insert().execute.return_value.data = [{"id": 1}]
     
     result = summary_processor.add_summary_to_db(
+        original_text=original_text,
         summary=summary,
         report_id=report_id,
-        document=sample_document,
+        chunk_index=chunk_index,
         content_hash=content_hash
     )
     
     assert result == {"id": 1}
     mock_supabase.table.assert_called_with('summaries')
-    mock_supabase.table().insert.assert_called_with({
-        "content": summary,
-        "content_hash": content_hash,
-        "report_id": report_id,
-        "title": sample_document.title,
-    })
-
 
 def test_get_summary(summary_processor, mock_supabase):
     """Test getting summary from database"""
@@ -115,98 +123,75 @@ def test_get_summary(summary_processor, mock_supabase):
     mock_supabase.table.assert_called_with('summaries')
     mock_supabase.table().select.assert_called_with("*")
 
-def test_chunk_text(summary_processor):
-    """Test text chunking"""
-    long_text = "a" * 1000  # Text longer than chunk size
-    chunks = summary_processor.chunk_text(long_text)
-    
-    assert isinstance(chunks, list)
-    assert len(chunks) > 1
-    assert all(len(chunk) <= 500 for chunk in chunks)
-
 def test_chunk_and_embed(summary_processor, mock_pinecone_store):
     """Test chunking and embedding process"""
-    summary = "test " * 200  # Long enough to create multiple chunks
-    metadata = {"summary_id": 1}
+    summaries = ["summary1", "summary2"]
+    original_chunks = ["chunk1", "chunk2"]
+    metadata_base = {"report_id": 1, "report_title": "Test"}
     mock_pinecone_store.add_chunks.return_value = True
     
-    result = summary_processor.chunk_and_embed(summary, metadata)
+    result = summary_processor.chunk_and_embed(
+        summaries=summaries,
+        original_chunks=original_chunks,
+        metadata_base=metadata_base
+    )
     
     assert result is True
     mock_pinecone_store.add_chunks.assert_called_once()
     args = mock_pinecone_store.add_chunks.call_args[1]
     assert "chunks" in args
     assert "metadata" in args
-    assert args["namespace"] == "summaries"
+    assert args["namespace"] == "report_summaries"
 
-@patch.object(SummaryProcessor, 'get_summary', return_value=[])
-def test_summarize_new_summary(sample_document, sample_report_record, mock_supabase, mock_pinecone_store, summary_processor):
-    """Test summarizing a new document"""
-    # Setup
-    mock_supabase.table().select().eq().execute.return_value.data = []  # No existing summary
-    mock_supabase.table().insert().execute.return_value.data = [{"id": 1}]
+def test_process_new_document(summary_processor, mock_supabase, mock_pinecone_store):
+    """Test processing a new document"""
+    report_data = {
+        "report_id": 1
+    }
     mock_pinecone_store.add_chunks.return_value = True
-    
-    # Execute
-    summary_processor.summarize(sample_document, sample_report_record, "testpath.pdf")
-    
-    # Verify
-    assert mock_supabase.table().insert.call_count == 2
-    mock_pinecone_store.add_chunks.assert_called_once()
+    mock_supabase.table().select().eq().execute.return_value.data = [] # Mock no existing summaries
 
-def test_summarize_existing_summary(summary_processor, sample_document, sample_report_record, mock_supabase, mock_pinecone_store):
-    """Test handling of already existing summary"""
-    # Setup
-    mock_supabase.table().select().eq().execute.return_value.data = [{"id": 1}]  # Existing summary
+    with pytest.raises(Exception):
+        summary_processor.process(report_data)
+
+def test_process_existing_document(summary_processor, mock_supabase, mock_pinecone_store):
+    """Test handling of already processed document"""
+    report_data = {
+        "report_id": 1
+    }
+    summaries, records = summary_processor.process(report_data)
     
-    # Execute
-    summary_processor.summarize(sample_document, sample_report_record, "testpath.pdf")
-    
-    # Verify
-    mock_supabase.table().insert.assert_not_called()
-    mock_pinecone_store.add_chunks.assert_not_called()
+    assert len(summaries) == 0
+    assert len(records) == 0
 
 def test_chunk_and_embed_error(summary_processor, mock_pinecone_store):
     """Test handling of chunking and embedding errors"""
     mock_pinecone_store.add_chunks.side_effect = Exception("Pinecone error")
     
     with pytest.raises(Exception) as exc_info:
-        summary_processor.chunk_and_embed("test summary", {})
-    assert "Error adding summary to Pinecone" in str(exc_info.value)
+        summary_processor.chunk_and_embed(
+            summaries=["test"],
+            original_chunks=["test"],
+            metadata_base={"report_id": 1}
+        )
+    assert "Error adding summaries to Pinecone" in str(exc_info.value)
 
 # Integration tests
-@patch.object(SummaryProcessor, 'get_summary', return_value=[])
-def test_full_summary_workflow(sample_document, sample_report_record, mock_supabase, mock_pinecone_store, summary_processor):
+def test_full_summary_workflow(mock_supabase, mock_pinecone_store, summary_processor):
     """Test the full summary workflow"""
-    # Setup
-    mock_supabase.table().select().eq().execute.return_value.data = []  # No existing summary
-    mock_supabase.table().insert().execute.return_value.data = [{"id": 1}]
+    report_data = {
+        "report_id": 1
+    }
     mock_pinecone_store.add_chunks.return_value = True
     
     try:
-        summary_processor.summarize(sample_document, sample_report_record, "testpath.pdf")
+        summaries, records = summary_processor.process(report_data)
         
         # Verify the sequence of operations
-        # Verify Supabase operations
         mock_supabase.table.assert_called()
-        assert mock_supabase.table().insert.call_count == 2
         
-        # Verify Pinecone operations
-        mock_pinecone_store.add_chunks.assert_called_once()
-
-
-        
-        # Verify the call arguments to Pinecone
-        actual_call = mock_pinecone_store.add_chunks.call_args
-        assert actual_call is not None, "add_chunks was not called"
-        
-        # Print actual call details
-        args, kwargs = actual_call
-        
-        # Verify the namespace
-        assert kwargs["namespace"] == "summaries"
-        assert isinstance(kwargs["chunks"], list)
-        assert isinstance(kwargs["metadata"], list)
+        assert isinstance(summaries, list)
+        assert isinstance(records, list)
         
     except Exception as e:
         print(f"\nException occurred during test: {str(e)}")

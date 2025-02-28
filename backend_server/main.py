@@ -5,11 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema.output_parser import StrOutputParser
-from langchain_openai import ChatOpenAI
 from fastapi.responses import StreamingResponse
 from common.pinecone_store import PineconeStore
+from ranking_model.OnlineSVMRanker import OnlineSVMRanker
 from ranking_model.paper import Paper
 from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
@@ -24,6 +22,8 @@ from typing import List
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
+from ranking_model.ranker_manager import RankerManager
+from ranking_model.RegressionRanker import RegressionRanker
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -130,6 +130,8 @@ class AuthorUpdate(BaseModel):
 author_queue = []
 global_paperid = ""
 
+
+
 def build_author_from_dict(data: dict) -> Author:
     grants = []
     for grant in data.get("grants", []):
@@ -173,7 +175,12 @@ def build_paper_from_dict(data: dict) -> Paper:
 query_processor = QueryProcessor()
 # query_processor = MockQueryProcessor()
 
-ranker = RegressionRanker(supabase, "regression_ranker", 0.000001)
+ranker_classes = {
+    'regression': RegressionRanker,
+    'svm': OnlineSVMRanker,
+}
+ranker = RankerManager(supabase, "main_ranker_manager", ranker_classes, 0.01)
+ranker.load_model()
 
 @app.get("/")
 async def home():
@@ -206,6 +213,9 @@ async def stream_query(query: Query):
         chat = chat_repository.get_chat(query.chat_id)
         current_count = chat.get('message_count', 0)
         
+        # Check if this is the first message (current_count == 0)
+        is_first_message = current_count == 0
+        
         # Get chat history
         chat_history = chat_repository.get_chat_history(query.chat_id)
         
@@ -234,6 +244,11 @@ async def stream_query(query: Query):
                 
             # Update message count again
             chat_repository.update_message_count(query.chat_id, response_order)
+            
+            # Generate and update chat name if this is the first message
+            if is_first_message:
+                chat_name = await query_processor.generate_chat_name(query.query)
+                chat_repository.update_chat_name(query.chat_id, chat_name)
             
             print(f"Completed processing query:\n {query.query}")
             print(f"Full response:\n {full_response}")
@@ -321,6 +336,7 @@ async def paper_feedback(feedback: PaperFeedback):
         else:
             ranker.delete_paper(paper_obj)
             message = "Paper rejected. Model weights updated."
+        # message = "Paper ranking is disabled"
         return {"message": message}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -350,6 +366,7 @@ async def author_feedback(feedback: AuthorFeedback):
         else:
             ranker.delete_author(paper_obj, target_author)
             message = "Author rejected. Model weights updated."
+        # message = "Author ranking is disabled"
         return {"message": message}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -557,9 +574,9 @@ async def create_author(author: AuthorCreate):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.patch("/api/crm/authors/{author_id}/note")
-async def update_author_note(author_id: int, note: str):
+async def update_author_note(author_id: int, note_update: AuthorUpdate):
     try:
-        result = supabase.table("author_crm").update({"note": note}).eq("id", author_id).execute()
+        result = supabase.table("author_crm").update({"note": note_update.note}).eq("id", author_id).execute()
         
         if not result.data:
             raise HTTPException(status_code=404, detail="Author not found")
@@ -569,9 +586,9 @@ async def update_author_note(author_id: int, note: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.patch("/api/crm/authors/{author_id}/state")
-async def update_author_state(author_id: int, state: AuthorState):
+async def update_author_state(author_id: int, state_update: AuthorUpdate):
     try:
-        result = supabase.table("author_crm").update({"state": state}).eq("id", author_id).execute()
+        result = supabase.table("author_crm").update({"state": state_update.state}).eq("id", author_id).execute()
         
         if not result.data:
             raise HTTPException(status_code=404, detail="Author not found")
@@ -597,6 +614,38 @@ async def get_author(author_id: int):
             raise HTTPException(status_code=404, detail="Author not found")
             
         return result.data[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/crm/authors/{author_id}")
+async def delete_author(author_id: int):
+    try:
+        result = supabase.table("author_crm").delete().eq("id", author_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Author not found")
+            
+        return {"message": "Author deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/chats")
+async def get_all_chats():
+    try:
+        result = chat_repository.get_all_chats()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/chats/{chat_id}/messages")
+async def get_chat_messages(chat_id: str):
+    try:
+        result = chat_repository.get_chat_history(chat_id)
+        if not result:
+            raise HTTPException(status_code=404, detail=f"No messages found for chat {chat_id}")
+        return result
+    except ChatNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

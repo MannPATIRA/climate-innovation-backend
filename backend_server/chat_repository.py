@@ -54,4 +54,23 @@ class ChatRepository:
         return self.supabase.table("chats")\
             .update({"message_count": count})\
             .eq("id", chat_id)\
-            .execute() 
+            .execute()
+
+    def get_all_chats(self):
+        result = self.supabase.table("chats")\
+            .select("*")\
+            .order("created_at", desc=True)\
+            .execute()
+        
+        return result.data
+
+    def update_chat_name(self, chat_id: str, name: str):
+        """Update the name of a chat"""
+        result = self.supabase.table("chats").update(
+            {"name": name}
+        ).eq("id", chat_id).execute()
+        
+        if not result.data:
+            raise ChatNotFoundError(f"Chat with ID {chat_id} not found")
+        
+        return result.data[0]

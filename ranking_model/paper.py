@@ -13,6 +13,7 @@ class Paper:
         self.authors = authors  # List of Author instances
         self.score = None  # Overall paper score (computed later)
         self.citations=citations
+        self.init_authors = authors.copy()  # List of Author instances
     
     def __repr__(self):
         return f"Paper(id={self.paper_id}, score={self.score:.3f}, authors={self.authors})"

@@ -1,4 +1,4 @@
-from pinecone import ServerlessSpec
+from pinecone import ServerlessSpec, QueryResponse
 from pinecone.grpc import PineconeGRPC as Pinecone
 from common.vector_store import VectorStore
 import os

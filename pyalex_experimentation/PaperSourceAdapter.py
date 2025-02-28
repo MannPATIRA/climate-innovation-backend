@@ -54,7 +54,7 @@ class PyAlexPaperSource(AbstractPaperSource):
                                    "://openalex.org/I4210092773"}}
         ) \
             .filter(
-            publication_year=">1999"
+            publication_year=">2008"
         ) \
             .filter(
             primary_topic={"domain": {"id": "!2"}}
