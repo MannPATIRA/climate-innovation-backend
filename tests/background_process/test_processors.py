@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch, mock_open, AsyncMock
 from background_process.processors.report_processor import ReportProcessor, PDFDocument
 from background_process.processors.paper_processor import  PaperProcessor, Paper
 from background_process.processors.topic_processor import TopicProcessor, TopicAssessment
+from background_process.utils.process_log_manager import ProcessLogManager
 
 # Fixtures
 @pytest.fixture
@@ -31,6 +32,7 @@ def mock_pinecone_store():
 def report_processor(mock_supabase, mock_pinecone_store):
     return ReportProcessor(
         supabase_client=mock_supabase,
+        process_log_manager=ProcessLogManager(mock_supabase),
         pinecone_store=mock_pinecone_store
     )
 
