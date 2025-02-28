@@ -6,6 +6,12 @@ from pyalex import Works, Authors
 
 from ranking_model.author import Author
 from ranking_model.grant import Grant
+import os
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+OPENALEX_API_KEY = os.getenv("OPENALEX_API_KEY")
+
 
 
 class InformationGatherer(ABC):

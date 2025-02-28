@@ -237,7 +237,7 @@ async def stream_query(query: Query):
 @app.post("/api/papers/search")
 async def search_papers(query: PaperQuery):
     try:
-        # # Initialize PineconeStore
+        # Initialize PineconeStore
         # pinecone_store = PineconeStore(index_name="climate-index")
         
         # # Query the papers namespace
@@ -247,7 +247,7 @@ async def search_papers(query: PaperQuery):
         #     namespace="papers"
         # )
 
-        # # Format the results
+        # Format the results
         # paper_results = []
         # for match in results:
         #     metadata = match.metadata

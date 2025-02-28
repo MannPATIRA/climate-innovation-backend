@@ -9,7 +9,8 @@ from ranking_model.ranker import RegressionRanker
 import concurrent.futures
 
 from dotenv import load_dotenv
-load_dotenv('../.env')
+load_dotenv(override=True)
+
 
 sample_author_id = 'https://openalex.org/A5060519067'
 sample_doi = 'https://doi.org/10.48550/arXiv.2303.11366'
