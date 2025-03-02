@@ -68,6 +68,26 @@ class PaperProcessor(Processor):
             print(f"Error adding to Pinecone: {str(e)}")
             return False
 
+    def add_author_to_db(self, author: Dict[str, Any]) -> Dict[str, Any]:
+        """Add author to Supabase DB with retry logic"""
+        data = {
+            "openalex_id": author['id'],
+            "display_name": author['display_name'],
+            "orcid": author['orcid']
+        }
+        response = self.supabase.table('authors').upsert(data).execute()
+        return response.data[0]
+
+    def add_paper_author_relation(self, paper_id: int, author_id: int, position: str, is_corresponding: bool):
+        """Add paper-author relationship to Supabase DB"""
+        data = {
+            "paper_id": paper_id,
+            "author_id": author_id,
+            "position": position,
+            "is_corresponding": is_corresponding
+        }
+        self.supabase.table('paper_authors').insert(data).execute()
+
     def process_single_paper(self, data: Dict[str, Any]) -> Tuple[Paper, Dict[str, Any]]:
         """Process a single paper with error handling"""
         try:
@@ -79,6 +99,7 @@ class PaperProcessor(Processor):
             
             abstract = data['abstract']
             metadata = data['metadata']
+            authors = data['authors']
             
             paper = Paper(
                 abstract=abstract,
@@ -92,6 +113,16 @@ class PaperProcessor(Processor):
             if not existing_paper:
                 # Add to Supabase
                 paper_record = self.add_paper_to_db(paper)
+
+                # Process authors
+                for author in authors:
+                    author_record = self.add_author_to_db(author)
+                    self.add_paper_author_relation(
+                        paper_record['id'],
+                        author_record['id'],
+                        author['position'],
+                        author['is_corresponding']
+                    )
 
                 # Add to Pinecone
                 paper_metadata = {

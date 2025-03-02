@@ -139,7 +139,29 @@ class PyAlexFetcher(PaperFetcher):
             
         return all_topics
 
-    def fetch(self, country: str, **kwargs) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
+    def _get_relevant_authors(self, work: Dict) -> List[Dict[str, Any]]:
+        """Extract first, last, and corresponding authors from work"""
+        relevant_authors = []
+        authorships = work.get('authorships', [])
+        
+        for authorship in authorships:
+            author = authorship.get('author', {})
+            position = authorship.get('author_position')
+            is_corresponding = authorship.get('is_corresponding', False)
+            
+            # Only include first, last, or corresponding authors
+            if position in ['first', 'last'] or is_corresponding:
+                relevant_authors.append({
+                    'id': author.get('id'),
+                    'display_name': author.get('display_name'),
+                    'orcid': author.get('orcid'),
+                    'position': position,
+                    'is_corresponding': is_corresponding
+                })
+        
+        return relevant_authors
+
+    def fetch(self, country: str, **kwargs) -> Generator[Tuple[str, Dict[str, Any], List[Dict[str, Any]]], None, None]:
         """
         Generates paper abstracts using the pyalex library.
 
@@ -151,6 +173,7 @@ class PyAlexFetcher(PaperFetcher):
             Tuple containing:
                 - abstract (str): The paper's abstract
                 - metadata (Dict): Dictionary containing id, doi, and title of the paper
+                - authors (List[Dict]): List of relevant authors with their details
         """
         # First yield any failed papers
         #yield from self._get_failed_papers()
@@ -203,8 +226,9 @@ class PyAlexFetcher(PaperFetcher):
                                 'doi': paper.get('doi'),
                                 'title': paper.get('title')
                             }
+                            authors = self._get_relevant_authors(paper)
                             papers_yielded += 1
-                            yield abstract, metadata
+                            yield abstract, metadata, authors
                     else:
                         print("primary topic is null: here are topics: ")
                         print(paper.get('topics', "No topics"))

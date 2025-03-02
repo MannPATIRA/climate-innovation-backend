@@ -28,10 +28,11 @@ class PaperOrchestrator(Orchestrator):
 
     def _format_paper_data(self, paper_tuple: Tuple[str, Dict[str, Any]]) -> Dict[str, Any]:
         """Convert paper tuple from fetcher to dictionary format"""
-        abstract, metadata = paper_tuple
+        abstract, metadata, authors = paper_tuple
         return {
             'abstract': abstract,
-            'metadata': metadata
+            'metadata': metadata,
+            'authors': authors
         }
 
     def run(self, country: str = "GB"):
