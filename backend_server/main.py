@@ -281,12 +281,18 @@ async def search_papers(query: PaperQuery):
 
         # Format the results
         paper_results = []
+        seen_paper_ids = set() # To avoid duplicates
         for match in results:
             metadata = match.metadata
+            # Skip if we've already seen this paper ID
+            paper_id = metadata.get("paper_id")
+            if paper_id in seen_paper_ids:
+                continue
+            seen_paper_ids.add(paper_id)
             authors = authors_from_doi(metadata.get("doi"))
             details = OpenAlexInformationGatherer.get_details_from_paper_id(metadata.get("openalex_id"))
             paper_results.append(Paper(
-                paper_id=metadata.get("paper_id"),
+                paper_id=paper_id,
                 openalex_id=metadata.get("openalex_id"),
                 title=details["title"],
                 relevancy=match.score,
