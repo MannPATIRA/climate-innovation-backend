@@ -28,7 +28,8 @@ class PaperProcessor(Processor):
         data = {
             "openalex_id": paper.openalex_id,
             "doi": paper.doi,
-            "title": paper.title
+            "title": paper.title,
+            "abstract": paper.abstract
         }
         response = self.supabase.table('papers').insert(data).execute()
         return response.data[0]
@@ -83,7 +84,7 @@ class PaperProcessor(Processor):
                 abstract=abstract,
                 openalex_id=openalex_id,
                 doi=metadata.get('doi'),
-                title=metadata['title'],
+                title=metadata.get('title'),
             )
             
             # Check if paper exists
@@ -146,5 +147,4 @@ class PaperProcessor(Processor):
         For batch processing, use process_batch.
         """
         # Run the async process in the event loop
-        return asyncio.run(self.process_single_paper(data)) 
         return asyncio.run(self.process_single_paper(data)) 
