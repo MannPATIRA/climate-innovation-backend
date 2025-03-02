@@ -73,18 +73,33 @@ class QueryProcessor:
         # Join all formatted chunks
         return "\n".join(formatted_context)
 
+    def _convert_chat_history(self, chat_history: list) -> str:
+        """Convert the last 2 exchanges of chat history to a formatted string"""
+        # No need to sort by order to ensure chronological sequence since we assume we get chat history in order
+        
+        # Get last 4 messages (2 exchanges) if they exist
+        recent_messages = chat_history[-4:] if len(chat_history) >= 4 else chat_history
+        # Format messages into a string
+        formatted_history = []
+        for message in recent_messages:
+            role = "User" if message["user_message"] else "Assistant"
+            formatted_history.append(f"{role}: {message['content']}")
+        
+        return "\n\n".join(formatted_history) if formatted_history else ""
+
     def _create_chain(self):
         """Helper method to create and configure the LangChain processing chain"""
         model = ChatOpenAI(model="gpt-4o")
 
         prompt = ChatPromptTemplate.from_template(
-            "Answer the following query in markdown format using the provided context\n"
+            "Given the following conversation history and query, provide an answer in markdown format using the provided context.\n"
+            "Chat History:\n{chat_history}\n\n"
             "Query: {query}\n"
-            "Context \n\n: {context}\n"
-            "Your response must directly start with the markdown"
+            "Context: {context}\n\n"
+            "Your response must directly start with the markdown. "
             "After responding, extract 3-5 main points that answer the query from this response along with their sources.\n"
-            "You must ensure that the main points focus on climate challenges that are technical, not social or health"
-            "When you extract these point, you must ensure that they come from the chunks, don't use your own knowledge"
+            "You must ensure that the main points focus on climate challenges that are technical, not social or health. "
+            "When you extract these points, you must ensure that they come from the chunks, don't use your own knowledge. "
             "Format the output as a JSON list of objects, where each object has 'topic', 'source', and 'url' keys.\n"
             "Format: {{'topics': [{{'topic': 'topic 1', 'source': 'source 1', 'url': 'url 1'}}, "
             "{{'topic': 'topic 2', 'source': 'source 2', 'url': 'url 2'}}]}}"
@@ -94,7 +109,8 @@ class QueryProcessor:
         return (
             {
                 "context": lambda x: self._get_relevant_chunks(x["query"]),
-                "query": lambda x: x["query"]
+                "query": lambda x: x["query"],
+                "chat_history": lambda x: self._convert_chat_history(x["chat_history"])
             }
             | prompt 
             | model 
@@ -105,7 +121,10 @@ class QueryProcessor:
         """Generator function that yields streaming responses"""
         full_response = ""
         
-        async for chunk in self.chain.astream({"query": query}):
+        async for chunk in self.chain.astream({
+            "query": query,
+            "chat_history": chat_history
+        }):
             full_response += chunk
             # print(chunk)
             yield chunk
