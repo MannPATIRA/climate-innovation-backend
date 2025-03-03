@@ -13,6 +13,7 @@ def test_author_ingestion():
     # Initialize Supabase client
     supabase_url = os.getenv("SUPABASE_URL")
     supabase_key = os.getenv("SUPABASE_KEY")
+    openalex_key = os.getenv("OPENALEX_API_KEY")
     supabase = create_client(supabase_url, supabase_key)
     
     # Initialize Neo4j client
@@ -23,18 +24,18 @@ def test_author_ingestion():
     )
     
     # Initialize components
-    fetcher = PyAlexAuthorFetcher(supabase)
+    fetcher = PyAlexAuthorFetcher(supabase, page_size=1000, batch_size=100, openalex_key=openalex_key) # no need to optimise these params since bottleneck is the processing part
     processor = AuthorProcessor(
         supabase,
         neo4j_client,
-        max_workers=5  # Lower number of workers due to rate limiting
+        max_workers=10  # Lower number of workers due to rate limiting
     )
     
     # Create and run orchestrator
     orchestrator = AuthorOrchestrator(
         fetcher=fetcher,
         processor=processor,
-        batch_size=100  # Smaller batch size due to rate limiting
+        batch_size=1000  # Smaller batch size due to rate limiting
     )
     
     # Run the orchestrator (no country filter needed as we're processing existing authors)

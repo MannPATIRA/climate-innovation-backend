@@ -12,11 +12,12 @@ class AuthorFetcher(Fetcher, ABC):
     pass
 
 class PyAlexAuthorFetcher(AuthorFetcher):
-    def __init__(self, supabase_client):
+    def __init__(self, supabase_client, page_size: int = 1000, batch_size: int = 100, openalex_key: str = None):
         self.supabase = supabase_client
+        self.openalex_key = openalex_key
         self.task_id = self._get_author_processing_task_id()
-        self.page_size = 1000  # Supabase max page size
-        self.batch_size = 10  # Number of concurrent requests
+        self.page_size = page_size  # Supabase max page size
+        self.batch_size = batch_size  # Number of concurrent requests
         self.rate_limit = 1  # Wait 1 second between batches
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
@@ -50,7 +51,13 @@ class PyAlexAuthorFetcher(AuthorFetcher):
         # Extract the ID from the full URL if needed
         author_id = openalex_id.split('/')[-1] if '/' in openalex_id else openalex_id
         url = f"https://api.openalex.org/authors/{author_id}"
-        async with session.get(url) as response:
+        
+        # Add email authentication header if premium key is available
+        headers = {}
+        if self.openalex_key:
+            headers['Authorization'] = f'Bearer {self.openalex_key}'
+            
+        async with session.get(url, headers=headers) as response:
             return await response.json()
 
     async def _fetch_batch_async(self, authors_batch: List[Dict]) -> List[Dict[str, Any]]:
@@ -98,7 +105,9 @@ class PyAlexAuthorFetcher(AuthorFetcher):
             
             # Break if no more authors
             if not authors:
-                break
+                page = 0
+                time.sleep(10) # wait 10 seconds before starting over
+                continue
                 
             print(f"Fetched {len(authors)} unprocessed authors from page {page}")
             
@@ -140,4 +149,4 @@ class PyAlexAuthorFetcher(AuthorFetcher):
 
     def mark_batch_complete(self):
         """Mark the current batch as complete by updating the main cursor"""
-        self._update_main_cursor() 
+        pass
