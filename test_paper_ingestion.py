@@ -5,7 +5,7 @@ from common.pinecone_store import PineconeStore
 from background_process.fetchers import PyAlexFetcher
 from background_process.processors import PaperProcessor
 from background_process.orchestrators import PaperOrchestrator
-
+from common.neo4j_client import Neo4jClient
 def test_paper_ingestion():
     # Load environment variables
     load_dotenv(override=True)
@@ -18,9 +18,15 @@ def test_paper_ingestion():
     
     # Initialize components
     fetcher = PyAlexFetcher(supabase)
+    neo4j_client = Neo4jClient(
+        uri=os.getenv("NEO4J_URI"),
+        user=os.getenv("NEO4J_USER"),
+        password=os.getenv("NEO4J_PASSWORD")
+    )
     processor = PaperProcessor(
         supabase, 
         pinecone_store,
+        neo4j_client,
         chunk_size=750,
         max_workers=8
     )

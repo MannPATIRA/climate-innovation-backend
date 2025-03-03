@@ -39,18 +39,24 @@ class Neo4jClient:
             session.run(query, paper_id=paper_id, title=title, year=year, citations=citations)
 
     def merge_author_paper_relationship(self, author_id: str, paper_id: str, 
-                                      position: str, is_corresponding: bool):
+                                      position: str, is_corresponding: bool,
+                                      author_name: str):
         with self.driver.session() as session:
             query = """
             MERGE (a:Author {id: $author_id})
+            ON CREATE SET a.name = $author_name
             MERGE (w:Work {id: $paper_id})
             MERGE (a)-[r:AUTHORED]->(w)
             ON CREATE SET 
                 r.authorPosition = $position,
                 r.isCorresponding = $is_corresponding
             """
-            session.run(query, author_id=author_id, paper_id=paper_id, 
-                       position=position, is_corresponding=is_corresponding)
+            session.run(query, 
+                       author_id=author_id, 
+                       paper_id=paper_id, 
+                       position=position, 
+                       is_corresponding=is_corresponding,
+                       author_name=author_name)
 
     def merge_paper_topic_relationship(self, paper_id: str, topic_id: str, topic_name: str, score: float):
         with self.driver.session() as session:

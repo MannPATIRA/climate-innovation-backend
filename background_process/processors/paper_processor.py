@@ -132,7 +132,8 @@ class PaperProcessor(Processor):
                             author_id=author['id'],
                             paper_id=paper.openalex_id,
                             position=author['position'],
-                            is_corresponding=author['is_corresponding']
+                            is_corresponding=author['is_corresponding'],
+                            author_name=author['display_name']
                         )
 
                     # Process topics in Neo4j
