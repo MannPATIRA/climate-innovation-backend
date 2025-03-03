@@ -36,6 +36,7 @@ class AuthorProcessor(Processor):
             "institutions": author.institutions_str,
             "h_index": author.h_index,
             "citations": author.citations,
+            "author_processed": True
         }
         response = self.supabase.table('authors') \
             .update(data) \
@@ -61,9 +62,6 @@ class AuthorProcessor(Processor):
                 citations=data.get('cited_by_count', 0),
                 topics=data.get('topics', [])
             )
-            
-            # Update author record in database
-            author_record = self.update_author_in_db(author)
             
             # Neo4j operations only if client exists
             if self.neo4j:
@@ -97,6 +95,8 @@ class AuthorProcessor(Processor):
                             years=institution.get('years', [])
                         )
             
+            # Update author record in database after processing neo4j stuff
+            author_record = self.update_author_in_db(author)
             # Remove from processing logs after successful processing
             self.remove_from_logs(openalex_id)
             

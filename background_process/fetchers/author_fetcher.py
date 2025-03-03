@@ -1,3 +1,4 @@
+import time
 from abc import ABC
 from typing import Generator, Any, Dict, List
 from pyalex import Authors
@@ -12,8 +13,8 @@ class PyAlexAuthorFetcher(AuthorFetcher):
     def __init__(self, supabase_client):
         self.supabase = supabase_client
         self.task_id = self._get_author_processing_task_id()
-        self.cursor = self._get_main_cursor()
-        self.current_cursor = self._get_current_cursor()
+        self.page_size = 1000  # Supabase max page size
+        self.rate_limit = 0.1  # 10 requests per second for OpenAlex
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def _get_author_processing_task_id(self) -> int:
@@ -32,44 +33,21 @@ class PyAlexAuthorFetcher(AuthorFetcher):
         return response.data[0]["id"]
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def _get_main_cursor(self) -> str:
-        """Get the main cursor from the processing_tasks table"""
-        response = self.supabase.table('processor_progress') \
-            .select('cursor') \
-            .eq('id', self.task_id) \
+    def _get_unprocessed_authors_page(self, page: int) -> List[Dict[str, Any]]:
+        """Get a page of unprocessed authors from Supabase"""
+        response = self.supabase.table('authors') \
+            .select('openalex_id') \
+            .eq('author_processed', False) \
+            .range(page * self.page_size, (page + 1) * self.page_size - 1) \
             .execute()
-        
-        return response.data[0].get('cursor', '*') if response.data else '*'
+        return response.data
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def _get_current_cursor(self) -> str:
-        """Get the current_cursor from the processing_tasks table"""
-        response = self.supabase.table('processor_progress') \
-            .select('current_cursor') \
-            .eq('id', self.task_id) \
-            .execute()
-        
-        if not response.data or response.data[0].get('current_cursor') is None:
-            return self._get_main_cursor()
-        
-        return response.data[0].get('current_cursor')
-
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def _update_current_cursor(self, cursor: str):
-        """Update the current_cursor in the processing_tasks table"""
-        self.supabase.table('processor_progress') \
-            .update({'current_cursor': cursor}) \
-            .eq('id', self.task_id) \
-            .execute()
-
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def _update_main_cursor(self):
-        """Update the main cursor with the current_cursor value"""
-        print("updating main cursor to: ", self.current_cursor)
-        self.supabase.table('processor_progress') \
-            .update({'cursor': self.current_cursor}) \
-            .eq('id', self.task_id) \
-            .execute()
+    def _get_author_from_openalex(self, openalex_id: str) -> Dict[str, Any]:
+        """Fetch single author directly from OpenAlex"""
+        author = Authors()[openalex_id]
+        time.sleep(self.rate_limit)  # Rate limiting
+        return author
 
     def _format_institutions_list(self, affiliations: List[Dict]) -> List[Dict]:
         """Format institutions from affiliations data"""
@@ -97,31 +75,33 @@ class PyAlexAuthorFetcher(AuthorFetcher):
 
     def fetch(self, country: str = None) -> Generator[Dict[str, Any], None, None]:
         """
-        Generates author metadata using the pyalex library.
+        Generates author metadata by fetching unprocessed authors from Supabase
+        and then getting their details from OpenAlex.
         
         Args:
-            country: Optional country code to filter authors by.
+            country: Optional country code to filter authors by (not used in this version)
             
         Yields:
             Dict containing author metadata
         """
-        query = Authors()
-        if country:
-            query = query.filter(last_known_institution={'country_code': country})
-
-        cursor = self.cursor
-        while cursor:
-            authors, meta = query.get(per_page=200, cursor=cursor, return_meta=True)
-            cursor = meta.get('next_cursor')
-            print(f"Fetched batch of 200 authors with cursor")
-            authors_yielded = 0
+        page = 0
+        while True:
+            # Get page of unprocessed authors
+            authors = self._get_unprocessed_authors_page(page)
             
-            for author in authors:
-                openalex_id = author.get('id')
-                print(f"Processing author: {author.get('display_name')} ({openalex_id})")
+            # Break if no more authors
+            if not authors:
+                break
                 
-                # Only yield authors that exist in our database
-                if self._author_exists_in_db(openalex_id):
+            print(f"Fetched {len(authors)} unprocessed authors from page {page}")
+            
+            for author_data in authors:
+                openalex_id = author_data['openalex_id']
+                print(f"Fetching author details for: {openalex_id}")
+                
+                try:
+                    author = self._get_author_from_openalex(openalex_id)
+                    
                     metadata = {
                         'id': openalex_id,
                         'display_name': author.get('display_name'),
@@ -132,14 +112,12 @@ class PyAlexAuthorFetcher(AuthorFetcher):
                         'cited_by_count': author.get('cited_by_count', 0),
                         'h_index': author.get('summary_stats', {}).get('h_index', 0)
                     }
-                    authors_yielded += 1
                     yield metadata
+                except Exception as e:
+                    print(f"Error fetching author {openalex_id}: {type(e).__name__} - {str(e)}")
+                    continue
             
-            print(f"Yielded {authors_yielded} out of 200 authors in this batch")
-            
-            if cursor:
-                self.current_cursor = cursor
-                self._update_current_cursor(cursor)
+            page += 1
 
     def mark_batch_complete(self):
         """Mark the current batch as complete by updating the main cursor"""

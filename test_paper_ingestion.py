@@ -28,7 +28,7 @@ def test_paper_ingestion():
         pinecone_store,
         neo4j_client,
         chunk_size=750,
-        max_workers=8
+        max_workers=10
     )
     
     # Create and run orchestrator
