@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from .base import Processor, ProcessingTask
 from background_process.utils.process_log_manager import ProcessLogManager
+from common.neo4j_client import Neo4jClient
 
 @dataclass
 class Author:
@@ -15,9 +16,10 @@ class Author:
     topics: List[Dict]
 
 class AuthorProcessor(Processor):
-    def __init__(self, supabase_client, max_workers: int = 5):
+    def __init__(self, supabase_client, neo4j_client: Optional[Neo4jClient] = None, max_workers: int = 5):
         super().__init__(ProcessLogManager(supabase_client), None)
         self.supabase = supabase_client
+        self.neo4j = neo4j_client
         self.max_workers = max_workers
         self.task_id = self.create_task(ProcessingTask.AUTHOR_PROCESSING)
 
@@ -62,6 +64,38 @@ class AuthorProcessor(Processor):
             
             # Update author record in database
             author_record = self.update_author_in_db(author)
+            
+            # Neo4j operations only if client exists
+            if self.neo4j:
+                # Update author record in Neo4j with full properties
+                self.neo4j.merge_author_node(
+                    author_id=author.openalex_id,
+                    display_name=author.display_name,
+                    orcid=author.orcid,
+                    h_index=author.h_index,
+                    citations=author.citations
+                )
+                
+                # Process topics in Neo4j
+                for topic in author.topics:
+                    self.neo4j.merge_author_topic_relationship(
+                        author_id=author.openalex_id,
+                        topic_id=topic['id'],
+                        topic_name=topic['display_name'],
+                        paper_count=topic.get('works_count', 0)
+                    )
+                
+                # Process institutions in Neo4j
+                for institution in data.get('institutions', []):
+                    if institution.get('id'):
+                        self.neo4j.merge_author_institution_relationship(
+                            author_id=author.openalex_id,
+                            institution_id=institution['id'],
+                            institution_name=institution.get('display_name', ''),
+                            country_code=institution.get('country_code', ''),
+                            institution_type=institution.get('type', ''),
+                            years=institution.get('years', [])
+                        )
             
             # Remove from processing logs after successful processing
             self.remove_from_logs(openalex_id)

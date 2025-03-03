@@ -2,9 +2,10 @@ from dataclasses import dataclass
 import asyncio
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from .base import Processor, ProcessingTask
 from background_process.utils.process_log_manager import ProcessLogManager
+from common.neo4j_client import Neo4jClient
 
 @dataclass
 class Paper:
@@ -15,10 +16,11 @@ class Paper:
 
 
 class PaperProcessor(Processor):
-    def __init__(self, supabase_client, pinecone_store, chunk_size: int = 500, 
-                 max_workers: int = 5):
+    def __init__(self, supabase_client, pinecone_store, neo4j_client: Optional[Neo4jClient] = None,
+                 chunk_size: int = 500, max_workers: int = 5):
         super().__init__(ProcessLogManager(supabase_client), pinecone_store, chunk_size=chunk_size)
         self.supabase = supabase_client
+        self.neo4j = neo4j_client
         self.max_workers = max_workers
         self.task_id = self.create_task(ProcessingTask.PAPER_PROCESSING)
 
@@ -100,7 +102,7 @@ class PaperProcessor(Processor):
             abstract = data['abstract']
             metadata = data['metadata']
             authors = data['authors']
-            
+            topics = data['topics']
             paper = Paper(
                 abstract=abstract,
                 openalex_id=openalex_id,
@@ -114,7 +116,35 @@ class PaperProcessor(Processor):
                 # Add to Supabase
                 paper_record = self.add_paper_to_db(paper)
 
-                # Process authors
+                # Neo4j operations only if client exists
+                if self.neo4j:
+                    # Add to Neo4j
+                    self.neo4j.merge_paper_node(
+                        paper_id=paper.openalex_id,
+                        title=paper.title,
+                        year=metadata.get('publication_year'),
+                        citations=metadata.get('cited_by_count', 0)
+                    )
+
+                    # Process authors in Neo4j
+                    for author in authors:
+                        self.neo4j.merge_author_paper_relationship(
+                            author_id=author['id'],
+                            paper_id=paper.openalex_id,
+                            position=author['position'],
+                            is_corresponding=author['is_corresponding']
+                        )
+
+                    # Process topics in Neo4j
+                    for topic in topics:
+                        self.neo4j.merge_paper_topic_relationship(
+                            paper_id=paper.openalex_id,
+                            topic_id=topic['id'],
+                            topic_name=topic['display_name'],
+                            score=topic.get('score', 0.0)
+                        )
+
+                # Process authors in Supabase
                 for author in authors:
                     author_record = self.add_author_to_db(author)
                     self.add_paper_author_relation(

@@ -8,6 +8,7 @@ class ProcessingTask(Enum):
     PAPER_PROCESSING = "paper_processing" 
     TOPIC_PROCESSING = "topic_processing"
     SUMMARY_PROCESSING = "summary_processing"
+    AUTHOR_PROCESSING = "author_processing"
 
 class ProcessLogManager:
     """

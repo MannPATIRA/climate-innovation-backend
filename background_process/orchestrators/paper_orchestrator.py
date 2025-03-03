@@ -1,5 +1,5 @@
 from itertools import islice
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List
 from .base import Orchestrator
 from ..fetchers.paper_fetcher import PaperFetcher
 from ..processors.paper_processor import PaperProcessor
@@ -26,13 +26,14 @@ class PaperOrchestrator(Orchestrator):
                 break
             yield batch
 
-    def _format_paper_data(self, paper_tuple: Tuple[str, Dict[str, Any]]) -> Dict[str, Any]:
+    def _format_paper_data(self, paper_tuple: Tuple[str, Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]]]) -> Dict[str, Any]:
         """Convert paper tuple from fetcher to dictionary format"""
-        abstract, metadata, authors = paper_tuple
+        abstract, metadata, authors, topics = paper_tuple
         return {
             'abstract': abstract,
             'metadata': metadata,
-            'authors': authors
+            'authors': authors,
+            'topics': topics
         }
 
     def run(self, country: str = "GB"):

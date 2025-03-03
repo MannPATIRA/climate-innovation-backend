@@ -161,7 +161,7 @@ class PyAlexFetcher(PaperFetcher):
         
         return relevant_authors
 
-    def fetch(self, country: str, **kwargs) -> Generator[Tuple[str, Dict[str, Any], List[Dict[str, Any]]], None, None]:
+    def fetch(self, country: str, **kwargs) -> Generator[Tuple[str, Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]]], None, None]:
         """
         Generates paper abstracts using the pyalex library.
 
@@ -174,6 +174,7 @@ class PyAlexFetcher(PaperFetcher):
                 - abstract (str): The paper's abstract
                 - metadata (Dict): Dictionary containing id, doi, and title of the paper
                 - authors (List[Dict]): List of relevant authors with their details
+                - topics (List[Dict]): List of topics associated with the paper
         """
         # First yield any failed papers
         #yield from self._get_failed_papers()
@@ -227,8 +228,9 @@ class PyAlexFetcher(PaperFetcher):
                                 'title': paper.get('title')
                             }
                             authors = self._get_relevant_authors(paper)
+                            topics = paper.get('topics', [])  # Get all topics
                             papers_yielded += 1
-                            yield abstract, metadata, authors
+                            yield abstract, metadata, authors, topics
                     else:
                         print("primary topic is null: here are topics: ")
                         print(paper.get('topics', "No topics"))
