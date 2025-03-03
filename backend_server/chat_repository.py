@@ -27,6 +27,12 @@ class ChatRepository:
         if source_type not in ["reports", "papers"]:
             raise InvalidSourceTypeError("Invalid source type. Must be 'reports' or 'papers'")
         
+        # Delete all chats with message_count = 0
+        self.supabase.table("chats")\
+            .delete()\
+            .eq("message_count", 0)\
+            .execute()
+        
         data = self.supabase.table("chats").insert({
             "type": source_type.rstrip('s'),  # Convert 'reports' to 'report', 'papers' to 'paper'
         }).execute()
