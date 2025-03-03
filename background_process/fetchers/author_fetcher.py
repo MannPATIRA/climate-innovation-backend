@@ -1,4 +1,6 @@
 import time
+import asyncio
+import aiohttp
 from abc import ABC
 from typing import Generator, Any, Dict, List
 from pyalex import Authors
@@ -14,7 +16,8 @@ class PyAlexAuthorFetcher(AuthorFetcher):
         self.supabase = supabase_client
         self.task_id = self._get_author_processing_task_id()
         self.page_size = 1000  # Supabase max page size
-        self.rate_limit = 0.1  # 10 requests per second for OpenAlex
+        self.batch_size = 10  # Number of concurrent requests
+        self.rate_limit = 1  # Wait 1 second between batches
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def _get_author_processing_task_id(self) -> int:
@@ -42,12 +45,22 @@ class PyAlexAuthorFetcher(AuthorFetcher):
             .execute()
         return response.data
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def _get_author_from_openalex(self, openalex_id: str) -> Dict[str, Any]:
-        """Fetch single author directly from OpenAlex"""
-        author = Authors()[openalex_id]
-        time.sleep(self.rate_limit)  # Rate limiting
-        return author
+    async def _get_author_from_openalex_async(self, session: aiohttp.ClientSession, openalex_id: str) -> Dict[str, Any]:
+        """Fetch single author directly from OpenAlex asynchronously"""
+        # Extract the ID from the full URL if needed
+        author_id = openalex_id.split('/')[-1] if '/' in openalex_id else openalex_id
+        url = f"https://api.openalex.org/authors/{author_id}"
+        async with session.get(url) as response:
+            return await response.json()
+
+    async def _fetch_batch_async(self, authors_batch: List[Dict]) -> List[Dict[str, Any]]:
+        """Fetch a batch of authors concurrently"""
+        async with aiohttp.ClientSession() as session:
+            tasks = []
+            for author_data in authors_batch:
+                openalex_id = author_data['openalex_id']
+                tasks.append(self._get_author_from_openalex_async(session, openalex_id))
+            return await asyncio.gather(*tasks, return_exceptions=True)
 
     def _format_institutions_list(self, affiliations: List[Dict]) -> List[Dict]:
         """Format institutions from affiliations data"""
@@ -76,13 +89,7 @@ class PyAlexAuthorFetcher(AuthorFetcher):
     def fetch(self) -> Generator[Dict[str, Any], None, None]:
         """
         Generates author metadata by fetching unprocessed authors from Supabase
-        and then getting their details from OpenAlex.
-        
-        Args:
-            country: Optional country code to filter authors by (not used in this version)
-            
-        Yields:
-            Dict containing author metadata
+        and then getting their details from OpenAlex in concurrent batches.
         """
         page = 0
         while True:
@@ -95,27 +102,39 @@ class PyAlexAuthorFetcher(AuthorFetcher):
                 
             print(f"Fetched {len(authors)} unprocessed authors from page {page}")
             
-            for author_data in authors:
-                openalex_id = author_data['openalex_id']
-                print(f"Fetching author details for: {openalex_id}")
+            # Process authors in batches
+            for i in range(0, len(authors), self.batch_size):
+                batch = authors[i:i + self.batch_size]
                 
-                try:
-                    author = self._get_author_from_openalex(openalex_id)
+                # Fetch batch concurrently
+                results = asyncio.run(self._fetch_batch_async(batch))
+                print(f"Fetched {len(results)} authors")
+                # Process results
+                for author_data, author in zip(batch, results):
+                    openalex_id = author_data['openalex_id']
                     
-                    metadata = {
-                        'id': openalex_id,
-                        'display_name': author.get('display_name'),
-                        'orcid': author.get('orcid'),
-                        'institutions': self._format_institutions_list(author.get('affiliations', [])),
-                        'topics': author.get('topics', []),
-                        'works_count': author.get('works_count', 0),
-                        'cited_by_count': author.get('cited_by_count', 0),
-                        'h_index': author.get('summary_stats', {}).get('h_index', 0)
-                    }
-                    yield metadata
-                except Exception as e:
-                    print(f"Error fetching author {openalex_id}: {type(e).__name__} - {str(e)}")
-                    continue
+                    if isinstance(author, Exception):
+                        print(f"Error fetching author {openalex_id}: {type(author).__name__} - {str(author)}")
+                        continue
+                        
+                    try:
+                        metadata = {
+                            'id': openalex_id,
+                            'display_name': author.get('display_name'),
+                            'orcid': author.get('orcid'),
+                            'institutions': self._format_institutions_list(author.get('affiliations', [])),
+                            'topics': author.get('topics', []),
+                            'works_count': author.get('works_count', 0),
+                            'cited_by_count': author.get('cited_by_count', 0),
+                            'h_index': author.get('summary_stats', {}).get('h_index', 0)
+                        }
+                        yield metadata
+                    except Exception as e:
+                        print(f"Error processing author {openalex_id}: {type(e).__name__} - {str(e)}")
+                        continue
+                
+                # Rate limiting between batches
+                time.sleep(self.rate_limit)
             
             page += 1
 
