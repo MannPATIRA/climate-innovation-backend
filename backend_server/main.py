@@ -13,7 +13,7 @@ from .query_processors import MockQueryProcessor, QueryProcessor
 from common.supabase_client import init_supabase
 from supabase import Client
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
-from .gatherers import OpenAlexInformationGatherer, authors_from_doi, get_all_author_info
+from .gatherers import get_all_author_info
 from ranking_model.ranker import RegressionRanker
 from ranking_model.author import Author
 from ranking_model.grant import Grant
@@ -24,6 +24,7 @@ from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
 from ranking_model.ranker_manager import RankerManager
 from ranking_model.RegressionRanker import RegressionRanker
+import json
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -281,48 +282,81 @@ async def search_papers(query: PaperQuery):
 
         # Format the results
         paper_results = []
-        seen_paper_ids = set() # To avoid duplicates
-        for match in results:
-            metadata = match.metadata
-            # Skip if we've already seen this paper ID
-            paper_id = metadata.get("paper_id")
-            if paper_id in seen_paper_ids:
-                continue
-            seen_paper_ids.add(paper_id)
-            authors = authors_from_doi(metadata.get("doi"))
-            details = OpenAlexInformationGatherer.get_details_from_paper_id(metadata.get("openalex_id"))
-            paper_results.append(Paper(
-                paper_id=paper_id,
-                openalex_id=metadata.get("openalex_id"),
-                title=details["title"],
-                relevancy=match.score,
-                doi=metadata.get("doi"),
-                abstract=details["abstract"],
-                publication_date=details["publication_date"],
-                authors=authors
-             ))
+        seen_paper_ids = set()  # To avoid duplicates
+        
+        async def generate_events():
+            # First event: papers with basic author info
+            for match in results:
+                metadata = match.metadata
+                paper_id = metadata.get("paper_id")
+                print(f"Paper ID: {paper_id}")
+                if paper_id in seen_paper_ids:
+                    continue
+                seen_paper_ids.add(paper_id)
+                
+                # Get paper details from database instead of OpenAlex
+                paper_records = supabase.table('papers')\
+                    .select('*')\
+                    .eq('id', int(float(paper_id)))\
+                    .execute()
+                
+                if not paper_records.data:
+                    continue  # Skip if paper not found in database
+                
+                details = paper_records.data[0]
+                
+                # Get authors from paper_authors table
+                author_records = supabase.table('paper_authors')\
+                    .select('authors(*)')\
+                    .eq('paper_id', int(float(paper_id)))\
+                    .execute()
+                print(f"Number of author records: {len(author_records.data)}")
 
-        # sample_paper_id = "https://openalex.org/W4400454085"
-        # sample_doi = 'https://doi.org/10.48550/arXiv.2303.11366'
+                authors = [Author(
+                    name=author['authors']['display_name'],
+                    citations=author['authors'].get('citations', 0),
+                    hindex=author['authors'].get('h_index', 0),
+                    organisation_history=author['authors'].get('institutions', []),
+                    orcid=author['authors'].get('orcid'),
+                    works_count=author['authors'].get('works_count', 0),
+                    openAlexid=author['authors'].get('openalex_id'),
+                    dob=None,  # Will be updated in second event
+                    grants=[],  # Will be updated in second event
+                    grant_org_name=None,  # Will be updated in second event
+                    website=None  # Will be updated in second event
+                ) for author in author_records.data]
 
+                paper = Paper(
+                    paper_id=str(paper_id),
+                    openalex_id=metadata.get("openalex_id"),
+                    title=details["title"],
+                    relevancy=match.score,
+                    doi=metadata.get("doi"),
+                    abstract=details["abstract"],
+                    publication_date=details.get("publication_date"),
+                    authors=authors
+                )
+                paper_results.append(paper)
 
-        # details = OpenAlexInformationGatherer.get_details_from_paper_id(sample_paper_id)
-        # authors = authors_from_doi(sample_doi)
+            yield f"data: {json.dumps({'type': 'initial', 'papers': [p.model_dump() for p in paper_results]})}\n\n"
 
-        # paper_results = []
-        # paper_results.append(Paper(
-        #         paper_id=sample_paper_id,
-        #         openalex_id=sample_paper_id,
-        #         title="REFLEXION PAPER",
-        #         relevancy=10,
-        #         doi='https://doi.org/10.48550/arXiv.2303.11366',
-        #         abstract="This is a paper on Reflexion",
-        #         publication_date=details["publication_date"],
-        #         authors=authors
-        # ))
+            # Second event: additional author details
+            author_updates = {}
+            for paper in paper_results:
+                for author in paper.authors:
+                    if author.openAlexid not in author_updates:
+                        # Get additional author info
+                        author_info = get_all_author_info(author.openAlexid)
+                        author_updates[author.openAlexid] = {
+                            'dob': author_info.dob,
+                            'grants': [g.model_dump() for g in author_info.grants],
+                            'grant_org_name': author_info.grant_org_name,
+                            'website': author_info.website
+                        }
 
-        return paper_results
-        # return ranker.rank(paper_results)
+            yield f"data: {json.dumps({'type': 'author_details', 'updates': author_updates})}\n\n"
+
+        return StreamingResponse(generate_events(), media_type="text/event-stream")
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
