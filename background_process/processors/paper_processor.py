@@ -16,6 +16,7 @@ class Paper:
     openalex_id: str
     doi: str
     title: str
+    publication_date: str
 
 
 class PaperProcessor(Processor):
@@ -40,7 +41,8 @@ class PaperProcessor(Processor):
             "openalex_id": paper.openalex_id,
             "doi": paper.doi,
             "title": paper.title,
-            "abstract": paper.abstract
+            "abstract": paper.abstract,
+            "publication_date": paper.publication_date
         }
         response = self.supabase.table('papers').insert(data).execute()
         return response.data[0]
@@ -135,6 +137,7 @@ class PaperProcessor(Processor):
                 openalex_id=openalex_id,
                 doi=metadata.get('doi'),
                 title=metadata.get('title'),
+                publication_date=metadata.get('publication_date')
             )
             
             # Check if paper exists in Supabase
