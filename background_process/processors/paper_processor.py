@@ -101,7 +101,7 @@ class PaperProcessor(Processor):
             "display_name": author['display_name'],
             "orcid": author['orcid']
         }
-        response = self.supabase.table('authors').upsert(data).execute()
+        response = self.supabase.table('authors').upsert(data, on_conflict='openalex_id').execute()
         return response.data[0]
 
     @retry(
