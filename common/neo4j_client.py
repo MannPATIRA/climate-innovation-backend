@@ -34,7 +34,7 @@ class Neo4jClient:
             ON CREATE SET 
                 w.title = $title,
                 w.publicationYear = $year,
-                w.citationCount = $citations
+                w.cited_by_count = $citations
             """
             session.run(query, paper_id=paper_id, title=title, year=year, citations=citations)
 
@@ -105,7 +105,7 @@ class Neo4jClient:
                        years=years)
 
     def merge_author_node(self, author_id: str, display_name: str, orcid: Optional[str], 
-                         h_index: int, citations: int):
+                         h_index: int, citations: int, works_count: int):
         """Update author node with full properties during author processing"""
         with self.driver.session() as session:
             query = """
@@ -114,7 +114,8 @@ class Neo4jClient:
                 a.name = $display_name,
                 a.orcid = $orcid,
                 a.h_index = $h_index,
-                a.citations = $citations,
+                a.cited_by_count = $citations,
+                a.works_count = $works_count,
                 a.last_updated = datetime()
             """
             session.run(query, 
@@ -122,4 +123,5 @@ class Neo4jClient:
                        display_name=display_name,
                        orcid=orcid,
                        h_index=h_index,
-                       citations=citations) 
+                       citations=citations,
+                       works_count=works_count) 

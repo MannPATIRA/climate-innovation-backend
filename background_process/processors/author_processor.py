@@ -16,6 +16,7 @@ class Author:
     institutions_str: str
     h_index: int
     citations: int
+    works_count: int
     topics: List[Dict]
 
 class AuthorProcessor(Processor):
@@ -45,6 +46,9 @@ class AuthorProcessor(Processor):
             "institutions": author.institutions_str,
             "h_index": author.h_index,
             "citations": author.citations,
+            "works_count": author.works_count,
+            "orcid": author.orcid,
+            "display_name": author.display_name,
             "author_processed": True
         }
         response = self.supabase.table('authors') \
@@ -69,6 +73,7 @@ class AuthorProcessor(Processor):
                 institutions_str=self._format_institutions_string(data.get('institutions', [])),
                 h_index=data.get('h_index', 0),
                 citations=data.get('cited_by_count', 0),
+                works_count=data.get('works_count', 0),
                 topics=data.get('topics', [])
             )
             
@@ -81,7 +86,8 @@ class AuthorProcessor(Processor):
                         display_name=author.display_name,
                         orcid=author.orcid,
                         h_index=author.h_index,
-                        citations=author.citations
+                        citations=author.citations,
+                        works_count=author.works_count
                     )
                     
                     # Process topics in Neo4j

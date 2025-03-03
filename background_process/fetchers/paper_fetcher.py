@@ -227,7 +227,8 @@ class PyAlexFetcher(PaperFetcher):
                                 'doi': paper.get('doi'),
                                 'title': paper.get('title'),
                                 'publication_year': paper.get('publication_year'),
-                                'publication_date': paper.get('publication_date')
+                                'publication_date': paper.get('publication_date'),
+                                'cited_by_count': paper.get('cited_by_count', 0)
                             }
                             authors = self._get_relevant_authors(paper)
                             topics = paper.get('topics', [])  # Get all topics

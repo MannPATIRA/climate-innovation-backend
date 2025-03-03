@@ -17,7 +17,7 @@ class Paper:
     doi: str
     title: str
     publication_date: str
-
+    cited_by_count: int
 
 class PaperProcessor(Processor):
     def __init__(self, supabase_client, pinecone_store, neo4j_client: Optional[Neo4jClient] = None,
@@ -42,7 +42,8 @@ class PaperProcessor(Processor):
             "doi": paper.doi,
             "title": paper.title,
             "abstract": paper.abstract,
-            "publication_date": paper.publication_date
+            "publication_date": paper.publication_date,
+            "cited_by_count": paper.cited_by_count
         }
         response = self.supabase.table('papers').insert(data).execute()
         return response.data[0]
@@ -137,7 +138,8 @@ class PaperProcessor(Processor):
                 openalex_id=openalex_id,
                 doi=metadata.get('doi'),
                 title=metadata.get('title'),
-                publication_date=metadata.get('publication_date')
+                publication_date=metadata.get('publication_date'),
+                cited_by_count=metadata.get('cited_by_count', 0)
             )
             
             # Check if paper exists in Supabase

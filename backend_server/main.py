@@ -334,6 +334,7 @@ async def search_papers(query: PaperQuery):
                     doi=metadata.get("doi"),
                     abstract=details["abstract"],
                     publication_date=details.get("publication_date"),
+                    citations=details.get("cited_by_count", 0),
                     authors=authors
                 )
                 paper_results.append(paper)
