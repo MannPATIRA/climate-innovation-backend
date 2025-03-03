@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Any, List, Tuple, Optional
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+import postgrest
+from httpx import RemoteProtocolError
 from .base import Processor, ProcessingTask
 from background_process.utils.process_log_manager import ProcessLogManager
 from common.neo4j_client import Neo4jClient
@@ -30,6 +33,12 @@ class AuthorProcessor(Processor):
             if inst.get('display_name')
         )
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=4, max=10),
+        retry=retry_if_exception_type((postgrest.exceptions.APIError, TimeoutError, RemoteProtocolError)),
+        reraise=True
+    )
     def update_author_in_db(self, author: Author) -> Dict[str, Any]:
         """Update author record in Supabase DB with retry logic"""
         data = {
@@ -65,44 +74,53 @@ class AuthorProcessor(Processor):
             
             # Neo4j operations only if client exists
             if self.neo4j:
-                # Update author record in Neo4j with full properties
-                self.neo4j.merge_author_node(
-                    author_id=author.openalex_id,
-                    display_name=author.display_name,
-                    orcid=author.orcid,
-                    h_index=author.h_index,
-                    citations=author.citations
-                )
-                
-                # Process topics in Neo4j
-                for topic in author.topics:
-                    self.neo4j.merge_author_topic_relationship(
+                try:
+                    # Update author record in Neo4j with full properties
+                    self.neo4j.merge_author_node(
                         author_id=author.openalex_id,
-                        topic_id=topic['id'],
-                        topic_name=topic['display_name'],
-                        paper_count=topic.get('works_count', 0)
+                        display_name=author.display_name,
+                        orcid=author.orcid,
+                        h_index=author.h_index,
+                        citations=author.citations
                     )
-                
-                # Process institutions in Neo4j
-                for institution in data.get('institutions', []):
-                    if institution.get('id'):
-                        self.neo4j.merge_author_institution_relationship(
+                    
+                    # Process topics in Neo4j
+                    for topic in author.topics:
+                        self.neo4j.merge_author_topic_relationship(
                             author_id=author.openalex_id,
-                            institution_id=institution['id'],
-                            institution_name=institution.get('display_name', ''),
-                            country_code=institution.get('country_code', ''),
-                            institution_type=institution.get('type', ''),
-                            years=institution.get('years', [])
+                            topic_id=topic['id'],
+                            topic_name=topic['display_name'],
+                            paper_count=topic.get('works_count', 0)
                         )
+                    
+                    # Process institutions in Neo4j
+                    for institution in data.get('institutions', []):
+                        if institution.get('id'):
+                            self.neo4j.merge_author_institution_relationship(
+                                author_id=author.openalex_id,
+                                institution_id=institution['id'],
+                                institution_name=institution.get('display_name', ''),
+                                country_code=institution.get('country_code', ''),
+                                institution_type=institution.get('type', ''),
+                                years=institution.get('years', [])
+                            )
+                except Exception as e:
+                    print(f"Neo4j Error - Failed to process relationships: {type(e).__name__} - {str(e)}")
+                    # Continue as we'll still try to update Supabase
             
             # Update author record in database after processing neo4j stuff
-            author_record = self.update_author_in_db(author)
+            try:
+                author_record = self.update_author_in_db(author)
+            except Exception as e:
+                print(f"Supabase Error - Failed to update author: {type(e).__name__} - {str(e)}")
+                return None, None
+
             # Remove from processing logs after successful processing
             self.remove_from_logs(openalex_id)
             
             return author, author_record
         except Exception as e:
-            print(f"Error processing author: {str(e)}")
+            print(f"Unexpected Error processing author: {type(e).__name__} - {str(e)}")
             return None, None
 
     def process_batch(self, authors_data: List[Dict[str, Any]]) -> List[Tuple[Author, Dict[str, Any]]]:
@@ -124,7 +142,7 @@ class AuthorProcessor(Processor):
                     else:
                         print(f"Failed to process author: {author_data.get('display_name', 'Unknown')}")
                 except Exception as e:
-                    print(f"Exception processing author: {str(e)}")
+                    print(f"Exception processing author: {type(e).__name__} - {str(e)}")
                     continue
                 
         return results

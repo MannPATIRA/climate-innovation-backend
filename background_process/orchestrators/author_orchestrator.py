@@ -22,12 +22,12 @@ class AuthorOrchestrator(Orchestrator):
                 break
             yield batch
 
-    def run(self, country: str = None):
+    def run(self):
         """Main process to fetch and process authors in batches"""
         total_processed = 0
         
         # Get authors generator
-        authors_generator = self.fetcher.fetch(country=country)
+        authors_generator = self.fetcher.fetch()
         
         # Process in batches
         for batch in self._batch_generator(authors_generator, self.batch_size):

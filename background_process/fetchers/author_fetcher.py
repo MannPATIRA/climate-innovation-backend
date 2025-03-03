@@ -73,7 +73,7 @@ class PyAlexAuthorFetcher(AuthorFetcher):
             .execute()
         return bool(response.data)
 
-    def fetch(self, country: str = None) -> Generator[Dict[str, Any], None, None]:
+    def fetch(self) -> Generator[Dict[str, Any], None, None]:
         """
         Generates author metadata by fetching unprocessed authors from Supabase
         and then getting their details from OpenAlex.
