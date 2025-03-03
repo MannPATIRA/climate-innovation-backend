@@ -104,10 +104,9 @@ class PyAlexAuthorFetcher(AuthorFetcher):
             authors = self._get_unprocessed_authors_page(page)
             
             # Break if no more authors
+            restart_process = False
             if not authors:
-                page = 0
-                time.sleep(10) # wait 10 seconds before starting over
-                continue
+                restart_process = True
                 
             print(f"Fetched {len(authors)} unprocessed authors from page {page}")
             
@@ -146,6 +145,9 @@ class PyAlexAuthorFetcher(AuthorFetcher):
                 time.sleep(self.rate_limit)
             
             page += 1
+            if restart_process:
+                page = 0
+                time.sleep(10) # wait 10 seconds before starting over
 
     def mark_batch_complete(self):
         """Mark the current batch as complete by updating the main cursor"""

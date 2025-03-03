@@ -24,7 +24,7 @@ def test_author_ingestion():
     )
     
     # Initialize components
-    fetcher = PyAlexAuthorFetcher(supabase, page_size=1000, batch_size=100, openalex_key=openalex_key) # no need to optimise these params since bottleneck is the processing part
+    fetcher = PyAlexAuthorFetcher(supabase, page_size=1000, batch_size=50, openalex_key=openalex_key) # no need to optimise these params since bottleneck is the processing part
     processor = AuthorProcessor(
         supabase,
         neo4j_client,
