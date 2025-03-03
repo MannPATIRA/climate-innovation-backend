@@ -36,7 +36,8 @@ client.merge_author_paper_relationship(
     author_id="author123",
     paper_id="paper123",
     position="first",
-    is_corresponding=True
+    is_corresponding=True,
+    author_name="Alice Smith"
 )
 
 # Add a topic
@@ -44,6 +45,7 @@ print("Adding paper-topic relationship...")
 client.merge_paper_topic_relationship(
     paper_id="paper123",
     topic_id="topic123",
+    topic_name="Graph Databases",
     score=0.9
 )
 
@@ -53,6 +55,8 @@ client.merge_author_institution_relationship(
     author_id="author123",
     institution_id="inst123",
     institution_name="Graph University",
+    country_code="United States",
+    institution_type="University",
     years=[2023, 2024]
 )
 
