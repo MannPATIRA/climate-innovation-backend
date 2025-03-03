@@ -13,11 +13,12 @@ def test_paper_ingestion():
     # Initialize clients
     supabase_url = os.getenv("SUPABASE_URL")
     supabase_key = os.getenv("SUPABASE_KEY")
+    openalex_key = os.getenv("OPENALEX_API_KEY")
     supabase = create_client(supabase_url, supabase_key)
     pinecone_store = PineconeStore(index_name="climate-index")
     
     # Initialize components
-    fetcher = PyAlexFetcher(supabase)
+    fetcher = PyAlexFetcher(supabase, openalex_key=openalex_key)
     neo4j_client = Neo4jClient(
         uri=os.getenv("NEO4J_URI"),
         user=os.getenv("NEO4J_USER"),

@@ -1,10 +1,12 @@
 from abc import ABC
 from typing import Generator, Any, Dict, Tuple, List
 from itertools import chain
+import pyalex
 from pyalex import Works, Topics
 from tenacity import retry, stop_after_attempt, wait_exponential
 from ..processors.base import ProcessingTask
 from .base import Fetcher
+
 
 
 class PaperFetcher(Fetcher, ABC):
@@ -12,8 +14,9 @@ class PaperFetcher(Fetcher, ABC):
 
 
 class PyAlexFetcher(PaperFetcher):
-    def __init__(self, supabase_client):
+    def __init__(self, supabase_client, openalex_key: str = None):
         self.supabase = supabase_client
+        pyalex.config.api_key = openalex_key
         self.task_id = self._get_paper_processing_task_id()
         self.cursor = self._get_main_cursor()
         self.current_cursor = self._get_current_cursor()
@@ -227,8 +230,7 @@ class PyAlexFetcher(PaperFetcher):
                                 'doi': paper.get('doi'),
                                 'title': paper.get('title'),
                                 'publication_year': paper.get('publication_year'),
-                                'publication_date': paper.get('publication_date'),
-                                'cited_by_count': paper.get('cited_by_count', 0)
+                                'publication_date': paper.get('publication_date')
                             }
                             authors = self._get_relevant_authors(paper)
                             topics = paper.get('topics', [])  # Get all topics
