@@ -2,9 +2,9 @@ import os
 from re import L
 from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Optional
+from typing import List, Optional, Dict
 from dotenv import load_dotenv
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from fastapi.responses import StreamingResponse
 from common.pinecone_store import PineconeStore
 from ranking_model.OnlineSVMRanker import OnlineSVMRanker
@@ -26,6 +26,8 @@ from ranking_model.ranker_manager import RankerManager
 from ranking_model.RegressionRanker import RegressionRanker
 import json
 from common.neo4j_client import Neo4jClient
+from langchain_openai import ChatOpenAI
+from langchain.schema import HumanMessage, SystemMessage
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -136,6 +138,17 @@ global_paperid = ""
 class NetworkQuery(BaseModel):
     author_id: str
     limit: Optional[int] = 50
+# Add new Pydantic model for natural language graph queries
+class NaturalLanguageGraphQuery(BaseModel):
+    author_id: str
+    query: str
+    limit: Optional[int] = 50
+
+class CipherQuery(BaseModel):
+    """Query to be executed on the Neo4j database"""
+    query: str = Field(
+        description="The cipher query based on the natural language query",
+    )
 
 def build_author_from_dict(data: dict) -> Author:
     grants = []
@@ -778,6 +791,103 @@ async def get_author_topics(query: NetworkQuery):
         neo4j_client.close()
         return {"graph": serializable_graph}
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/graph/natural_language_query")
+async def natural_language_graph_query(query_data: NaturalLanguageGraphQuery):
+    """
+    Generate and execute a Cypher query from natural language, centered around a specific author.
+    Returns the serialized graph result.
+    """
+    try:
+        # Initialize ChatOpenAI
+        llm = ChatOpenAI(
+            model_name="gpt-4o",
+            temperature=0,
+            openai_api_key=os.getenv("OPENAI_API_KEY")
+        ).with_structured_output(CipherQuery)
+        
+        # Create system and human messages for the prompt with examples
+        system_message = SystemMessage(content="""
+            You are a Neo4j Cypher query generator. Your task is to convert natural language queries 
+            into valid Cypher queries that explore academic collaboration networks.
+            
+            The database schema includes:
+            - (Author)-[AUTHORED]->(Work)
+            - (Work)-[MENTIONS]->(Topic)
+            - (Author)-[RESEARCHES]->(Topic)
+            - (Author)-[AFFILIATED_WITH]->(Institution)
+            
+            Here are example query patterns to follow:
+
+            1. For coauthor networks:
+            Query: "Show me this author's coauthors and their shared papers"
+            ```
+            MATCH (a:Author {id: $author_id})-[auth1:AUTHORED]->(w:Work)<-[auth2:AUTHORED]-(co:Author)
+            WHERE a <> co
+            RETURN DISTINCT a, auth1, w, auth2, co
+            ```
+
+            2. For topic-based networks:
+            Query: "Show me authors who research similar topics"
+            ```
+            MATCH (a:Author {id: $author_id})-[r1:RESEARCHES]->(t:Topic)<-[r2:RESEARCHES]-(other:Author)
+            WHERE a <> other
+            RETURN DISTINCT a, r1, t, r2, other
+            ```
+
+            3. For author's research topics:
+            Query: "Show me all topics this author researches"
+            ```
+            MATCH (a:Author {id: $author_id})-[r:RESEARCHES]->(t:Topic)
+            RETURN DISTINCT a, r, t
+            ORDER BY r.paperCount DESC
+            ```
+
+            Always follow these rules:
+            1. Start queries with MATCH (a:Author {id: $author_id})
+            2. Return graph structures (nodes and relationships)
+            3. Use DISTINCT in RETURN statements
+            4. Do not include LIMIT clauses
+            5. Ensure all node labels and relationship types match the schema
+            6. Use meaningful variable names
+            7. Include relevant WHERE clauses for filtering
+            8. Use parameters with $ prefix (especially for author_id)
+        """)
+        
+        human_message = HumanMessage(content=f"""
+            Generate a Cypher query for the following request, starting with author ID '{query_data.author_id}':
+            {query_data.query}
+        """)
+        
+        # Generate Cypher query using LLM
+        response = await llm.ainvoke([system_message, human_message])
+        cypher_query = response.query.strip().replace("```cypher", "").replace("```", "")
+        print("CYPHER QUERY: ", cypher_query)
+        # Initialize Neo4j client
+        neo4j_client = Neo4jClient(
+            uri=os.getenv("NEO4J_URI"),
+            user=os.getenv("NEO4J_USER"),
+            password=os.getenv("NEO4J_PASSWORD")
+        )
+        
+        # Execute the generated query
+        graph = neo4j_client.execute_custom_query(
+            query=cypher_query,
+            params={"author_id": query_data.author_id},
+            limit=query_data.limit
+        )
+        
+        # Serialize the result
+        serializable_graph = serialize_neo4j_graph(graph)
+        neo4j_client.close()
+        
+        return {
+            "graph": serializable_graph,
+            "generated_query": cypher_query
+        }
+    except Exception as e:
+        print("ERROR: ", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
