@@ -82,7 +82,7 @@ class AuthorData(BaseModel):
     name: str
     citations: int
     dob: str
-    organisation_history: str
+    organisation_history: List[str]
     orcid: str
     hindex: int
     grants: Optional[List[GrantData]] = []
