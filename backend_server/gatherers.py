@@ -13,7 +13,8 @@ import re
 from scholarly import scholarly
 
 load_dotenv(override=True)
-pyalex.config.api_key = os.getenv("OPENALEX_API_KEY") 
+pyalex.config.api_key = os.getenv("OPENALEX_API_KEY")
+
 
 def normalize_name(name):
     """Normalize names by removing accents, converting to lowercase, and stripping whitespace."""
@@ -113,7 +114,7 @@ class OpenAlexInformationGatherer(InformationGatherer):
                     })
             return uk_authors
         return []
-    
+
     @staticmethod
     def get_top_authors_from_doi(doi):
         work = Works().filter(doi=doi).get()
@@ -121,14 +122,15 @@ class OpenAlexInformationGatherer(InformationGatherer):
         if work:
             authors = work[0].get('authorships', [])
             for author in authors:
-                if author['author_position'] == 'first' or author['author_position'] == 'last' or author['is_corresponding']:
+                if author['author_position'] == 'first' or author['author_position'] == 'last' or author[
+                    'is_corresponding']:
                     top_authors.append({'authorId': author['author']['id'], 'name': author['author']['display_name']})
         return top_authors
 
     @staticmethod
     def get_work_from_doi(doi):
         return Works().filter(doi=doi).get()
-    
+
     @staticmethod
     def get_work_from_paper_id(id):
         return Works()[id]
@@ -152,9 +154,8 @@ class OpenAlexInformationGatherer(InformationGatherer):
 
     @staticmethod
     def get_works_from_author_id(author_id):
-        works = Works().filter(**{"authorships.author.id": author_id}).get(per_page = 200)
+        works = Works().filter(**{"authorships.author.id": author_id}).get(per_page=200)
         return works if works else []
-
 
     @staticmethod
     def get_details_from_paper_id(paper_id):
@@ -380,7 +381,6 @@ def authors_from_doi(doi):
     author_objects = []
 
     for author in authors:
-
         # Normalize the author's name
         author_name = normalize_name(author["name"])
 
@@ -390,6 +390,7 @@ def authors_from_doi(doi):
 
     return author_objects
 
+
 def build_author_object(author_id):
     """
     Given an openalex author id, it builds an Author object by gathering information using various gatherers.
@@ -398,7 +399,7 @@ def build_author_object(author_id):
     author_name = author_info.get("name")
     if author_name is None:
         raise Exception("Author name is None")
-    
+
     external_ids = author_info.get("externalIds", {})
     orcid = external_ids.get("orcid")
     orcid = orcid.split("org/")[1] if orcid else None
@@ -440,6 +441,7 @@ def build_author_object(author_id):
     author_obj.employment = employment_data
     return author_obj
 
+
 def get_all_author_info(authorid):
     author_info = OpenAlexInformationGatherer.get_author_info(authorid)
     orcid = author_info["externalIds"].get("orcid") if "externalIds" in author_info else None
@@ -453,7 +455,8 @@ def get_all_author_info(authorid):
     website = website_check[0].get("url", None).get("value") if website_check else None
 
     # Use GTR API to get grant information about author using ORCID and their name
-    (grants, org) = GTRInformationGatherer.get_gtr_orgs_grants(orcid, author_info.get("name"), author_info.get("organisations", []))
+    (grants, org) = GTRInformationGatherer.get_gtr_orgs_grants(orcid, author_info.get("name"),
+                                                               author_info.get("organisations", []))
 
     # Construct Author object
     author_obj = Author(
@@ -475,40 +478,6 @@ def get_all_author_info(authorid):
 
     return author_obj
 
-def get_all_author_info(authorid):
-    author_info = OpenAlexInformationGatherer.get_author_info(authorid)
-    orcid = author_info["externalIds"].get("orcid") if "externalIds" in author_info else None
-    orcid = orcid.split("org/")[1] if orcid else None
-
-    # Use ORCID's API to get more information about the author
-    orcid_data = ORCIDInformationGatherer.get_profile(orcid) if orcid else {}
-    employment_data = ORCIDInformationGatherer.get_employments(orcid) if orcid else {}
-    dob = ORCIDInformationGatherer.get_dob(orcid) if orcid else None
-    website_check = orcid_data.get("researcher-urls", {}).get("researcher-url", [])
-    website = website_check[0].get("url", None).get("value") if website_check else None
-
-    # Use GTR API to get grant information about author using ORCID and their name
-    (grants, org) = GTRInformationGatherer.get_gtr_orgs_grants(orcid, author_info.get("name"), author_info.get("organisations", []))
-
-    # Construct Author object
-    author_obj = Author(
-        name=author_info.get("name", "Unknown"),
-        citations=author_info.get("citations", 0),
-        hindex=author_info.get("hIndex", 0),
-        organisation_history=author_info.get("organisations", []),
-        orcid=orcid,
-        dob=dob,
-        grants=grants,
-        grant_org_name=org,
-        website=website,
-        openAlexid=author_info.get("openAlex_id", "Unknown"),
-        works_count=author_info.get("works_count", "Unknown")
-    )
-
-    author_obj.profile = orcid_data
-    author_obj.employment = employment_data
-
-    return author_obj
 
 ###############################################
 ##          TO BE USED LATER                 ##
@@ -568,4 +537,3 @@ if __name__ == "__main__":
     # x = OpenAlexInformationGatherer.get_details_from_paper_id("https://openalex.org/W4400454085")
 
     # y = OpenAlexInformationGatherer.get_authors_from_doi()
-    
