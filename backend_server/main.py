@@ -694,6 +694,29 @@ async def get_chat_messages(chat_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+def serialize_neo4j_graph(graph):
+    """Convert Neo4j graph object into JSON-serializable format"""
+    return {
+        "nodes": [
+            {
+                "id": node.id,
+                "labels": list(node.labels),
+                "properties": dict(node)
+            }
+            for node in graph.nodes
+        ],
+        "relationships": [
+            {
+                "id": rel.id,
+                "type": rel.type,
+                "start_node": rel.start_node.id,
+                "end_node": rel.end_node.id,
+                "properties": dict(rel)
+            }
+            for rel in graph.relationships
+        ]
+    }
+
 @app.post("/api/graph/coauthor_network")
 async def get_coauthor_network(query: NetworkQuery):
     """Get the coauthor network for a given author"""
@@ -704,13 +727,14 @@ async def get_coauthor_network(query: NetworkQuery):
             password=os.getenv("NEO4J_PASSWORD")
         )
         
-        result = neo4j_client.get_coauthor_network(
+        graph = neo4j_client.get_coauthor_network(
             author_id=query.author_id,
             limit=query.limit
         )
         
+        serializable_graph = serialize_neo4j_graph(graph)
         neo4j_client.close()
-        return {"graph": result}
+        return {"graph": serializable_graph}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -724,13 +748,14 @@ async def get_topic_network(query: NetworkQuery):
             password=os.getenv("NEO4J_PASSWORD")
         )
         
-        result = neo4j_client.get_topic_network(
+        graph = neo4j_client.get_topic_network(
             author_id=query.author_id,
             limit=query.limit
         )
         
+        serializable_graph = serialize_neo4j_graph(graph)
         neo4j_client.close()
-        return {"graph": result}
+        return {"graph": serializable_graph}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -744,13 +769,14 @@ async def get_author_topics(query: NetworkQuery):
             password=os.getenv("NEO4J_PASSWORD")
         )
         
-        result = neo4j_client.get_author_topics(
+        graph = neo4j_client.get_author_topics(
             author_id=query.author_id,
             limit=query.limit
         )
         
+        serializable_graph = serialize_neo4j_graph(graph)
         neo4j_client.close()
-        return {"graph": result}
+        return {"graph": serializable_graph}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
