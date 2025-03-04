@@ -96,7 +96,7 @@ class AuthorProcessor(Processor):
                             author_id=author.openalex_id,
                             topic_id=topic['id'],
                             topic_name=topic['display_name'],
-                            paper_count=topic.get('works_count', 0)
+                            paper_count=topic.get('count', 0)
                         )
                     
                     # Process institutions in Neo4j
