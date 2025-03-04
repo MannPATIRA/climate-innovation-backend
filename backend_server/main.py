@@ -853,6 +853,7 @@ async def natural_language_graph_query(query_data: NaturalLanguageGraphQuery):
             6. Use meaningful variable names
             7. Include relevant WHERE clauses for filtering
             8. Use parameters with $ prefix (especially for author_id)
+            9. Maintain variable scope by including necessary variables in all WITH clauses.
         """)
         
         human_message = HumanMessage(content=f"""
@@ -864,6 +865,7 @@ async def natural_language_graph_query(query_data: NaturalLanguageGraphQuery):
         response = await llm.ainvoke([system_message, human_message])
         cypher_query = response.query.strip().replace("```cypher", "").replace("```", "")
         print("CYPHER QUERY: ", cypher_query)
+        print("____________end of cipher query____________")
         # Initialize Neo4j client
         neo4j_client = Neo4jClient(
             uri=os.getenv("NEO4J_URI"),
@@ -949,6 +951,7 @@ async def get_node_properties(
         return result
         
     except Exception as e:
+        print("ERROR: ", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
