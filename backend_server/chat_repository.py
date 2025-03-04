@@ -23,7 +23,7 @@ class ChatRepository:
             
         return result.data
 
-    def create_chat(self, source_type: str):
+    def create_chat(self, source_type: str, user_email: str):
         if source_type not in ["reports", "papers"]:
             raise InvalidSourceTypeError("Invalid source type. Must be 'reports' or 'papers'")
         
@@ -35,6 +35,7 @@ class ChatRepository:
         
         data = self.supabase.table("chats").insert({
             "type": source_type.rstrip('s'),  # Convert 'reports' to 'report', 'papers' to 'paper'
+            "user_email": user_email
         }).execute()
         
         return data.data[0]
@@ -62,9 +63,10 @@ class ChatRepository:
             .eq("id", chat_id)\
             .execute()
 
-    def get_all_chats(self):
+    def get_all_chats(self, user_email: str):
         result = self.supabase.table("chats")\
             .select("*")\
+            .eq("user_email", user_email)\
             .order("created_at", desc=True)\
             .execute()
         
