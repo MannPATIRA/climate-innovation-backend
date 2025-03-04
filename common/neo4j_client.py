@@ -169,4 +169,32 @@ class Neo4jClient:
             LIMIT $limit
             """
             result = session.run(query, author_id=author_id, limit=limit)
-            return result.graph() 
+            return result.graph()
+
+    def execute_custom_query(self, query: str, params: Dict = None, limit: int = 50):
+        """
+        Execute a custom Cypher query and return the graph result.
+        The query should return a graph structure.
+        
+        Args:
+            query: The Cypher query to execute
+            params: Optional parameters for the query
+            limit: Maximum number of results to return
+        
+        Returns:
+            Neo4j graph object containing nodes and relationships
+        """
+        with self.driver.session() as session:
+            # Add LIMIT clause if not present in query
+            if "LIMIT" not in query.upper():
+                query = f"{query}\nLIMIT {limit}"
+            
+            # Ensure params is a dictionary
+            params = params or {}
+            print("QUERY params: ", params)
+            try:
+                result = session.run(query, params)
+                return result.graph()
+            except Exception as e:
+                print(f"Error executing Cypher query: {str(e)}")
+                raise Exception(f"Error executing Cypher query: {str(e)}") 
