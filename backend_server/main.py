@@ -890,6 +890,67 @@ async def natural_language_graph_query(query_data: NaturalLanguageGraphQuery):
         print("ERROR: ", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/graph/nodes/{node_type}/{node_id}")
+async def get_node_properties(
+    node_type: str, 
+    node_id: str
+):
+    """
+    Get properties of a node by its type and OpenAlex ID.
+    
+    Args:
+        node_type: One of 'work', 'author', 'topic', or 'institution'
+        node_id: OpenAlex ID (URL or just the ID portion)
+    """
+    try:
+        # Map route parameters to Neo4j node types
+        type_mapping = {
+            'work': 'Work',
+            'author': 'Author', 
+            'topic': 'Topic',
+            'institution': 'Institution'
+        }
+        
+        if node_type.lower() not in type_mapping:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid node type. Must be one of: {', '.join(type_mapping.keys())}"
+            )
+            
+        # Convert ID to full OpenAlex URL if needed
+        if not node_id.startswith('https://'):
+            base_url = 'https://openalex.org'
+            # If ID starts with letter identifier (W, A, etc), keep it
+            if node_id[0].upper() in ['W', 'A', 'T', 'I']:
+                node_id = f"{base_url}/{node_id}"
+            else:
+                # Otherwise assume it's a work ID and add W prefix
+                node_id = f"{base_url}/W{node_id}"
+                
+        neo4j_client = Neo4jClient(
+            uri=os.getenv("NEO4J_URI"),
+            user=os.getenv("NEO4J_USER"),
+            password=os.getenv("NEO4J_PASSWORD")
+        )
+        
+        result = neo4j_client.get_node_by_id(
+            node_type=type_mapping[node_type.lower()],
+            node_id=node_id
+        )
+        
+        neo4j_client.close()
+        
+        if not result:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Node not found with ID: {node_id}"
+            )
+            
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

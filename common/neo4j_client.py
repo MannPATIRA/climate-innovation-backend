@@ -197,4 +197,24 @@ class Neo4jClient:
                 return result.graph()
             except Exception as e:
                 print(f"Error executing Cypher query: {str(e)}")
-                raise Exception(f"Error executing Cypher query: {str(e)}") 
+                raise Exception(f"Error executing Cypher query: {str(e)}")
+
+    def get_node_by_id(self, node_type: str, node_id: str) -> dict:
+        """
+        Get properties of a node by its ID.
+        
+        Args:
+            node_type: One of 'Work', 'Author', 'Topic', or 'Institution'
+            node_id: OpenAlex URL ID
+        
+        Returns:
+            Dictionary of node properties
+        """
+        with self.driver.session() as session:
+            query = f"""
+            MATCH (n:{node_type} {{id: $node_id}})
+            RETURN properties(n) as props
+            """
+            result = session.run(query, node_id=node_id)
+            record = result.single()
+            return record["props"] if record else None 
