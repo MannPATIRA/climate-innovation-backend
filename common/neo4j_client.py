@@ -124,4 +124,49 @@ class Neo4jClient:
                        orcid=orcid,
                        h_index=h_index,
                        citations=citations,
-                       works_count=works_count) 
+                       works_count=works_count)
+
+    def get_coauthor_network(self, author_id: str, limit: int = 50):
+        """
+        Get the coauthor network for a given author, including shared works.
+        Returns a graph structure showing how authors are connected through papers.
+        """
+        with self.driver.session() as session:
+            query = """
+            MATCH (a:Author {id: $author_id})-[auth1:AUTHORED]->(w:Work)<-[auth2:AUTHORED]-(co:Author)
+            WHERE a <> co
+            RETURN DISTINCT a, auth1, w, auth2, co
+            LIMIT $limit
+            """
+            result = session.run(query, author_id=author_id, limit=limit)
+            return result.graph()
+
+    def get_topic_network(self, author_id: str, limit: int = 50):
+        """
+        Get the topic-based network for a given author, showing connections
+        through shared research topics with other authors.
+        """
+        with self.driver.session() as session:
+            query = """
+            MATCH (a:Author {id: $author_id})-[r1:RESEARCHES]->(t:Topic)<-[r2:RESEARCHES]-(other:Author)
+            WHERE a <> other
+            RETURN DISTINCT a, r1, t, r2, other
+            LIMIT $limit
+            """
+            result = session.run(query, author_id=author_id, limit=limit)
+            return result.graph()
+
+    def get_author_topics(self, author_id: str, limit: int = 20):
+        """
+        Get all topics researched by an author with their paper counts,
+        returned as a graph structure showing author-topic relationships
+        """
+        with self.driver.session() as session:
+            query = """
+            MATCH (a:Author {id: $author_id})-[r:RESEARCHES]->(t:Topic)
+            RETURN DISTINCT a, r, t
+            ORDER BY r.paperCount DESC
+            LIMIT $limit
+            """
+            result = session.run(query, author_id=author_id, limit=limit)
+            return result.graph() 

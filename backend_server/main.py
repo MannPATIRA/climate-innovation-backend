@@ -25,6 +25,7 @@ from enum import Enum
 from ranking_model.ranker_manager import RankerManager
 from ranking_model.RegressionRanker import RegressionRanker
 import json
+from common.neo4j_client import Neo4jClient
 
 supabase: Client = init_supabase()
 # Load environment variables
@@ -131,7 +132,10 @@ class AuthorUpdate(BaseModel):
 author_queue = []
 global_paperid = ""
 
-
+# Add these new Pydantic models near the top with your other models
+class NetworkQuery(BaseModel):
+    author_id: str
+    limit: Optional[int] = 50
 
 def build_author_from_dict(data: dict) -> Author:
     grants = []
@@ -687,6 +691,66 @@ async def get_chat_messages(chat_id: str):
         return result
     except ChatNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/graph/coauthor_network")
+async def get_coauthor_network(query: NetworkQuery):
+    """Get the coauthor network for a given author"""
+    try:
+        neo4j_client = Neo4jClient(
+            uri=os.getenv("NEO4J_URI"),
+            user=os.getenv("NEO4J_USER"),
+            password=os.getenv("NEO4J_PASSWORD")
+        )
+        
+        result = neo4j_client.get_coauthor_network(
+            author_id=query.author_id,
+            limit=query.limit
+        )
+        
+        neo4j_client.close()
+        return {"graph": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/graph/topic_network") 
+async def get_topic_network(query: NetworkQuery):
+    """Get the topic-based network for a given author"""
+    try:
+        neo4j_client = Neo4jClient(
+            uri=os.getenv("NEO4J_URI"),
+            user=os.getenv("NEO4J_USER"),
+            password=os.getenv("NEO4J_PASSWORD")
+        )
+        
+        result = neo4j_client.get_topic_network(
+            author_id=query.author_id,
+            limit=query.limit
+        )
+        
+        neo4j_client.close()
+        return {"graph": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/graph/author_topics")
+async def get_author_topics(query: NetworkQuery):
+    """Get all topics researched by an author"""
+    try:
+        neo4j_client = Neo4jClient(
+            uri=os.getenv("NEO4J_URI"),
+            user=os.getenv("NEO4J_USER"),
+            password=os.getenv("NEO4J_PASSWORD")
+        )
+        
+        result = neo4j_client.get_author_topics(
+            author_id=query.author_id,
+            limit=query.limit
+        )
+        
+        neo4j_client.close()
+        return {"graph": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
