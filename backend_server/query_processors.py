@@ -41,6 +41,10 @@ class MockQueryProcessor:
         
         # After the stream is complete, call the completion callback
         await completion_callback(full_response)
+    
+    async def generate_chat_name(self, query: str) -> str:
+        """Generate a concise chat name based on the user's query"""
+        return "Climate Challenges"
 
 class QueryProcessor:
     def __init__(self):
