@@ -457,7 +457,7 @@ class RankerManager(Ranker):
 if __name__ == "__main__":   
     from common.supabase_client import init_supabase
     from dotenv import load_dotenv
-    from .test_ranker import papers
+    from .testing_ranker import papers
     ranker_classes = {
         'regression': RegressionRanker,
         'svm': OnlineSVMRanker,
