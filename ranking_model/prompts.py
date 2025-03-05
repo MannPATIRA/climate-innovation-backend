@@ -53,17 +53,3 @@ class ResearchAnalysis(BaseModel):
             int(self.eco_focus),
             int(self.neglectedness),
         ]
-
-
-# class ClimateResearchAnalyzer:
-#     def __init__(self, model_name: str = "gpt-4o-mini"):
-#         self.llm = ChatOpenAI(model=model_name)
-#         self.prompt = PromptTemplate.from_template(ANALYSIS_PROMPT)
-#         self.chain = LLMChain(llm=self.llm, prompt=self.prompt, output_parser=self.llm.with_structured_output(ResearchAnalysis))
-
-#     def analyze_abstract(self, abstract: str) -> ResearchAnalysis:
-#         """
-#         Analyzes the given abstract and returns a ResearchAnalysis object.
-#         """
-#         return {"abstract": abstract} | self.chain
-
