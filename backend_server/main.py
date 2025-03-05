@@ -126,10 +126,14 @@ class AuthorCreate(BaseModel):
     institution: str
     note: Optional[str] = None
     openalex_id: str
+    user_email: str
 
 class AuthorUpdate(BaseModel):
     note: Optional[str] = None
     state: Optional[AuthorState] = None
+
+class ChatCreate(BaseModel):
+    user_email: str
 
 author_queue = []
 global_paperid = ""
@@ -216,9 +220,9 @@ async def get_chat(chat_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/{source_type}/chat")
-async def create_chat(source_type: str):
+async def create_chat(source_type: str, chatCreate: ChatCreate):
     try:
-        return chat_repository.create_chat(source_type)
+        return chat_repository.create_chat(source_type, chatCreate.user_email)
     except InvalidSourceTypeError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -613,7 +617,9 @@ async def startup_event():
 async def create_author(author: AuthorCreate):
     try:
         # Check if author already exists
-        existing = supabase.table("author_crm").select("*").eq("openalex_id", author.openalex_id).execute()
+        existing = supabase.table("author_crm").select("*")\
+            .eq("openalex_id", author.openalex_id)\
+            .eq("user_email", author.user_email).execute()
         
         if existing.data:
             raise HTTPException(status_code=400, detail="Author already exists in CRM")
@@ -624,7 +630,8 @@ async def create_author(author: AuthorCreate):
             "institution": author.institution,
             "note": author.note,
             "openalex_id": author.openalex_id,
-            "state": AuthorState.UNCONTACTED
+            "state": AuthorState.UNCONTACTED,
+            "user_email": author.user_email
         }).execute()
         
         return result.data[0]
@@ -656,9 +663,9 @@ async def update_author_state(author_id: int, state_update: AuthorUpdate):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/crm/authors")
-async def get_authors():
+async def get_authors(user_email: str):
     try:
-        result = supabase.table("author_crm").select("*").execute()
+        result = supabase.table("author_crm").select("*").eq("user_email", user_email).execute()
         return result.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -688,9 +695,9 @@ async def delete_author(author_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/chats")
-async def get_all_chats():
+async def get_all_chats(user_email: str):
     try:
-        result = chat_repository.get_all_chats()
+        result = chat_repository.get_all_chats(user_email)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
