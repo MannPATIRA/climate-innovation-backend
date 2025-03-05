@@ -29,7 +29,7 @@ authors3 = [
 
 # Create some sample Paper instances.
 paper1 = Paper(
-    paper_id=1,
+    paper_id="1",
     openalex_id="W1234567890",
     title="Research on Neural Networks",
     relevancy=0.8,
@@ -39,7 +39,7 @@ paper1 = Paper(
     publication_date="2023-01-15"
 )
 paper2 = Paper(
-    paper_id=2,
+    paper_id="2",
     openalex_id="W2345678901",
     title="Advances in Quantum Computing",
     relevancy=0.6,
@@ -49,7 +49,7 @@ paper2 = Paper(
     publication_date="2023-02-20"
 )
 paper3 = Paper(
-    paper_id=3,
+    paper_id="3",
     openalex_id="W3456789012",
     title="Innovations in Biotechnology",
     relevancy=0.9,
