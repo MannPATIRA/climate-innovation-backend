@@ -1,4 +1,4 @@
-from typing import Dict, List, Type
+from typing import Dict, List, Type, Tuple
 from collections import defaultdict
 import json
 import pickle
@@ -17,7 +17,7 @@ class RankerManager(Ranker):
     A meta-ranker that manages multiple ranker instances.
     Allows for training of multiple implementations, and using the one with the best performance.
     """
-    def __init__(self, supabase_client: Client, model_name: str, ranker_classes: Dict[str, Type[Ranker]], learning_rate: float = 0.01):
+    def __init__(self, supabase_client: Client, model_name: str, ranker_classes: Dict[str, Tuple[Type[Ranker], float]], learning_rate: float = 0.01):
         """
         Initialize multiple rankers.
         
@@ -28,12 +28,12 @@ class RankerManager(Ranker):
         super().__init__(supabase_client, model_name, learning_rate)
         self.rankers = {
             name: ranker_class(supabase_client=supabase_client, model_name=f"{model_name}_{name}", learning_rate=learning_rate)
-            for name, ranker_class in ranker_classes.items()
+            for name, (ranker_class, wei) in ranker_classes.items()
         }
         for name, ranker in self.rankers.items():
             logging.info(f"Initialized ranker: {name} of type {ranker.__class__.__name__} with model name {ranker.model_name}")
-        self.paper_weights = {name: 1.0/len(ranker_classes) for name in ranker_classes}
-        self.author_weights = {name: 1.0/len(ranker_classes) for name in ranker_classes}
+        self.paper_weights = {name: wei for name, (ranker_class, wei) in ranker_classes.items()}
+        self.author_weights = {name: wei for name, (ranker_class, wei) in ranker_classes.items()}
         
         self.authors = None
         self.accepted_authors = []

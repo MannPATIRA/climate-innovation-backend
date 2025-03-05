@@ -213,9 +213,9 @@ def build_paper_from_dict(data: dict) -> Paper:
 query_processor = MockQueryProcessor()
 
 ranker_classes = {
-    'SevenQ': SevenQRanker,
-    'regression': RegressionRanker,
-    'svm': OnlineSVMRanker,
+    'SevenQ': (SevenQRanker, 0.8),
+    'regression': (RegressionRanker, 0.1),
+    'svm': (OnlineSVMRanker, 0.1),
 }
 ranker = RankerManager(supabase, "main_ranker_manager", ranker_classes, 0.01)
 ranker.load_model()
