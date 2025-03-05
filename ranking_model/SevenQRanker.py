@@ -79,6 +79,7 @@ class SevenQRanker(Ranker):
     
     def load_model(self) -> bool:
         """No changes so no need to change."""
+        return True
 
 
 if __name__ == "__main__":

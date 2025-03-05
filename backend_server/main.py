@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 from fastapi.responses import StreamingResponse
 from common.pinecone_store import PineconeStore
+from ranking_model.SevenQRanker import SevenQRanker
 from ranking_model.OnlineSVMRanker import OnlineSVMRanker
 from ranking_model.paper import Paper
 from .query_processors import MockQueryProcessor, QueryProcessor
@@ -198,6 +199,7 @@ def build_paper_from_dict(data: dict) -> Paper:
 query_processor = MockQueryProcessor()
 
 ranker_classes = {
+    'SevenQ': SevenQRanker,
     'regression': RegressionRanker,
     'svm': OnlineSVMRanker,
 }
