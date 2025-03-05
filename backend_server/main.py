@@ -154,6 +154,20 @@ class CipherQuery(BaseModel):
         description="The cipher query based on the natural language query",
     )
 
+class SaveQueryRequest(BaseModel):
+    cipher_query: str
+    name: str
+    user: str
+
+class RenameQueryRequest(BaseModel):
+    name: str
+
+class RawCipherQuery(BaseModel):
+    """Model for executing raw cipher queries"""
+    query: str
+    params: Optional[Dict] = {}
+    limit: Optional[int] = 50
+
 def build_author_from_dict(data: dict) -> Author:
     grants = []
     for grant in data.get("grants", []):
@@ -959,6 +973,97 @@ async def get_node_properties(
         
     except Exception as e:
         print("ERROR: ", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/graph/queries")
+async def save_query(query: SaveQueryRequest):
+    """Save a cipher query to the database"""
+    try:
+        result = supabase.table("saved_cipher_queries").insert({
+            "cipher_query": query.cipher_query,
+            "name": query.name,
+            "user": query.user
+        }).execute()
+        
+        return result.data[0]
+    except Exception as e:
+        print("ERROR: ", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.patch("/api/graph/queries/{query_id}/rename")
+async def rename_query(query_id: int, rename_request: RenameQueryRequest):
+    """Rename a saved cipher query"""
+    try:
+        result = supabase.table("saved_cipher_queries").update({
+            "name": rename_request.name
+        }).eq("id", query_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Query not found")
+            
+        return result.data[0]
+    except Exception as e:
+        print("ERROR: ", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/graph/queries")
+async def get_saved_queries(user: str):
+    """Get all saved queries for a user"""
+    try:
+        result = supabase.table("saved_cipher_queries").select("*").eq("user", user).execute()
+        return result.data
+    except Exception as e:
+        print("ERROR: ", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/graph/execute_cipher")
+async def execute_cipher_query(query_data: RawCipherQuery):
+    """
+    Execute a raw Cypher query and return the graph result.
+    Uses the same serialization format as the natural language query endpoint.
+    """
+    try:
+        # Initialize Neo4j client
+        neo4j_client = Neo4jClient(
+            uri=os.getenv("NEO4J_URI"),
+            user=os.getenv("NEO4J_USER"),
+            password=os.getenv("NEO4J_PASSWORD")
+        )
+        
+        # Execute the query
+        graph = neo4j_client.execute_custom_query(
+            query=query_data.query,
+            params=query_data.params,
+            limit=query_data.limit
+        )
+        
+        # Serialize the result
+        serializable_graph = serialize_neo4j_graph(graph)
+        neo4j_client.close()
+        
+        return {
+            "graph": serializable_graph,
+            "executed_query": query_data.query
+        }
+    except Exception as e:
+        print("ERROR: ", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/graph/queries/{query_id}")
+async def delete_query(query_id: int):
+    """Delete a saved cipher query"""
+    try:
+        # Check if the query exists first
+        check_result = supabase.table("saved_cipher_queries").select("id").eq("id", query_id).execute()
+        
+        if not check_result.data:
+            raise HTTPException(status_code=404, detail="Query not found")
+        
+        # Delete the query
+        result = supabase.table("saved_cipher_queries").delete().eq("id", query_id).execute()
+        
+        return {"message": f"Query with ID {query_id} deleted successfully"}
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
