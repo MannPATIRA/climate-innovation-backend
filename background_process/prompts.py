@@ -47,7 +47,7 @@ class SearchQueries(BaseModel):
 REPORT_ASSESSMENT_SYSTEM_PROMPT = """You are an expert in climate technology. 
 Your task is to determine if a document is specifically about technical climate issues.
 You must ensure the document details actual problems that contribute to climate change.
-You should ensuret that it does not have an excessive focus on policy or politics."""
+You should ensure that it does not have an excessive focus on policy or politics."""
 
 REPORT_ASSESSMENT_HUMAN_PROMPT = """Analyze the following text from a report and determine if it's about climate issues:
 
