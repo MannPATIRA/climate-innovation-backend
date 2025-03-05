@@ -1,15 +1,17 @@
+from dotenv import load_dotenv
 import numpy as np
 from typing import List
 from supabase import Client
 from langchain.prompts import PromptTemplate
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import LLMChain
+from langchain_openai import ChatOpenAI
+import asyncio
 
 from .author import Author
 from .paper import Paper
 from .prompts import ANALYSIS_PROMPT, ResearchAnalysis
 from .ranker import Ranker
 
+load_dotenv()
 
 class SevenQRanker(Ranker):
     """
@@ -18,21 +20,30 @@ class SevenQRanker(Ranker):
       Towards unearthing neglected climate innovations from scientific literature using Large Language Models
       https://arxiv.org/abs/2411.10055
     """
-    def __init__(self, supabase_client: Client, model_name: str, learning_rate: float = 0.01):
+    def __init__(self, supabase_client: Client, model_name: str = "gpt-4o-mini", learning_rate: float = 0.01):
         super().__init__(supabase_client, model_name, learning_rate)
-        self.question_weights = np.ones(7) / 7
+        # weights from Context (binary) in paper
+        self.question_weights = np.array([-7, 0.211, 0.339, 0.102, -0.235, 0.663, -0.080])
         self.llm = ChatOpenAI(model=model_name)
+        self.model_with_structure = self.llm.with_structured_output(ResearchAnalysis)
         self.prompt = PromptTemplate.from_template(ANALYSIS_PROMPT)
-        self.chain = LLMChain(llm=self.llm, prompt=self.prompt, output_parser=self.llm.with_structured_output(ResearchAnalysis))
 
-    @Ranker.save_model_before_rank
     def rank_papers(self, papers: List[Paper]) -> List[Paper]:
         """Ranks papers based on a seven-question scoring system, conducted by an LLM"""
-        for paper in papers:
-            researchAnalysis = {"abstract": paper.abstract} | self.chain
-            scores = researchAnalysis.convert_to_binary_list()
-            paper.score = np.dot(scores, self.question_weights)
+        async def analyze_papers():
+            tasks = [self._analyze_paper_abstract(paper) for paper in papers]
+            await asyncio.gather(*tasks)
+        
+        asyncio.run(analyze_papers())
         return sorted(papers, key=lambda p: p.score, reverse=True)
+
+    async def _analyze_paper_abstract(self, paper: Paper):
+        """Analyzes a single paper abstract and updates its score."""
+        researchAnalysis = await self.model_with_structure.ainvoke(
+            self.prompt.format(abstract=paper.abstract)
+        )
+        scores = researchAnalysis.convert_to_binary_list()
+        paper.score = np.dot(scores, self.question_weights)
 
     def rank_authors(self, authors: List[Author]) -> List[Author]:
         """Ranks authors based on a simplified approach"""
@@ -68,3 +79,30 @@ class SevenQRanker(Ranker):
     
     def load_model(self) -> bool:
         """No changes so no need to change."""
+
+
+if __name__ == "__main__":
+    # Mock Supabase client (as in testing_ranker.py)
+    class MockSupabaseClient:
+        def table(self, table_name):
+            return self
+        def upsert(self, data):
+            return self
+        def execute(self):
+            return None
+
+    mock_supabase_client = MockSupabaseClient()
+    ranker = SevenQRanker(supabase_client=mock_supabase_client, learning_rate=0.01)
+
+    #Import data from testing_ranker.py (you'll need to adjust imports to your project structure)
+    from .testing_ranker import paper1, paper2, paper3
+
+    papers = [paper1, paper2, paper3]
+
+    try:
+        ranked_papers = ranker.rank_papers(papers)
+        print("\nRanked Papers:")
+        for p in ranked_papers:
+            print(f"Paper: {p.title} (Score: {p.score:.3f})")
+    except Exception as e:
+        print(f"An error occurred during ranking: {e}")
