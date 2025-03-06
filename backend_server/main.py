@@ -236,7 +236,7 @@ async def validate_gauth(gauth: GAuthRequest):
         idinfo = id_token.verify_oauth2_token(
             gauth.token,
             requests.Request(),
-            GOOGLE_CLIENT_ID
+            os.getenv("GOOGLE_CLIENT_ID")
         )
     except ValueError:
         # Invalid token
