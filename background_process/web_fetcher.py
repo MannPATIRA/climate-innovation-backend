@@ -51,9 +51,21 @@ class WebReportFetcher(ReportFetcher):
     def _setup_driver(self):
         """Sets up Chrome browser with defaults"""
         options = webdriver.ChromeOptions()
+        # Add headless mode options
+        options.add_argument('--headless')  # Run in headless mode
+        options.add_argument('--disable-gpu')  # Disable GPU hardware acceleration
+        options.add_argument('--no-sandbox')  # Bypass OS security model
+        options.add_argument('--disable-dev-shm-usage')  # Overcome limited resource problems
+        options.add_argument('--window-size=1920,1080')  # Set a standard window size
+
+        
+
         options.add_experimental_option("prefs", {
             "download.default_directory": self.download_dir,
             "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "safebrowsing.enabled": True,
+            "plugins.always_open_pdf_externally": True  # Auto-download PDFs instead of opening them
         })
         return webdriver.Chrome(options=options)
 
