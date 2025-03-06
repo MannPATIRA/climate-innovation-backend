@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 def init_supabase() -> Client:
     load_dotenv(override=True)
     """Initialize and return a Supabase client instance."""
-    supabase_url = os.getenv("SUPABASE_URL")
-    supabase_key = os.getenv("SUPABASE_KEY")
+    supabase_url = os.getenv("REMOTE_SUPABASE_URL")
+    supabase_key = os.getenv("REMOTE_SUPABASE_KEY")
     # print(supabase_key)
     # print(supabase_url)
     

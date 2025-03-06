@@ -410,7 +410,7 @@ async def search_papers(query: PaperQuery):
                 paper_results.append(paper)
 
             yield f"data: {json.dumps({'type': 'initial', 'papers': [p.model_dump() for p in paper_results]})}\n\n"
-
+            print("Should have yielded first data ")
             # Second event: additional author details
             author_updates = {}
             for paper in paper_results:

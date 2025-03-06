@@ -12,8 +12,8 @@ def test_report_ingestion():
     load_dotenv(override=True)
     
     # Initialize clients
-    supabase_url = os.getenv("SUPABASE_URL")
-    supabase_key = os.getenv("SUPABASE_KEY")
+    supabase_url = os.getenv("REMOTE_SUPABASE_URL")
+    supabase_key = os.getenv("REMOTE_SUPABASE_KEY")
     supabase = create_client(supabase_url, supabase_key)
     pinecone_store = PineconeStore(index_name="climate-index")
     
