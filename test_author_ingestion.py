@@ -11,8 +11,8 @@ def test_author_ingestion():
     load_dotenv(override=True)
     
     # Initialize Supabase client
-    supabase_url = os.getenv("SUPABASE_URL")
-    supabase_key = os.getenv("SUPABASE_KEY")
+    supabase_url = os.getenv("REMOTE_SUPABASE_URL")
+    supabase_key = os.getenv("REMOTE_SUPABASE_KEY")
     openalex_key = os.getenv("OPENALEX_API_KEY")
     supabase = create_client(supabase_url, supabase_key)
     
