@@ -168,8 +168,6 @@ class RawCipherQuery(BaseModel):
     params: Optional[Dict] = {}
     limit: Optional[int] = 50
 
-class GAuthRequest(BaseModel):
-    token: str
 
 def build_author_from_dict(data: dict) -> Author:
     grants = []
@@ -230,11 +228,11 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 
 @app.get("/api/login/gauth")
-async def validate_gauth(gauth: GAuthRequest):
+async def validate_gauth(token: str):
     try:
         # Verify the Google token first
         idinfo = id_token.verify_oauth2_token(
-            gauth.token,
+            token.token,
             requests.Request(),
             os.getenv("GOOGLE_CLIENT_ID")
         )
@@ -245,7 +243,7 @@ async def validate_gauth(gauth: GAuthRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-    user_email = gauth.token
+    user_email = idinfo['email']
     res = supabase.table('users')\
         .select('*')\
         .eq('user_email', user_email)\
