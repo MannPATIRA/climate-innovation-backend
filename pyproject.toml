@@ -42,7 +42,8 @@ dependencies = [
     "llmsherpa (>=0.1.4,<0.2.0)",
     "googlesearch-python (>=1.3.0,<2.0.0)",
     "langgraph (>=0.2.74,<0.3.0)",
-    "neo4j (>=5.28.1,<6.0.0)"
+    "neo4j (>=5.28.1,<6.0.0)",
+    "google-auth (>=2.38.0,<3.0.0)"
 ]
 
 [build-system]

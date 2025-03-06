@@ -139,7 +139,6 @@ class ChatCreate(BaseModel):
 author_queue = []
 global_paperid = ""
 
-# Add these new Pydantic models near the top with your other models
 class NetworkQuery(BaseModel):
     author_id: str
     limit: Optional[int] = 50
@@ -168,6 +167,9 @@ class RawCipherQuery(BaseModel):
     query: str
     params: Optional[Dict] = {}
     limit: Optional[int] = 50
+
+class GAuthRequest(BaseModel):
+    token: str
 
 def build_author_from_dict(data: dict) -> Author:
     grants = []
@@ -223,6 +225,39 @@ ranker.load_model()
 @app.get("/")
 async def home():
     return {"message": "Hello from the Hugging Face LLaMA backend from Aaryan Purohit!"}
+
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
+@app.get("/api/login/gauth")
+async def validate_gauth(gauth: GAuthRequest):
+    try:
+        # Verify the Google token first
+        idinfo = id_token.verify_oauth2_token(
+            gauth.token,
+            requests.Request(),
+            GOOGLE_CLIENT_ID
+        )
+    except ValueError:
+        # Invalid token
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+    user_email = gauth.token
+    res = supabase.table('users')\
+        .select('*')\
+        .eq('user_email', user_email)\
+        .execute()
+    if res.data:
+        return {"message": "User found", "user_email": user_email}
+    else:
+        res = supabase.table('login_attempt').insert({"user_email": user_email}).execute()
+        if res.data:
+            raise HTTPException(status_code=404, detail="User not found")
+        else:
+            raise HTTPException(status_code=500, detail="Failed to document user")
 
 
 chat_repository = ChatRepository(supabase_client=supabase)
