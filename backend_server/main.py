@@ -232,7 +232,7 @@ async def validate_gauth(token: str):
     try:
         # Verify the Google token first
         idinfo = id_token.verify_oauth2_token(
-            token.token,
+            token,
             requests.Request(),
             os.getenv("GOOGLE_CLIENT_ID")
         )
