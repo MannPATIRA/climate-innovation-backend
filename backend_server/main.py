@@ -113,8 +113,8 @@ def build_paper_from_dict(data: dict) -> Paper:
 
 
 # Initialize the query processor
-# query_processor = QueryProcessor()
-query_processor = MockQueryProcessor()
+query_processor = QueryProcessor()
+# query_processor = MockQueryProcessor()
 
 ranker_classes = {
     'SevenQ': (SevenQRanker, 0.8),
