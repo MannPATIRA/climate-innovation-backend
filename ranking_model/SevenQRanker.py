@@ -24,7 +24,7 @@ class SevenQRanker(Ranker):
         super().__init__(supabase_client, model_name, learning_rate)
         # weights from Context (binary) in paper
         self.question_weights = np.array([-7, 0.211, 0.339, 0.102, -0.235, 0.663, -0.080])
-        self.llm = ChatOpenAI(model=model_name)
+        self.llm = ChatOpenAI(model="gpt-4o-mini")
         self.model_with_structure = self.llm.with_structured_output(ResearchAnalysis)
         self.prompt = PromptTemplate.from_template(ANALYSIS_PROMPT)
 
