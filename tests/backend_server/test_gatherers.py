@@ -2,10 +2,8 @@ import pytest
 import requests
 from unittest.mock import Mock, patch
 
-from backend_server.gatherers import (
-    SemanticScholarInformationGatherer,
-    OpenAlexInformationGatherer
-)
+from backend_server.gatherers.SemanticScholarInformationGatherer import SemanticScholarInformationGatherer
+from backend_server.gatherers.OpenAlexInformationGatherer import OpenAlexInformationGatherer
 
 # Test data
 MOCK_ARXIV_DOI = "2303.11366"

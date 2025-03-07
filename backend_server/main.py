@@ -26,7 +26,7 @@ from ranking_model.author import Author
 from ranking_model.grant import Grant
 from ranking_model.paper import Paper
 from ranking_model.ranker_manager import RankerManager
-from .gatherers import get_all_author_info
+from .author_building import get_all_author_info
 from .models import (
     Query,
     PaperQuery,
