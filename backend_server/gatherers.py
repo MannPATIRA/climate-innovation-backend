@@ -1,29 +1,57 @@
+import os
+import re
 import urllib.parse
 from abc import ABC
-import requests
+
 import pyalex
-from pyalex import Works, Authors
-from ranking_model.author import Author
-from ranking_model.grant import Grant
-import os
-from dotenv import load_dotenv
+import requests
 import unicodedata
+from dotenv import load_dotenv
 from fuzzywuzzy import fuzz
-import re
+from pyalex import Works, Authors
 from scholarly import scholarly
 
+from ranking_model.author import Author
+from ranking_model.grant import Grant
+
+# Load .env
 load_dotenv(override=True)
+
+# PyAlex API key config
 pyalex.config.api_key = os.getenv("OPENALEX_API_KEY")
 
 
-def normalize_name(name):
-    """Normalize names by removing accents, converting to lowercase, and stripping whitespace."""
+def normalize_name(name: str):
+    """
+
+    Parameters
+    ----------
+    name: str, name we want to normalise
+
+    Returns
+    -------
+    str - normalised name
+    """
+
+    # Normalise the name in a consistent format
     name = unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore').decode('utf-8')
+
     return name.lower().strip()
 
 
 def fuzzy_match(name1, name2, threshold=85):
-    """Perform fuzzy matching between two names with a given similarity threshold."""
+    """
+    Returns whether two names have a similarity score above a certain threshold
+    Parameters
+    ----------
+    name1: str, first name
+    name2: str, second name
+    threshold: int, threshold above which the names are considered to be the same person's
+
+    Returns
+    -------
+    bool - whether the similarity score between the names is above the given threshold
+    """
 
     # partial_ratio works better when there are initials, but we use token_sort_ratio since this function is only called
     # when org_match is False, so we do not want to match on initials just in case, we match on the name
@@ -31,6 +59,20 @@ def fuzzy_match(name1, name2, threshold=85):
 
 
 def is_name_match(name_variations, person_name, org_match):
+    """
+    Given a person's name variations from OpenAlex, the name from the other source, and whether the organisation metadata
+    matches, this returns true if we are confident that the names refer to the same person
+    Parameters
+    ----------
+    name_variations: List[str], all known variations of the name according to OpenAlex
+    person_name: str, name of person from new source
+    org_match: bool, whether the organisations matched
+
+    Returns
+    -------
+    bool - True if we are confident the names match
+    """
+
     # Normalise the name given by GtR
     person_full_name = normalize_name(person_name)
 
@@ -62,33 +104,79 @@ def is_name_match(name_variations, person_name, org_match):
 
 
 class InformationGatherer(ABC):
+    """
+    Parent class for all Information Gatherers
+    """
     pass
 
 
 class ORCIDInformationGatherer(InformationGatherer):
+    """
+    Information gatherer for ORCID
+    """
     BASE_URL = "https://pub.orcid.org/v3.0/"
     HEADERS = {"Accept": "application/json"}
 
     @staticmethod
     def get_profile(orcid_id: str):
+        """
+        Returns the profile of an author given their ORCID
+        Parameters
+        ----------
+        orcid_id: str, ORCID id of author
+
+        Returns
+        -------
+        Dict - all the details we have about the author on ORCID
+        """
         url = f"{ORCIDInformationGatherer.BASE_URL}{orcid_id}/person"
         response = requests.get(url, headers=ORCIDInformationGatherer.HEADERS)
         return response.json() if response.status_code == 200 else None
 
     @staticmethod
     def get_works(orcid_id: str):
+        """
+        Returns all the works of an author
+        Parameters
+        ----------
+        orcid_id: str, ORCID of author
+
+        Returns
+        -------
+        Dict - all works for a given author
+        """
         url = f"{ORCIDInformationGatherer.BASE_URL}{orcid_id}/works"
         response = requests.get(url, headers=ORCIDInformationGatherer.HEADERS)
         return response.json() if response.status_code == 200 else None
 
     @staticmethod
     def get_employments(orcid_id: str):
+        """
+        Gets the employments of a given author
+        Parameters
+        ----------
+        orcid_id: str, ORCID of author
+
+        Returns
+        -------
+        Dict - list of all employments
+        """
         url = f"{ORCIDInformationGatherer.BASE_URL}{orcid_id}/employments"
         response = requests.get(url, headers=ORCIDInformationGatherer.HEADERS)
         return response.json() if response.status_code == 200 else None
 
     @staticmethod
     def get_dob(orcid_id: str):
+        """
+        Date of birth of an author
+        Parameters
+        ----------
+        orcid_id: str, ORCID if of author
+
+        Returns
+        -------
+        str -  Date of birth of author
+        """
         url = f"{ORCIDInformationGatherer.BASE_URL}{orcid_id}/biography"
         response = requests.get(url, headers=ORCIDInformationGatherer.HEADERS)
         if response.status_code == 200:
@@ -98,46 +186,126 @@ class ORCIDInformationGatherer(InformationGatherer):
 
 
 class OpenAlexInformationGatherer(InformationGatherer):
+    """
+    Information Gatherer for OpenAlex
+    """
+
     @staticmethod
-    def get_UK_authors_from_doi(doi):
+    def get_UK_authors_from_doi(doi: str):
+        """
+        Gets UK authors given a paper's DOI
+        Parameters
+        ----------
+        doi: str, DOI of paper whose UK authors we want
+
+        Returns
+        -------
+        List[Dict] - list of authors
+        """
+
+        # Get the work
         work = Works().filter(doi=doi).get()
+
         if work:
+
+            # Get all the authors
             authorships = work[0].get('authorships', [])
             uk_authors = []
+
+            # Go through each author and store in uk_authors if they have been linked to UK institutions
             for authorship in authorships:
+
+                # Get linked institution
                 institutions = authorship.get('institutions', [])
+
                 # Check if any of the institutions has a country code of "GB"
                 if any(inst.get('country_code') == "GB" for inst in institutions):
                     uk_authors.append({
                         'authorId': authorship['author']['id'],
                         'name': authorship['author']['display_name']
                     })
+
             return uk_authors
+
         return []
 
     @staticmethod
     def get_top_authors_from_doi(doi):
+        """
+        Only return first, last or corresponding authors from a paper given its DOI
+        Parameters
+        ----------
+        doi: str, the DOI of the paper
+
+        Returns
+        -------
+        List[Dict] - list of authors
+        """
+
+        # Get the work
         work = Works().filter(doi=doi).get()
+
         top_authors = []
+
         if work:
+
+            # Get all authors
             authors = work[0].get('authorships', [])
+
+            # Add author if they are first, last or corresponding
             for author in authors:
-                if author['author_position'] == 'first' or author['author_position'] == 'last' or author[
-                    'is_corresponding']:
+
+                if author['author_position'] == 'first' or author['author_position'] == 'last' \
+                        or author['is_corresponding']:
                     top_authors.append({'authorId': author['author']['id'], 'name': author['author']['display_name']})
+
         return top_authors
 
     @staticmethod
     def get_work_from_doi(doi):
+        """
+        Returns the work given its doi
+        Parameters
+        ----------
+        doi: str, DOI of paper
+
+        Returns
+        -------
+        Work - the Work object
+        """
         return Works().filter(doi=doi).get()
 
     @staticmethod
     def get_work_from_paper_id(id):
+        """
+        Returns the work given its paper id
+        Parameters
+        ----------
+        id: str, DOI of paper
+
+        Returns
+        -------
+        Work - the Work object
+        """
         return Works()[id]
 
     @staticmethod
     def get_author_info(author_id):
+        """
+        Returns the information about an author given their author_id
+        Parameters
+        ----------
+        author_id: str, DOI of paper
+
+        Returns
+        -------
+        Dict - author information
+        """
+
+        # Get author
         author = Authors()[author_id]
+
+        # Return only relevant information
         if author:
             return {
                 "name": author.get('display_name'),
@@ -150,17 +318,35 @@ class OpenAlexInformationGatherer(InformationGatherer):
                     map(lambda x: x.get("display_name", "Unknown name"), author.get("last_known_institutions", []))),
                 "openAlex_id": author.get("id", "")
             }
+
         return {}
 
     @staticmethod
     def get_works_from_author_id(author_id):
+        """
+        Get all works given an author_id
+        Parameters
+        ----------
+        author_id: str, author's id whose works we want
+
+        Returns
+        -------
+        [Work] - the list of works
+        """
         works = Works().filter(**{"authorships.author.id": author_id}).get(per_page=200)
         return works if works else []
 
     @staticmethod
     def get_details_from_paper_id(paper_id):
         """
-        Retrieve the DOI of a paper using its OpenAlex ID.
+        Given a paper id, we return title, publication_date and abstract
+        Parameters
+        ----------
+        paper_id: str, id of paper whose info we want
+
+        Returns
+        -------
+        Dict - title, publication_date and abstract
         """
 
         try:
@@ -182,23 +368,18 @@ class OpenAlexInformationGatherer(InformationGatherer):
         else:
             return None
 
-    #     @staticmethod
-    #     def get_doi_from_paper_id(paper_id):
-    #         """
-    #         Retrieve the DOI of a paper using its OpenAlex ID.
-    #         """
-    #         # Fetch the work (paper) details using the OpenAlex ID
-    #         work = Works().get(paper_id)
-    #
-    #         if work:
-    #             # Extract the DOI
-    #             doi = work.get('doi')
-    #             return doi
-    #         else:
-    #             return None
-    #
     @staticmethod
     def get_relevant_concepts_from_paper(paper):
+        """
+        Retuns a paper's concepts
+        Parameters
+        ----------
+        paper: Work
+
+        Returns
+        -------
+        List - relevant concepts
+        """
         concepts = paper["concepts"]
 
         relevant_concepts = list(
@@ -208,12 +389,29 @@ class OpenAlexInformationGatherer(InformationGatherer):
 
 
 class GTRInformationGatherer(InformationGatherer):
+    """
+    Information gatherer for Gateway to Research
+    """
+
     BASE_GTR_URL = "https://gtr.ukri.org/api"
     HEADERS = {"Accept": "application/json"}
 
     @staticmethod
     def get_gtr_orgs_grants(orcid_id, name_variations, organisations):
-        """Fetches grant information for an author using GTR API."""
+        """
+        Given an author's ORCID id (which may be None), all possible name variations and their linked organisations,
+        returns the grant information that can be found on Gateway to Research
+
+        Parameters
+        ----------
+        orcid_id: str, ORCID id of author
+        name_variations: List[str], all known name variations
+        organisations: List[str], all linked institutions
+
+        Returns
+        -------
+        List[Grant] - all the grants we know the author has received
+        """
 
         # Iterate through all possible name variations for this author
         for name in name_variations:
@@ -281,11 +479,23 @@ class GTRInformationGatherer(InformationGatherer):
 
 
 class SemanticScholarInformationGatherer(InformationGatherer):
+    """
+    Information gatherer for Semantic Scholar
+    """
     BASE_URL = "https://api.semanticscholar.org/graph/v1"
 
     @staticmethod
     def get_authors_from_doi(doi):
+        """
+        Gets authors of a work from DOI
+        Parameters
+        ----------
+        doi: str
 
+        Returns
+        -------
+        Authors
+        """
         if "arXiv." in doi:
 
             arxiv = doi.split("arXiv.")[1]
@@ -316,6 +526,18 @@ class SemanticScholarInformationGatherer(InformationGatherer):
 
     @staticmethod
     def get_author_info(author_id, exclude=None):
+        """
+        Returns author info given author id
+        Parameters
+        ----------
+        author_id: str
+        exclude: List[str], all fields to exclude, subset of ["name", "affiliations", "paperCount", "citationCount",
+                            "hIndex", "papers.paperId", "externalIds"], default of None
+
+        Returns
+        -------
+        Dict / JSON - Author information
+        """
 
         ps = ["name", "affiliations", "paperCount", "citationCount", "hIndex", "papers.paperId", "externalIds"]
 
@@ -334,6 +556,16 @@ class SemanticScholarInformationGatherer(InformationGatherer):
 
     @staticmethod
     def get_doi_from_paper_id(paper_id: str):
+        """
+        DOI from paper id
+        Parameters
+        ----------
+        paper_id: str
+
+        Returns
+        -------
+        str - DOI
+        """
 
         r = requests.get(
             f"{SemanticScholarInformationGatherer.BASE_URL}/paper/{paper_id}",
@@ -346,6 +578,17 @@ class SemanticScholarInformationGatherer(InformationGatherer):
 
     @staticmethod
     def get_h_index_from_author_name(orcid: str = None, name: str = None):
+        """
+        Returns h index from an author's name
+        Parameters
+        ----------
+        orcid: str, ORCID
+        name: str
+
+        Returns
+        -------
+        int - h index
+        """
 
         # Search by ORCID otherwise by name
         if orcid:
@@ -374,18 +617,25 @@ class SemanticScholarInformationGatherer(InformationGatherer):
 
 def authors_from_doi(doi):
     """
-    Takes a DOI and retrieves a list of Author objects with additional metadata matching.
+    Given a doi of a paper, returns a list of author objects with all known information about these authors
+
+    Parameters
+    ----------
+    doi: str, DOI of paper
+
+    Returns
+    -------
+    List[Author] - author objects for each author
     """
+
     # Get authors from OpenAlex
     authors = OpenAlexInformationGatherer.get_UK_authors_from_doi(doi)
     author_objects = []
 
     for author in authors:
-        # Normalize the author's name
-        author_name = normalize_name(author["name"])
-
-        # Get author info from OpenAlex
+        # Build objects for author
         author_obj = build_author_object(author["authorId"])
+
         author_objects.append(author_obj)
 
     return author_objects
@@ -393,13 +643,23 @@ def authors_from_doi(doi):
 
 def build_author_object(author_id):
     """
-    Given an openalex author id, it builds an Author object by gathering information using various gatherers.
+    Given openalex author id, it builds an Author object by gathering information using various gatherers.
+    Parameters
+    ----------
+    author_id: str, OpenAlex author id
+
+    Returns
+    -------
+    Author - Author object for a given author
     """
+
+    # Get information on author from OpenAlex
     author_info = OpenAlexInformationGatherer.get_author_info(author_id)
     author_name = author_info.get("name")
     if author_name is None:
         raise Exception("Author name is None")
 
+    # Get ORCID if available
     external_ids = author_info.get("externalIds", {})
     orcid = external_ids.get("orcid")
     orcid = orcid.split("org/")[1] if orcid else None
@@ -414,8 +674,6 @@ def build_author_object(author_id):
     # Get grants using GTR API with fuzzy matching
     org_list = author_info.get("organisations", [])
     grants, org = GTRInformationGatherer.get_gtr_orgs_grants(orcid, author_info.get("all_names"), org_list)
-
-    more_info = GoogleScholarInformationGatherer.get_author_info(author_info.get("all_names"), org_list)
 
     # Get h-index using OpenAlex, if not available then use SemanticScholar to get it
     h_index = author_info.get("hIndex")
@@ -443,6 +701,18 @@ def build_author_object(author_id):
 
 
 def get_all_author_info(authorid):
+    """
+    All information available on author given OpenAlex author id
+    Parameters
+    ----------
+    authorid: str, OpenAlex author id
+
+    Returns
+    -------
+    Author - object for the author
+    """
+
+    # Get information about author from OpenAlex
     author_info = OpenAlexInformationGatherer.get_author_info(authorid)
     orcid = author_info["externalIds"].get("orcid") if "externalIds" in author_info else None
     orcid = orcid.split("org/")[1] if orcid else None
