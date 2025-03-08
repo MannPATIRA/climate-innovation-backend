@@ -149,6 +149,39 @@ class PaperProcessor(Processor):
                 print(f"Supabase Error - Failed to check existing paper: {type(e).__name__} - {str(e)}")
                 return None, None
 
+            # Neo4j operations regardless of whether paper exists in Supabase
+            if self.neo4j:
+                try:
+                    # Add to Neo4j
+                    self.neo4j.merge_paper_node(
+                        paper_id=paper.openalex_id,
+                        title=paper.title,
+                        year=metadata.get('publication_year'),
+                        citations=metadata.get('cited_by_count', 0)
+                    )
+
+                    # Process authors in Neo4j
+                    for author in authors:
+                        self.neo4j.merge_author_paper_relationship(
+                            author_id=author['id'],
+                            paper_id=paper.openalex_id,
+                            position=author['position'],
+                            is_corresponding=author['is_corresponding'],
+                            author_name=author['display_name']
+                        )
+
+                    # Process topics in Neo4j
+                    for topic in topics:
+                        self.neo4j.merge_paper_topic_relationship(
+                            paper_id=paper.openalex_id,
+                            topic_id=topic['id'],
+                            topic_name=topic['display_name'],
+                            score=topic.get('score', 0.0)
+                        )
+                except Exception as e:
+                    print(f"Neo4j Error - Failed to process relationships: {type(e).__name__} - {str(e)}")
+                    return None, None
+
             if not existing_paper:
                 # Add to Supabase
                 try:
@@ -156,39 +189,6 @@ class PaperProcessor(Processor):
                 except Exception as e:
                     print(f"Supabase Error - Failed to add paper to DB: {type(e).__name__} - {str(e)}")
                     return None, None
-
-                # Neo4j operations only if client exists
-                if self.neo4j:
-                    try:
-                        # Add to Neo4j
-                        self.neo4j.merge_paper_node(
-                            paper_id=paper.openalex_id,
-                            title=paper.title,
-                            year=metadata.get('publication_year'),
-                            citations=metadata.get('cited_by_count', 0)
-                        )
-
-                        # Process authors in Neo4j
-                        for author in authors:
-                            self.neo4j.merge_author_paper_relationship(
-                                author_id=author['id'],
-                                paper_id=paper.openalex_id,
-                                position=author['position'],
-                                is_corresponding=author['is_corresponding'],
-                                author_name=author['display_name']
-                            )
-
-                        # Process topics in Neo4j
-                        for topic in topics:
-                            self.neo4j.merge_paper_topic_relationship(
-                                paper_id=paper.openalex_id,
-                                topic_id=topic['id'],
-                                topic_name=topic['display_name'],
-                                score=topic.get('score', 0.0)
-                            )
-                    except Exception as e:
-                        print(f"Neo4j Error - Failed to process relationships: {type(e).__name__} - {str(e)}")
-                        return None, None
 
                 # Process authors in Supabase
                 try:
