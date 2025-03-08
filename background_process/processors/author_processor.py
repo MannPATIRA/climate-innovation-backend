@@ -112,7 +112,7 @@ class AuthorProcessor(Processor):
                             )
                 except Exception as e:
                     print(f"Neo4j Error - Failed to process relationships: {type(e).__name__} - {str(e)}")
-                    # Continue as we'll still try to update Supabase
+                    return None, None
             
             # Update author record in database after processing neo4j stuff
             try:

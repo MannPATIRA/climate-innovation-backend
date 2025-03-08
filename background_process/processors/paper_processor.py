@@ -188,7 +188,7 @@ class PaperProcessor(Processor):
                             )
                     except Exception as e:
                         print(f"Neo4j Error - Failed to process relationships: {type(e).__name__} - {str(e)}")
-                        # Continue processing as Supabase operations were successful
+                        return None, None
 
                 # Process authors in Supabase
                 try:
@@ -215,7 +215,7 @@ class PaperProcessor(Processor):
                     self.chunk_and_embed([paper], [paper_metadata])
                 except Exception as e:
                     print(f"Pinecone Error - Failed to add embeddings: {type(e).__name__} - {str(e)}")
-                    # Continue as core data was saved
+                    return None, None
             else:
                 print(f"Paper {paper.title[:30]}... already processed.")
                 paper_record = existing_paper[0]
