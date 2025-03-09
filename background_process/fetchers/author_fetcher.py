@@ -4,9 +4,9 @@ import aiohttp
 from abc import ABC
 from typing import Generator, Any, Dict, List
 from pyalex import Authors
-from tenacity import retry, stop_after_attempt, wait_exponential
 from ..processors.base import ProcessingTask
 from .base import Fetcher
+from common.supabase_client import supabase_operation_with_retry
 
 class AuthorFetcher(Fetcher, ABC):
     pass
@@ -20,7 +20,7 @@ class PyAlexAuthorFetcher(AuthorFetcher):
         self.batch_size = batch_size  # Number of concurrent requests
         self.rate_limit = 1  # Wait 1 second between batches
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def _get_author_processing_task_id(self) -> int:
         """Create a new task record if it doesn't exist and return its ID"""
         response = self.supabase.table('processor_progress') \
@@ -36,7 +36,7 @@ class PyAlexAuthorFetcher(AuthorFetcher):
         }).execute()
         return response.data[0]["id"]
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def _get_unprocessed_authors_page(self, page: int) -> List[Dict[str, Any]]:
         """Get a page of unprocessed authors from Supabase"""
         response = self.supabase.table('authors') \
@@ -84,7 +84,7 @@ class PyAlexAuthorFetcher(AuthorFetcher):
                 })
         return institutions
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def _author_exists_in_db(self, openalex_id: str) -> bool:
         """Check if author already exists in database"""
         response = self.supabase.table('authors') \

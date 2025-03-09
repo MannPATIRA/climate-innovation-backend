@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Any, List, Tuple, Optional
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 import postgrest
 from httpx import RemoteProtocolError
 from .base import Processor, ProcessingTask
 from background_process.utils.process_log_manager import ProcessLogManager
 from common.neo4j_client import Neo4jClient
+import requests
+from common.supabase_client import supabase_operation_with_retry
 
 @dataclass
 class Author:
@@ -34,12 +35,7 @@ class AuthorProcessor(Processor):
             if inst.get('display_name')
         )
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=10),
-        retry=retry_if_exception_type((postgrest.exceptions.APIError, TimeoutError, RemoteProtocolError)),
-        reraise=True
-    )
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def update_author_in_db(self, author: Author) -> Dict[str, Any]:
         """Update author record in Supabase DB with retry logic"""
         data = {

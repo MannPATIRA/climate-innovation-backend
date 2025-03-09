@@ -3,13 +3,13 @@ from typing import Generator, Any, Dict, Tuple, List
 from itertools import chain
 import pyalex
 from pyalex import Works, Topics
-from tenacity import retry, stop_after_attempt, wait_exponential
 from ..processors.base import ProcessingTask
 from .base import Fetcher
 import asyncio
 import aiohttp
 import time
-
+import requests
+from common.supabase_client import supabase_operation_with_retry
 
 
 class PaperFetcher(Fetcher, ABC):
@@ -31,7 +31,7 @@ class PyAlexFetcher(PaperFetcher):
         print("number of climate relevant topics")
         print(len(self.climate_relevant_topics))
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def _get_paper_processing_task_id(self) -> int:
         """Create a new task record if it doesn't exist and return its ID"""
         # Check for existing task
@@ -50,7 +50,7 @@ class PyAlexFetcher(PaperFetcher):
         }).execute()
         return response.data[0]["id"]
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def _get_main_cursor(self) -> str:
         """Get the main cursor from the processing_tasks table"""
         response = self.supabase.table('processor_progress') \
@@ -60,7 +60,7 @@ class PyAlexFetcher(PaperFetcher):
         
         return response.data[0].get('cursor', '*') if response.data else '*'
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def _get_current_cursor(self) -> str:
         """Get the current_cursor from the processing_tasks table"""
         response = self.supabase.table('processor_progress') \
@@ -74,7 +74,7 @@ class PyAlexFetcher(PaperFetcher):
         
         return response.data[0].get('current_cursor')
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def _update_current_cursor(self, cursor: str):
         """Update the current_cursor in the processing_tasks table"""
         self.supabase.table('processor_progress') \
@@ -82,7 +82,7 @@ class PyAlexFetcher(PaperFetcher):
             .eq('id', self.task_id) \
             .execute()
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def _update_main_cursor(self):
         """Update the main cursor with the current_cursor value"""
         print("updating main cursor to: ", self.current_cursor)
@@ -113,7 +113,7 @@ class PyAlexFetcher(PaperFetcher):
                 tasks.append(self._get_paper_from_openalex_async(session, paper_id))
             return await asyncio.gather(*tasks, return_exceptions=True)
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def _get_failed_papers(self) -> Generator[Tuple[str, Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]]], None, None]:
         """Fetch and yield papers that failed to process previously, using async batch processing"""
         # Get all paper IDs from processing logs for this task
@@ -170,7 +170,7 @@ class PyAlexFetcher(PaperFetcher):
             # Rate limiting between batches
             time.sleep(self.rate_limit)
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def _get_climate_relevant_topics(self) -> List[str]:
         """Get list of topic IDs that were assessed as climate-relevant"""
         all_topics = []

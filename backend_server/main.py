@@ -506,7 +506,7 @@ async def search_papers(query: PaperQuery):
                 )
                 paper_results.append(paper)
 
-            ranked_papers = await ranker.rank_papers(paper_results.copy())
+            ranked_papers = paper_results
             yield f"data: {json.dumps({'type': 'initial', 'papers': [p.model_dump() for p in ranked_papers]})}\n\n"
             print("Should have yielded first all papers ")
 

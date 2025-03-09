@@ -6,9 +6,10 @@ from typing import Dict, Any, List, Tuple, Optional
 from .base import Processor, ProcessingTask
 from background_process.utils.process_log_manager import ProcessLogManager
 from common.neo4j_client import Neo4jClient
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from common.supabase_client import supabase_operation_with_retry
 import postgrest
 from httpx import RemoteProtocolError
+import requests
 
 @dataclass
 class Paper:
@@ -29,12 +30,7 @@ class PaperProcessor(Processor):
         self.task_id = self.create_task(ProcessingTask.PAPER_PROCESSING)
 
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=10),
-        retry=retry_if_exception_type((postgrest.exceptions.APIError, TimeoutError, RemoteProtocolError)),
-        reraise=True
-    )
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def add_paper_to_db(self, paper: Paper) -> Dict[str, Any]:
         """Add paper to Supabase DB with retry logic"""
         data = {
@@ -48,12 +44,7 @@ class PaperProcessor(Processor):
         response = self.supabase.table('papers').insert(data).execute()
         return response.data[0]
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=10),
-        retry=retry_if_exception_type((postgrest.exceptions.APIError, TimeoutError, RemoteProtocolError)),
-        reraise=True
-    )
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def get_paper(self, openalex_id: str) -> Dict[str, Any]:
         """Get paper from Supabase DB with retry logic"""
         response = self.supabase.table('papers') \
@@ -88,12 +79,7 @@ class PaperProcessor(Processor):
             print(f"Error adding to Pinecone: {str(e)}")
             return False
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=10),
-        retry=retry_if_exception_type((postgrest.exceptions.APIError, TimeoutError, RemoteProtocolError)),
-        reraise=True
-    )
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def add_author_to_db(self, author: Dict[str, Any]) -> Dict[str, Any]:
         """Add author to Supabase DB with retry logic"""
         data = {
@@ -104,12 +90,7 @@ class PaperProcessor(Processor):
         response = self.supabase.table('authors').upsert(data, on_conflict='openalex_id').execute()
         return response.data[0]
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=10),
-        retry=retry_if_exception_type((postgrest.exceptions.APIError, TimeoutError, RemoteProtocolError)),
-        reraise=True
-    )
+    @supabase_operation_with_retry(max_retries=3, retry_delay=120)
     def add_paper_author_relation(self, paper_id: int, author_id: int, position: str, is_corresponding: bool):
         """Add paper-author relationship to Supabase DB"""
         data = {

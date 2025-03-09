@@ -13,4 +13,4 @@ RUN poetry install --no-interaction --no-ansi --no-root
 RUN ls
 
 # Run the app
-CMD ["poetry", "run", "python", "-m", "backend_server.main"]
+CMD ["poetry", "run", "uvicorn", "backend_server.main:app", "--workers", "4"]
