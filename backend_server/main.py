@@ -216,7 +216,8 @@ async def startup_event():
     print("Neo4j client initialized")
     
     # Start background worker
-    asyncio.create_task(background_worker())
+    #asyncio.create_task(background_worker())
+    print("Background worker started")
 
 
 @app.on_event("shutdown")
