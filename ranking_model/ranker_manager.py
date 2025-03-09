@@ -151,9 +151,14 @@ class RankerManager(Ranker):
         """
         try:
             # Extract paper_ids from the lists of papers
-            paper_ids = [p.paper_id for p in self.papers]
-            pos_paper_ids = [p.paper_id for p in self.accepted_papers]
-            neg_paper_ids = [p.paper_id for p in self.rejected_papers]
+            paper_ids = [int(float(p.paper_id)) for p in self.papers]
+            pos_paper_ids = [int(float(p.paper_id)) for p in self.accepted_papers]
+            neg_paper_ids = [int(float(p.paper_id)) for p in self.rejected_papers]
+
+            # Exit early if no user feedback
+            if not pos_paper_ids and not neg_paper_ids:
+                print("No paper feedback received")
+                return
 
             # Store paper IDs in ranking_papers_feedback table
             data_to_store = {
@@ -175,14 +180,16 @@ class RankerManager(Ranker):
 
     async def _store_ranking_authors_feedback(self):
         """
-        Stores ranking feedback (author_ids, positive_author_ids, negative_author_ids) in Supabase.
+        Stores ranking feedba   ck (author_ids, positive_author_ids, negative_author_ids) in Supabase.
         Also reset the lists of accepted and rejected authors.
         """
+        if not self.authors:
+            return
         try:
             # Extract author_ids from the lists of authors
-            author_ids = [a.openAlexid for a in self.authors]
-            pos_author_ids = [a.openAlexid for a in self.accepted_authors]
-            neg_author_ids = [a.openAlexid for a in self.rejected_authors]
+            author_ids = [int(float(a.openAlexid)) for a in self.authors]
+            pos_author_ids = [int(float(a.openAlexid)) for a in self.accepted_authors]
+            neg_author_ids = [int(float(a.openAlexid)) for a in self.rejected_authors]
 
             # Store author IDs in ranking_authors_feedback table
             data_to_store = {
