@@ -58,8 +58,8 @@ class RankerManager(Ranker):
             name: getattr(ranker, ranker_method)(items.copy())
             for name, ranker in self.rankers.items()
         }
-        item_scores = defaultdict(float)
         for item in items:
+            item.score = 0.0
             for ranker_name, ranked_items in self.all_rankings.items():
                 # Find item's position in this ranker's list
                 position = next(i for i, ranked_item in enumerate(ranked_items) if ranked_item == item)
@@ -67,10 +67,9 @@ class RankerManager(Ranker):
                 score = 1.0 / (position + 1)
                 # Add weighted contribution from this ranker
                 if ranker_method == "rank_papers":
-                    item_scores[item] += score * self.paper_weights[ranker_name]
+                    item.score += score * self.paper_weights[ranker_name]
                 else:
-                    item_scores[item] += score * self.author_weights[ranker_name]
-            item.score = item_scores[item]  # Store the ensemble score
+                    item.score += score * self.author_weights[ranker_name]
             
         # Return items sorted by ensemble score
         return sorted(items, key=lambda item: item.score, reverse=True)
@@ -236,6 +235,8 @@ class RankerManager(Ranker):
             first_author = self.accepted_authors[0]
         elif self.rejected_authors:
             first_author = self.rejected_authors[0]
+        else:
+            return
         if first_author not in self.authors:
             raise RuntimeError("Author not in papers")
         self.author_weights = self._update_rankers_weights(self.author_weights, self.authors, self.accepted_authors, self.rejected_authors, learning_rate)

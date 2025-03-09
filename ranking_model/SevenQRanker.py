@@ -20,7 +20,7 @@ class SevenQRanker(Ranker):
       Towards unearthing neglected climate innovations from scientific literature using Large Language Models
       https://arxiv.org/abs/2411.10055
     """
-    def __init__(self, supabase_client: Client, model_name: str = "gpt-4o-mini", learning_rate: float = 0.01):
+    def __init__(self, supabase_client: Client, model_name: str = "7qRanker", learning_rate: float = 0.01):
         super().__init__(supabase_client, model_name, learning_rate)
         # weights from Context (binary) in paper
         self.question_weights = np.array([-7, 0.211, 0.339, 0.102, -0.235, 0.663, -0.080])
@@ -29,12 +29,33 @@ class SevenQRanker(Ranker):
         self.prompt = PromptTemplate.from_template(ANALYSIS_PROMPT)
 
     def rank_papers(self, papers: List[Paper]) -> List[Paper]:
+        return self._srank_papers(papers)
+        # If there's an existing event loop
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+        return loop.run_until_complete(self._arank_papers(papers))
+    
+    def _srank_papers(self, papers: List[Paper]) -> List[Paper]:
+        """Synchronously ranks papers based on a seven-question scoring system, conducted by an LLM"""
+        for paper in papers:
+            researchAnalysis = self.model_with_structure.invoke(
+                self.prompt.format(abstract=paper.abstract)
+            )
+            scores = researchAnalysis.convert_to_binary_list()
+            paper.score = np.dot(scores, self.question_weights)
+        return sorted(papers, key=lambda p: p.score, reverse=True)
+
+    async def _arank_papers(self, papers: List[Paper]) -> List[Paper]:
         """Ranks papers based on a seven-question scoring system, conducted by an LLM"""
         async def analyze_papers():
             tasks = [self._analyze_paper_abstract(paper) for paper in papers]
             await asyncio.gather(*tasks)
         
-        asyncio.run(analyze_papers())
+        await analyze_papers()
         return sorted(papers, key=lambda p: p.score, reverse=True)
 
     async def _analyze_paper_abstract(self, paper: Paper):

@@ -413,11 +413,11 @@ async def search_papers(query: PaperQuery):
             namespace="papers"
         )
 
-        # Format the results
-        paper_results = []
-        seen_paper_ids = set()  # To avoid duplicates
-
         async def generate_events():
+            # Format the results
+            paper_results = []
+            seen_paper_ids = set()  # To avoid duplicates
+
             # First event: papers with basic author info
             for match in results:
                 metadata = match.metadata
@@ -472,11 +472,13 @@ async def search_papers(query: PaperQuery):
                 )
                 paper_results.append(paper)
 
-            yield f"data: {json.dumps({'type': 'initial', 'papers': [p.model_dump() for p in paper_results]})}\n\n"
-            print("Should have yielded first data ")
+            ranked_papers = ranker.rank_papers(paper_results.copy())
+            yield f"data: {json.dumps({'type': 'initial', 'papers': [p.model_dump() for p in ranked_papers]})}\n\n"
+            print("Should have yielded first all papers ")
+
             # Second event: additional author details
             author_updates = {}
-            for paper in paper_results:
+            for paper in ranked_papers:
                 for author in paper.authors:
                     if author.openAlexid not in author_updates:
                         # Get additional author info
