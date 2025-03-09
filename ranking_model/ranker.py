@@ -1,23 +1,24 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from typing import List
+import json
+import logging
 
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
-from supabase import Client
+from supabase import Client, AsyncClient
 import functools
 
 from .author import Author
 from .paper import Paper
 import pickle
 import gzip
-import logging
 
 class Ranker(ABC):
     """
     Abstract base class for Ranker implementations.
     """
-    def __init__(self, supabase_client: Client, model_name: str, learning_rate: float = 0.01):
+    def __init__(self, supabase_client: AsyncClient, model_name: str, learning_rate: float = 0.01):
         self.supabase = supabase_client
         self.model_name = model_name
         self.learning_rate = learning_rate
@@ -123,7 +124,7 @@ class Ranker(ABC):
         pass
 
     @abstractmethod
-    def save_model(self):
+    async def save_model(self):
         """
         Saves the ranker's model state to Supabase.
         Ensure to overwrite (upsert) the latest model in that name:
@@ -132,12 +133,12 @@ class Ranker(ABC):
         pass
 
     @abstractmethod
-    def load_model(self) -> bool:
+    async def load_model(self) -> bool:
         """Loads the ranker's model state from Supabase."""
         pass
 
 class RegressionRanker(Ranker):
-    def __init__(self, supabase_client: Client, model_name: str, learning_rate: float = 0.01):
+    def __init__(self, supabase_client: AsyncClient, model_name: str, learning_rate: float = 0.01):
         """
         The Ranker maintains separate model weights for ranking authors and papers.
           - For authors, we now use an extended feature vector:
@@ -280,7 +281,7 @@ class RegressionRanker(Ranker):
         print(f"Accepting paper '{paper.title}'.")
         self.update_paper_model(paper, label=1)
 
-    def save_model(self):
+    async def save_model(self):
         """
         Saves the RegressionRanker's model state to Supabase.
         """
@@ -291,15 +292,17 @@ class RegressionRanker(Ranker):
             }
             serialized_model = pickle.dumps(model_state)
             compressed_model = gzip.compress(serialized_model)
-            self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': compressed_model}).execute()
+            await self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': compressed_model}).execute()
+            return True
         except Exception as e:
             logging.exception(f"Error saving model '{self.model_name}': {e}")
+            return False
 
-    def load_model(self):
+    async def load_model(self):
         """
         Loads the RegressionRanker's model state from Supabase.
         """
-        response = self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
+        response = await self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
         if response.data and response.data[0]:
             serialized_model = response.data[0]['model_data']
             model_state = pickle.loads(gzip.decompress(serialized_model))
@@ -337,7 +340,7 @@ class OnlineRankSVMRanker(Ranker):
         - Binary feedback (0/1) is used for model updates
     """
 
-    def __init__(self, supabase_client: Client, model_name: str, learning_rate: float = 0.01):
+    def __init__(self, supabase_client: AsyncClient, model_name: str, learning_rate: float = 0.01):
         """
         Initializes the RankSVMRanker with online SVM models for authors and papers.
         """
@@ -456,7 +459,7 @@ class OnlineRankSVMRanker(Ranker):
         print(f"Accepting paper '{getattr(paper, 'title', 'Unknown')}'.")
         self.update_paper_model(paper, label=1)
 
-    def save_model(self):
+    async def save_model(self):
         """
         Saves the OnlineRankSVMRanker's model state to Supabase.
         """
@@ -471,15 +474,17 @@ class OnlineRankSVMRanker(Ranker):
             }
             serialized_model = pickle.dumps(model_state)
             compressed_model = gzip.compress(serialized_model)
-            self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': compressed_model}).execute()
+            await self.supabase.table('ranker_models').upsert({'model_name': self.model_name, 'model_data': compressed_model}).execute()
+            return True
         except Exception as e:
             logging.exception(f"Error saving model '{self.model_name}': {e}")
+            return False
 
-    def load_model(self):
+    async def load_model(self):
         """
         Loads the OnlineRankSVMRanker's model state from Supabase.
         """
-        response = self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
+        response = await self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
         if response.data and response.data[0]:
             serialized_model = response.data[0]['model_data']
             model_state = pickle.loads(gzip.decompress(serialized_model))

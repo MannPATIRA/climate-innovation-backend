@@ -9,7 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from langchain.schema import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
-from supabase import Client
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -18,7 +17,7 @@ import climate_graph.graph
 from backend_server.chat_repository import ChatNotFoundError, InvalidSourceTypeError, ChatRepository
 from common.neo4j_client import Neo4jClient
 from common.pinecone_store import PineconeStore
-from common.supabase_client import init_supabase
+from common.supabase_client import init_supabase_async
 from ranking_model.OnlineSVMRanker import OnlineSVMRanker
 from ranking_model.RegressionRanker import RegressionRanker
 from ranking_model.SevenQRanker import SevenQRanker
@@ -47,8 +46,11 @@ from .models import (
     RawCipherQuery
 )
 from .query_processors import QueryProcessor
+from common.async_neo4j_client import AsyncNeo4jClient
 
-supabase: Client = init_supabase()
+# Replace the sync client initialization with async
+supabase = None  # Will be initialized in startup event
+neo4j_client = None  # Will be initialized in startup event
 # Load environment variables
 load_dotenv(override=True)
 
@@ -186,8 +188,43 @@ ranker_classes = {
     'regression': (RegressionRanker, 0.1),
     'svm': (OnlineSVMRanker, 0.1),
 }
-ranker = RankerManager(supabase, "main_ranker_manager", ranker_classes, 0.01)
-ranker.load_model()
+
+# Don't initialize ranker here, move to startup event
+ranker = None
+
+@app.on_event("startup")
+async def startup_event():
+    global supabase, chat_repository, ranker, neo4j_client
+    supabase = await init_supabase_async()
+    print("Supabase initialized: ", supabase)
+    chat_repository = ChatRepository(supabase_client=supabase)
+    
+    # Initialize ranker with async supabase client
+    ranker = RankerManager(supabase, "main_ranker_manager", ranker_classes, 0.01)
+    await ranker.load_model()
+    
+    # Initialize Neo4j client
+    neo4j_client = AsyncNeo4jClient(
+        uri=os.getenv("NEO4J_URI"),
+        user=os.getenv("NEO4J_USER"),
+        password=os.getenv("NEO4J_PASSWORD"),
+        ssh_host=os.getenv("NEO4J_SSH_HOST"),
+        ssh_user=os.getenv("NEO4J_SSH_USER"),
+        ssh_password=os.getenv("NEO4J_SSH_PASSWORD")
+    )
+    await neo4j_client.initialize()
+    print("Neo4j client initialized")
+    
+    # Start background worker
+    asyncio.create_task(background_worker())
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    # Close Neo4j connection when app shuts down
+    if neo4j_client:
+        await neo4j_client.close()
+        print("Neo4j client closed")
 
 
 @app.get("/")
@@ -233,7 +270,7 @@ async def validate_gauth(token: str):
 
     user_email = idinfo['email']
 
-    res = supabase.table('users') \
+    res = await supabase.table('users') \
         .select('*') \
         .eq('user_email', user_email) \
         .execute()
@@ -244,7 +281,7 @@ async def validate_gauth(token: str):
 
     else:
 
-        res = supabase.table('login_attempt').insert({"user_email": user_email}).execute()
+        res = await supabase.table('login_attempt').insert({"user_email": user_email}).execute()
 
         if res.data:
 
@@ -253,9 +290,6 @@ async def validate_gauth(token: str):
         else:
 
             raise HTTPException(status_code=500, detail="Failed to document user")
-
-
-chat_repository = ChatRepository(supabase_client=supabase)
 
 
 @app.get("/api/chat/{chat_id}")
@@ -276,7 +310,7 @@ async def get_chat(chat_id: int):
         If there is an internal server error, raises an HTTPException with status code 500.
     """
     try:
-        return chat_repository.get_chat(chat_id)
+        return await chat_repository.get_chat(chat_id)
     except ChatNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -303,7 +337,7 @@ async def create_chat(source_type: str, chatCreate: ChatCreate):
         If there is an internal server error, raises an HTTPException with status code 500.
     """
     try:
-        return chat_repository.create_chat(source_type, chatCreate.user_email)
+        return await chat_repository.create_chat(source_type, chatCreate.user_email)
     except InvalidSourceTypeError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -329,18 +363,18 @@ async def stream_query(query: Query):
     """
     try:
         # Get chat and verify it exists
-        chat = chat_repository.get_chat(query.chat_id)
+        chat = await chat_repository.get_chat(query.chat_id)
         current_count = chat.get('message_count', 0)
 
         # Check if this is the first message (current_count == 0)
         is_first_message = current_count == 0
 
         # Get chat history
-        chat_history = chat_repository.get_chat_history(query.chat_id)
+        chat_history = await chat_repository.get_chat_history(query.chat_id)
 
         # Store user message
         new_message_order = current_count + 1
-        chat_repository.add_message(
+        await chat_repository.add_message(
             query.chat_id,
             query.query,
             new_message_order,
@@ -348,13 +382,13 @@ async def stream_query(query: Query):
         )
 
         # Update message count
-        chat_repository.update_message_count(query.chat_id, new_message_order)
+        await chat_repository.update_message_count(query.chat_id, new_message_order)
 
         async def streaming_completion_callback(full_response: str):
             """Callback function called when streaming is complete"""
             # Store assistant response
             response_order = new_message_order + 1
-            chat_repository.add_message(
+            await chat_repository.add_message(
                 query.chat_id,
                 full_response,
                 response_order,
@@ -362,12 +396,12 @@ async def stream_query(query: Query):
             )
 
             # Update message count again
-            chat_repository.update_message_count(query.chat_id, response_order)
+            await chat_repository.update_message_count(query.chat_id, response_order)
 
             # Generate and update chat name if this is the first message
             if is_first_message:
                 chat_name = await query_processor.generate_chat_name(query.query)
-                chat_repository.update_chat_name(query.chat_id, chat_name)
+                await chat_repository.update_chat_name(query.chat_id, chat_name)
 
             print(f"Completed processing query:\n {query.query}")
             print(f"Full response:\n {full_response}")
@@ -428,7 +462,7 @@ async def search_papers(query: PaperQuery):
                 seen_paper_ids.add(paper_id)
 
                 # Get paper details from database instead of OpenAlex
-                paper_records = supabase.table('papers') \
+                paper_records = await supabase.table('papers') \
                     .select('*') \
                     .eq('id', int(float(paper_id))) \
                     .execute()
@@ -439,7 +473,7 @@ async def search_papers(query: PaperQuery):
                 details = paper_records.data[0]
 
                 # Get authors from paper_authors table
-                author_records = supabase.table('paper_authors') \
+                author_records = await supabase.table('paper_authors') \
                     .select('authors(*)') \
                     .eq('paper_id', int(float(paper_id))) \
                     .execute()
@@ -472,7 +506,7 @@ async def search_papers(query: PaperQuery):
                 )
                 paper_results.append(paper)
 
-            ranked_papers = ranker.rank_papers(paper_results.copy())
+            ranked_papers = await ranker.rank_papers(paper_results.copy())
             yield f"data: {json.dumps({'type': 'initial', 'papers': [p.model_dump() for p in ranked_papers]})}\n\n"
             print("Should have yielded first all papers ")
 
@@ -738,16 +772,12 @@ async def get_next_connections(gnq: GraphNextQuery):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(background_worker())
-
 
 @app.post("/api/crm/authors")
 async def create_author(author: AuthorCreate):
     try:
         # Check if author already exists
-        existing = supabase.table("author_crm").select("*") \
+        existing = await supabase.table("author_crm").select("*") \
             .eq("openalex_id", author.openalex_id) \
             .eq("user_email", author.user_email).execute()
 
@@ -755,7 +785,7 @@ async def create_author(author: AuthorCreate):
             raise HTTPException(status_code=400, detail="Author already exists in CRM")
 
         # Create new author
-        result = supabase.table("author_crm").insert({
+        result = await supabase.table("author_crm").insert({
             "name": author.name,
             "institution": author.institution,
             "note": author.note,
@@ -772,7 +802,7 @@ async def create_author(author: AuthorCreate):
 @app.patch("/api/crm/authors/{author_id}/note")
 async def update_author_note(author_id: int, note_update: AuthorUpdate):
     try:
-        result = supabase.table("author_crm").update({"note": note_update.note}).eq("id", author_id).execute()
+        result = await supabase.table("author_crm").update({"note": note_update.note}).eq("id", author_id).execute()
 
         if not result.data:
             raise HTTPException(status_code=404, detail="Author not found")
@@ -785,7 +815,7 @@ async def update_author_note(author_id: int, note_update: AuthorUpdate):
 @app.patch("/api/crm/authors/{author_id}/state")
 async def update_author_state(author_id: int, state_update: AuthorUpdate):
     try:
-        result = supabase.table("author_crm").update({"state": state_update.state}).eq("id", author_id).execute()
+        result = await supabase.table("author_crm").update({"state": state_update.state}).eq("id", author_id).execute()
 
         if not result.data:
             raise HTTPException(status_code=404, detail="Author not found")
@@ -798,7 +828,7 @@ async def update_author_state(author_id: int, state_update: AuthorUpdate):
 @app.get("/api/crm/authors")
 async def get_authors(user_email: str):
     try:
-        result = supabase.table("author_crm").select("*").eq("user_email", user_email).execute()
+        result = await supabase.table("author_crm").select("*").eq("user_email", user_email).execute()
         return result.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -807,7 +837,7 @@ async def get_authors(user_email: str):
 @app.get("/api/crm/authors/{author_id}")
 async def get_author(author_id: int):
     try:
-        result = supabase.table("author_crm").select("*").eq("id", author_id).execute()
+        result = await supabase.table("author_crm").select("*").eq("id", author_id).execute()
 
         if not result.data:
             raise HTTPException(status_code=404, detail="Author not found")
@@ -820,7 +850,7 @@ async def get_author(author_id: int):
 @app.delete("/api/crm/authors/{author_id}")
 async def delete_author(author_id: int):
     try:
-        result = supabase.table("author_crm").delete().eq("id", author_id).execute()
+        result = await supabase.table("author_crm").delete().eq("id", author_id).execute()
 
         if not result.data:
             raise HTTPException(status_code=404, detail="Author not found")
@@ -833,7 +863,7 @@ async def delete_author(author_id: int):
 @app.get("/api/chats")
 async def get_all_chats(user_email: str):
     try:
-        result = chat_repository.get_all_chats(user_email)
+        result = await chat_repository.get_all_chats(user_email)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -842,7 +872,7 @@ async def get_all_chats(user_email: str):
 @app.get("/api/chats/{chat_id}/messages")
 async def get_chat_messages(chat_id: str):
     try:
-        result = chat_repository.get_chat_history(chat_id)
+        result = await chat_repository.get_chat_history(chat_id)
         if not result:
             raise HTTPException(status_code=404, detail=f"No messages found for chat {chat_id}")
         return result
@@ -880,19 +910,12 @@ def serialize_neo4j_graph(graph):
 async def get_coauthor_network(query: NetworkQuery):
     """Get the coauthor network for a given author"""
     try:
-        neo4j_client = Neo4jClient(
-            uri=os.getenv("NEO4J_URI"),
-            user=os.getenv("NEO4J_USER"),
-            password=os.getenv("NEO4J_PASSWORD")
-        )
-
-        graph = neo4j_client.get_coauthor_network(
+        graph = await neo4j_client.get_coauthor_network(
             author_id=query.author_id,
             limit=query.limit
         )
 
         serializable_graph = serialize_neo4j_graph(graph)
-        neo4j_client.close()
         return {"graph": serializable_graph}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -902,19 +925,12 @@ async def get_coauthor_network(query: NetworkQuery):
 async def get_topic_network(query: NetworkQuery):
     """Get the topic-based network for a given author"""
     try:
-        neo4j_client = Neo4jClient(
-            uri=os.getenv("NEO4J_URI"),
-            user=os.getenv("NEO4J_USER"),
-            password=os.getenv("NEO4J_PASSWORD")
-        )
-
-        graph = neo4j_client.get_topic_network(
+        graph = await neo4j_client.get_topic_network(
             author_id=query.author_id,
             limit=query.limit
         )
 
         serializable_graph = serialize_neo4j_graph(graph)
-        neo4j_client.close()
         return {"graph": serializable_graph}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -924,19 +940,12 @@ async def get_topic_network(query: NetworkQuery):
 async def get_author_topics(query: NetworkQuery):
     """Get all topics researched by an author"""
     try:
-        neo4j_client = Neo4jClient(
-            uri=os.getenv("NEO4J_URI"),
-            user=os.getenv("NEO4J_USER"),
-            password=os.getenv("NEO4J_PASSWORD")
-        )
-
-        graph = neo4j_client.get_author_topics(
+        graph = await neo4j_client.get_author_topics(
             author_id=query.author_id,
             limit=query.limit
         )
 
         serializable_graph = serialize_neo4j_graph(graph)
-        neo4j_client.close()
         return {"graph": serializable_graph}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -1015,15 +1024,9 @@ async def natural_language_graph_query(query_data: NaturalLanguageGraphQuery):
         cypher_query = response.query.strip().replace("```cypher", "").replace("```", "")
         print("CYPHER QUERY: ", cypher_query)
         print("____________end of cipher query____________")
-        # Initialize Neo4j client
-        neo4j_client = Neo4jClient(
-            uri=os.getenv("NEO4J_URI"),
-            user=os.getenv("NEO4J_USER"),
-            password=os.getenv("NEO4J_PASSWORD")
-        )
 
         # Execute the generated query
-        graph = neo4j_client.execute_custom_query(
+        graph = await neo4j_client.execute_custom_query(
             query=cypher_query,
             params={"author_id": query_data.author_id},
             limit=query_data.limit
@@ -1031,7 +1034,6 @@ async def natural_language_graph_query(query_data: NaturalLanguageGraphQuery):
 
         # Serialize the result
         serializable_graph = serialize_neo4j_graph(graph)
-        neo4j_client.close()
 
         return {
             "graph": serializable_graph,
@@ -1079,18 +1081,10 @@ async def get_node_properties(
                 # Otherwise assume it's a work ID and add W prefix
                 node_id = f"{base_url}/W{node_id}"
 
-        neo4j_client = Neo4jClient(
-            uri=os.getenv("NEO4J_URI"),
-            user=os.getenv("NEO4J_USER"),
-            password=os.getenv("NEO4J_PASSWORD")
-        )
-
-        result = neo4j_client.get_node_by_id(
+        result = await neo4j_client.get_node_by_id(
             node_type=type_mapping[node_type.lower()],
             node_id=node_id
         )
-
-        neo4j_client.close()
 
         if not result:
             raise HTTPException(
@@ -1109,7 +1103,7 @@ async def get_node_properties(
 async def save_query(query: SaveQueryRequest):
     """Save a cipher query to the database"""
     try:
-        result = supabase.table("saved_cipher_queries").insert({
+        result = await supabase.table("saved_cipher_queries").insert({
             "cipher_query": query.cipher_query,
             "name": query.name,
             "user": query.user
@@ -1125,7 +1119,7 @@ async def save_query(query: SaveQueryRequest):
 async def rename_query(query_id: int, rename_request: RenameQueryRequest):
     """Rename a saved cipher query"""
     try:
-        result = supabase.table("saved_cipher_queries").update({
+        result = await supabase.table("saved_cipher_queries").update({
             "name": rename_request.name
         }).eq("id", query_id).execute()
 
@@ -1142,7 +1136,7 @@ async def rename_query(query_id: int, rename_request: RenameQueryRequest):
 async def get_saved_queries(user: str):
     """Get all saved queries for a user"""
     try:
-        result = supabase.table("saved_cipher_queries").select("*").eq("user", user).execute()
+        result = await supabase.table("saved_cipher_queries").select("*").eq("user", user).execute()
         return result.data
     except Exception as e:
         print("ERROR: ", str(e))
@@ -1156,15 +1150,8 @@ async def execute_cipher_query(query_data: RawCipherQuery):
     Uses the same serialization format as the natural language query endpoint.
     """
     try:
-        # Initialize Neo4j client
-        neo4j_client = Neo4jClient(
-            uri=os.getenv("NEO4J_URI"),
-            user=os.getenv("NEO4J_USER"),
-            password=os.getenv("NEO4J_PASSWORD")
-        )
-
         # Execute the query
-        graph = neo4j_client.execute_custom_query(
+        graph = await neo4j_client.execute_custom_query(
             query=query_data.query,
             params=query_data.params,
             limit=query_data.limit
@@ -1172,7 +1159,6 @@ async def execute_cipher_query(query_data: RawCipherQuery):
 
         # Serialize the result
         serializable_graph = serialize_neo4j_graph(graph)
-        neo4j_client.close()
 
         return {
             "graph": serializable_graph,
@@ -1188,13 +1174,13 @@ async def delete_query(query_id: int):
     """Delete a saved cipher query"""
     try:
         # Check if the query exists first
-        check_result = supabase.table("saved_cipher_queries").select("id").eq("id", query_id).execute()
+        check_result = await supabase.table("saved_cipher_queries").select("id").eq("id", query_id).execute()
 
         if not check_result.data:
             raise HTTPException(status_code=404, detail="Query not found")
 
         # Delete the query
-        result = supabase.table("saved_cipher_queries").delete().eq("id", query_id).execute()
+        result = await supabase.table("saved_cipher_queries").delete().eq("id", query_id).execute()
 
         return {"message": f"Query with ID {query_id} deleted successfully"}
     except Exception as e:

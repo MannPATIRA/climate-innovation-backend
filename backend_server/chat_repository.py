@@ -1,5 +1,5 @@
 from typing import List, Optional
-from supabase import Client
+from supabase import AsyncClient
 
 
 class ChatNotFoundError(Exception):
@@ -31,10 +31,10 @@ class ChatRepository:
     update_chat_name()
     """
 
-    def __init__(self, supabase_client: Client):
+    def __init__(self, supabase_client: AsyncClient):
         self.supabase = supabase_client
 
-    def get_chat(self, chat_id: int):
+    async def get_chat(self, chat_id: int):
         """
         Returns a chat (represented as a Dict / JSON)
         Parameters
@@ -47,7 +47,7 @@ class ChatRepository:
         """
 
         # Query supabase for chat
-        result = self.supabase.table("chats") \
+        result = await self.supabase.table("chats") \
             .select("*") \
             .eq("id", chat_id) \
             .single() \
@@ -59,7 +59,7 @@ class ChatRepository:
 
         return result.data
 
-    def create_chat(self, source_type: str, user_email: str):
+    async def create_chat(self, source_type: str, user_email: str):
         """
         Creates a chat given source and email
         Parameters
@@ -77,20 +77,20 @@ class ChatRepository:
             raise InvalidSourceTypeError("Invalid source type. Must be 'reports' or 'papers'")
 
         # Delete all chats with message_count = 0
-        self.supabase.table("chats") \
+        await self.supabase.table("chats") \
             .delete() \
             .eq("message_count", 0) \
             .execute()
 
         # Create new chat in the table
-        data = self.supabase.table("chats").insert({
+        data = await self.supabase.table("chats").insert({
             "type": source_type.rstrip('s'),  # Convert 'reports' to 'report', 'papers' to 'paper'
             "user_email": user_email
         }).execute()
 
         return data.data[0]
 
-    def get_chat_history(self, chat_id: str):
+    async def get_chat_history(self, chat_id: str):
         """
         Returns a given chat's message history
         Parameters
@@ -101,7 +101,7 @@ class ChatRepository:
         -------
         Dict - ordered messages
         """
-        result = self.supabase.table("chat_messages") \
+        result = await self.supabase.table("chat_messages") \
             .select("*") \
             .eq("chat_id", chat_id) \
             .order("order") \
@@ -109,7 +109,7 @@ class ChatRepository:
 
         return result.data
 
-    def add_message(self, chat_id: str, content: str, order: int, is_user_message: bool):
+    async def add_message(self, chat_id: str, content: str, order: int, is_user_message: bool):
         """
         Adds a message to a chat
         Parameters
@@ -123,14 +123,14 @@ class ChatRepository:
         -------
         Bool - success value
         """
-        return self.supabase.table("chat_messages").insert({
+        return await self.supabase.table("chat_messages").insert({
             "content": content,
             "order": order,
             "user_message": is_user_message,
             "chat_id": chat_id
         }).execute()
 
-    def update_message_count(self, chat_id: str, count: int):
+    async def update_message_count(self, chat_id: str, count: int):
         """
         Change value of message count for a given chat
         Parameters
@@ -142,12 +142,12 @@ class ChatRepository:
         -------
         Bool - success value
         """
-        return self.supabase.table("chats") \
+        return await self.supabase.table("chats") \
             .update({"message_count": count}) \
             .eq("id", chat_id) \
             .execute()
 
-    def get_all_chats(self, user_email: str):
+    async def get_all_chats(self, user_email: str):
         """
         Returns all the chats for a given user
         Parameters
@@ -158,7 +158,7 @@ class ChatRepository:
         -------
         List[Dict] - list of all the chats for this user
         """
-        result = self.supabase.table("chats") \
+        result = await self.supabase.table("chats") \
             .select("*") \
             .eq("user_email", user_email) \
             .order("created_at", desc=True) \
@@ -166,7 +166,7 @@ class ChatRepository:
 
         return result.data
 
-    def update_chat_name(self, chat_id: str, name: str):
+    async def update_chat_name(self, chat_id: str, name: str):
         """
         Updates the name of a given chat
         Parameters
@@ -180,7 +180,7 @@ class ChatRepository:
         """
 
         # Update the chat name
-        result = self.supabase.table("chats").update(
+        result = await self.supabase.table("chats").update(
             {"name": name}
         ).eq("id", chat_id).execute()
 

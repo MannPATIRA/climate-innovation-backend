@@ -11,14 +11,14 @@ from .OnlineSVMRanker import OnlineSVMRanker
 from .ranker import Ranker
 from .author import Author
 from .paper import Paper
-from supabase import Client
+from supabase import Client, AsyncClient
 
 class RankerManager(Ranker):
     """
     A meta-ranker that manages multiple ranker instances.
     Allows for training of multiple implementations, and using the one with the best performance.
     """
-    def __init__(self, supabase_client: Client, model_name: str, ranker_classes: Dict[str, Tuple[Type[Ranker], float]], learning_rate: float = 0.01):
+    def __init__(self, supabase_client: AsyncClient, model_name: str, ranker_classes: Dict[str, Tuple[Type[Ranker], float]], learning_rate: float = 0.01):
         """
         Initialize multiple rankers.
         
@@ -74,7 +74,7 @@ class RankerManager(Ranker):
         # Return items sorted by ensemble score
         return sorted(items, key=lambda item: item.score, reverse=True)
 
-    def rank_papers(self, papers: List[Paper]) -> List[Paper]:
+    async def rank_papers(self, papers: List[Paper]) -> List[Paper]:
         """
         Implements the rank method from Ranker interface.
         Returns a weighted ensemble ranking from all managed rankers.
@@ -86,14 +86,14 @@ class RankerManager(Ranker):
         if self.all_rankings is not None:
             logging.info("Updating paper model weights and storing feedback")
             self._update_paper_rankers_weights()
-            self._store_ranking_papers_feedback()
+            await self._store_ranking_papers_feedback()
             logging.info("Updating author model weights and storing feedback")
             self._update_author_rankers_weights()
-            self._store_ranking_authors_feedback()
+            await self._store_ranking_authors_feedback()
         self.papers = papers
         return self._ensemble_rank(papers, "rank_papers")
     
-    def rank_authors(self, authors: List[Author]) -> List[Author]:
+    async def rank_authors(self, authors: List[Author]) -> List[Author]:
         """
         Implements the rank_authors method from Ranker interface.
         Returns a weighted ensemble ranking from all managed rankers.
@@ -101,7 +101,7 @@ class RankerManager(Ranker):
         if self.all_rankings is not None:
             logging.info("Updating author model weights and storing feedback")
             self._update_author_rankers_weights()
-            self._store_ranking_authors_feedback()
+            await self._store_ranking_authors_feedback()
         self.authors = authors
         return self._ensemble_rank(authors, "rank_authors")
 
@@ -144,7 +144,7 @@ class RankerManager(Ranker):
         
         return sum(loss_components) / len(loss_components) if loss_components else 0.0
 
-    def _store_ranking_papers_feedback(self):
+    async def _store_ranking_papers_feedback(self):
         """
         Stores ranking feedback (paper_ids, positive_paper_ids, negative_paper_ids) in Supabase.
         Also reset the lists of accepted and rejected.
@@ -163,7 +163,7 @@ class RankerManager(Ranker):
                 # Store relevancy scores: Keys must be strings in JSON not int8
                 'relevancies': [{str(p.paper_id): p.relevancy for p in self.papers}]
             }
-            self.supabase.table('ranking_papers_feedback').insert(data_to_store).execute()
+            await self.supabase.table('ranking_papers_feedback').insert(data_to_store).execute()
             logging.info(f"Ranking feedback stored successfully in Supabase.")
             
             # Reset lists
@@ -173,7 +173,7 @@ class RankerManager(Ranker):
         except Exception as e:
             logging.error(f"Error storing ranking feedback in Supabase: {e}")
 
-    def _store_ranking_authors_feedback(self):
+    async def _store_ranking_authors_feedback(self):
         """
         Stores ranking feedback (author_ids, positive_author_ids, negative_author_ids) in Supabase.
         Also reset the lists of accepted and rejected authors.
@@ -192,7 +192,7 @@ class RankerManager(Ranker):
                 # Store scores: Keys must be strings in JSON not int8
                 'scores': [{str(a.openAlexid): a.score for a in self.authors}]
             }
-            self.supabase.table('ranking_authors_feedback').insert(data_to_store).execute()
+            await self.supabase.table('ranking_authors_feedback').insert(data_to_store).execute()
             logging.info(f"Ranking feedback stored successfully in Supabase.")
             # Reset lists
             self.accepted_authors = []
@@ -292,7 +292,7 @@ class RankerManager(Ranker):
             ranker.accept_paper(paper)
         self.accepted_papers.append(paper)
 
-    def save_model(self):
+    async def save_model(self):
         """Saves the RankerManager's model state to Supabase."""
         try:
             model_state = {
@@ -300,11 +300,11 @@ class RankerManager(Ranker):
                 'author_weights': self.author_weights
             }
             model_data_json = json.dumps(model_state)
-            response = self.supabase.table('ranker_models').update({'model_data': model_data_json}).eq('model_name', self.model_name).execute()
+            response = await self.supabase.table('ranker_models').update({'model_data': model_data_json}).eq('model_name', self.model_name).execute()
             
             # If no rows were updated, it means the model doesn't exist, so insert it
             if not response.data:
-                response = self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
+                response = await self.supabase.table('ranker_models').insert({'model_name': self.model_name, 'model_data': model_data_json}).execute()
                 if response.data and response.data[0]:
                     logging.info(f"Model '{self.model_name}' saved successfully.")
                 else:
@@ -315,7 +315,7 @@ class RankerManager(Ranker):
         except Exception as e:
             logging.error(f"Error saving model '{self.model_name}': {e}")
 
-    def _train_new_papers_ranker(self, ranker: Ranker, hist_entry: Dict):
+    async def _train_new_papers_ranker(self, ranker: Ranker, hist_entry: Dict):
         """
         Trains the given ranker with historical data from a single ranking_papers_feedback entry.
         """
@@ -328,7 +328,7 @@ class RankerManager(Ranker):
         # Fetch paper data from the paper table using the IDs
         papers = []
         for paper_id in paper_ids:
-            paper_response = self.supabase.table('papers').select('*').eq('id', paper_id).execute()
+            paper_response = await self.supabase.table('papers').select('*').eq('id', paper_id).execute()
             if paper_response.data:
                 paper_data = paper_response.data[0]
                 
@@ -370,9 +370,9 @@ class RankerManager(Ranker):
             for author in paper.authors:
                 ranker.delete_author(paper, author)
         logging.info(f"Ranker {ranker.model_name} trained with historical data.")
-        ranker.save_model()
+        await ranker.save_model()
 
-    def _train_new_authors_ranker(self, ranker: Ranker, hist_entry: Dict):
+    async def _train_new_authors_ranker(self, ranker: Ranker, hist_entry: Dict):
         """
         Trains the given ranker with historical author data from a single ranking_authors_feedback entry.
         """
@@ -405,11 +405,11 @@ class RankerManager(Ranker):
         for author in neg_authors:
             ranker.delete_author(None, author) # no paper associated with the author
         logging.info(f"Ranker {ranker.model_name} trained with historical author data.")
-        ranker.save_model()
+        await ranker.save_model()
 
-    def load_model(self):
+    async def load_model(self):
         """Loads the RankerManager's model state from Supabase."""
-        response = self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
+        response = await self.supabase.table('ranker_models').select('model_data').eq('model_name', self.model_name).execute()
         if response.data and response.data[0]:
             model_data_json = response.data[0]['model_data']
             try:
@@ -420,26 +420,26 @@ class RankerManager(Ranker):
                 # Load individual ranker models
                 all_rankers_loaded = True
                 for name, ranker in self.rankers.items():
-                    if not ranker.load_model():
+                    if not await ranker.load_model():
                         all_rankers_loaded = False
                         logging.info(f"Failed to load ranker: {name}. Training with historical data...")
 
                         # Get historical paper ranking data
-                        papers_hist_response = self.supabase.table('ranking_papers_feedback').select('*').execute()
+                        papers_hist_response = await self.supabase.table('ranking_papers_feedback').select('*').execute()
                         if papers_hist_response.data:
                             logging.info("Historical paper ranking data found")
                             for entry in papers_hist_response.data:
-                                self._train_new_papers_ranker(ranker, entry)
+                                await self._train_new_papers_ranker(ranker, entry)
                             logging.info(f"Completed training {name} with historical paper ranking data")
                         else:
                             logging.info("No historical paper ranking data found.")
 
                         # Get historical author ranking data
-                        authors_hist_response = self.supabase.table('ranking_authors_feedback').select('*').execute()
+                        authors_hist_response = await self.supabase.table('ranking_authors_feedback').select('*').execute()
                         if authors_hist_response.data:
                             logging.info("Historical author ranking data found")
                             for entry in authors_hist_response.data:
-                                self._train_new_authors_ranker(ranker, entry)
+                                await self._train_new_authors_ranker(ranker, entry)
                             logging.info(f"Completed training {name} with historical author ranking data")
                         else:
                             logging.info("No historical author ranking data found.")
