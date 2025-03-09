@@ -1,7 +1,4 @@
 from pydantic import BaseModel, Field
-from langchain.prompts import PromptTemplate
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import LLMChain
 
 ANALYSIS_PROMPT = """You are an expert in analyzing climate-related research.
 Your task is to evaluate the provided research abstract based on the following criteria.
