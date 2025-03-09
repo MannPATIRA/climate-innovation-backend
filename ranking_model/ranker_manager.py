@@ -151,9 +151,9 @@ class RankerManager(Ranker):
         """
         try:
             # Extract paper_ids from the lists of papers
-            paper_ids = [int(p.paper_id) for p in self.papers]
-            pos_paper_ids = [int(p.paper_id) for p in self.accepted_papers]
-            neg_paper_ids = [int(p.paper_id) for p in self.rejected_papers]
+            paper_ids = [p.paper_id for p in self.papers]
+            pos_paper_ids = [p.paper_id for p in self.accepted_papers]
+            neg_paper_ids = [p.paper_id for p in self.rejected_papers]
 
             # Store paper IDs in ranking_papers_feedback table
             data_to_store = {
