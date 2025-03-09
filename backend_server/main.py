@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -54,7 +55,45 @@ neo4j_client = None  # Will be initialized in startup event
 # Load environment variables
 load_dotenv(override=True)
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup code (previously in @app.on_event("startup"))
+    global supabase, chat_repository, ranker, neo4j_client
+    
+    # Initialize Supabase
+    supabase = await init_supabase_async()
+    print("Supabase initialized: ", supabase)
+    chat_repository = ChatRepository(supabase_client=supabase)
+    
+    # Initialize ranker with async supabase client
+    ranker = RankerManager(supabase, "main_ranker_manager", ranker_classes, 0.01)
+    await ranker.load_model()
+    
+    # Initialize Neo4j client
+    neo4j_client = AsyncNeo4jClient(
+        uri=os.getenv("NEO4J_URI"),
+        user=os.getenv("NEO4J_USER"),
+        password=os.getenv("NEO4J_PASSWORD"),
+        ssh_host=os.getenv("REMOTE_SERVER_HOST"),
+        ssh_user=os.getenv("REMOTE_SERVER_USER"),
+        ssh_password=os.getenv("REMOTE_SERVER_PASSWORD")
+    )
+    await neo4j_client.initialize()
+    print("Neo4j client initialized")
+    
+    # Start background worker
+    #asyncio.create_task(background_worker())
+    print("Background worker started")
+    
+    yield  # This is where FastAPI serves requests
+    
+    # Shutdown code (previously in @app.on_event("shutdown"))
+    if neo4j_client:
+        await neo4j_client.close()
+        print("Neo4j client closed")
+
+# Create the FastAPI app with the lifespan
+app = FastAPI(lifespan=lifespan)
 
 # Configure CORS
 app.add_middleware(
@@ -191,42 +230,6 @@ ranker_classes = {
 
 # Don't initialize ranker here, move to startup event
 ranker = None
-
-@app.on_event("startup")
-async def startup_event():
-    global supabase, chat_repository, ranker, neo4j_client
-    supabase = await init_supabase_async()
-    print("Supabase initialized: ", supabase)
-    chat_repository = ChatRepository(supabase_client=supabase)
-    
-    # Initialize ranker with async supabase client
-    ranker = RankerManager(supabase, "main_ranker_manager", ranker_classes, 0.01)
-    await ranker.load_model()
-    
-    # Initialize Neo4j client
-    neo4j_client = AsyncNeo4jClient(
-        uri=os.getenv("NEO4J_URI"),
-        user=os.getenv("NEO4J_USER"),
-        password=os.getenv("NEO4J_PASSWORD"),
-        ssh_host=os.getenv("REMOTE_SERVER_HOST"),
-        ssh_user=os.getenv("REMOTE_SERVER_USER"),
-        ssh_password=os.getenv("REMOTE_SERVER_PASSWORD")
-    )
-    await neo4j_client.initialize()
-    print("Neo4j client initialized")
-    
-    # Start background worker
-    #asyncio.create_task(background_worker())
-    print("Background worker started")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    # Close Neo4j connection when app shuts down
-    if neo4j_client:
-        await neo4j_client.close()
-        print("Neo4j client closed")
-
 
 @app.get("/")
 async def home():
@@ -1191,4 +1194,4 @@ async def delete_query(query_id: int):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("backend_server.main:app", host="0.0.0.0", port=8000, workers=4)
