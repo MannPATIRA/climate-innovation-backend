@@ -208,9 +208,9 @@ async def startup_event():
         uri=os.getenv("NEO4J_URI"),
         user=os.getenv("NEO4J_USER"),
         password=os.getenv("NEO4J_PASSWORD"),
-        ssh_host=os.getenv("NEO4J_SSH_HOST"),
-        ssh_user=os.getenv("NEO4J_SSH_USER"),
-        ssh_password=os.getenv("NEO4J_SSH_PASSWORD")
+        ssh_host=os.getenv("REMOTE_SERVER_HOST"),
+        ssh_user=os.getenv("REMOTE_SERVER_USER"),
+        ssh_password=os.getenv("REMOTE_SERVER_PASSWORD")
     )
     await neo4j_client.initialize()
     print("Neo4j client initialized")
