@@ -10,7 +10,15 @@ COPY . /app
 # Install dependencies
 RUN poetry install --no-interaction --no-ansi --no-root
 
-RUN ls
+# Explicitly install uvicorn with all extras
+RUN poetry add "uvicorn[standard]"
 
-# Run the app
-CMD ["poetry", "run", "uvicorn", "backend_server.main:app", "--workers", "4"]
+# Add debugging
+RUN echo "Installed packages:" && poetry show
+
+# Set environment variable for more verbose logging
+ENV PYTHONUNBUFFERED=1
+ENV LOG_LEVEL=debug
+
+# Run the app with debug logging
+CMD ["sh", "-c", "echo 'Starting server...' && poetry run python -c 'import sys; print(sys.path)' && poetry run uvicorn backend_server.main:app --workers 4 --log-level debug"]
