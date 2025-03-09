@@ -65,9 +65,9 @@ def is_name_match(name_variations, person_name, org_match):
         # Normalise this variation
         norm_name = normalize_name(name)
 
-        # Split into parts of names
-        sub_var_names = re.split("[ .-]+", norm_name)
-        sub_full_name = re.split("[ .-]+", person_full_name)
+        # Split into parts of names and filter out empty strings
+        sub_var_names = [part for part in re.split("[ .-]+", norm_name) if part]
+        sub_full_name = [part for part in re.split("[ .-]+", person_full_name) if part]
 
         # If the organisations match, we are going to check that any initial matches with the corresponding
         # sub-name in the other name, e.g., between John K Smith and John Kennedy Smith, the K and Kennedy will
