@@ -20,7 +20,10 @@ def test_author_ingestion():
     neo4j_client = Neo4jClient(
         uri=os.getenv("NEO4J_URI"),
         user=os.getenv("NEO4J_USER"),
-        password=os.getenv("NEO4J_PASSWORD")
+        password=os.getenv("NEO4J_PASSWORD"),
+        ssh_host=os.getenv("REMOTE_SERVER_HOST"),
+        ssh_user=os.getenv("REMOTE_SERVER_USER"),
+        ssh_password=os.getenv("REMOTE_SERVER_PASSWORD")
     )
     
     # Initialize components

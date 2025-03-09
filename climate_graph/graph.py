@@ -1,7 +1,7 @@
 import os
 
 import openai
-from backend_server.gatherers import OpenAlexInformationGatherer
+from backend_server.gatherers.OpenAlexInformationGatherer import OpenAlexInformationGatherer
 from openai import OpenAI
 import numpy as np
 from collections import Counter

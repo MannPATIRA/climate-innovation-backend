@@ -6,6 +6,9 @@ from pyalex import Works, Topics
 from tenacity import retry, stop_after_attempt, wait_exponential
 from ..processors.base import ProcessingTask
 from .base import Fetcher
+import asyncio
+import aiohttp
+import time
 
 
 
@@ -14,14 +17,17 @@ class PaperFetcher(Fetcher, ABC):
 
 
 class PyAlexFetcher(PaperFetcher):
-    def __init__(self, supabase_client, openalex_key: str = None):
+    def __init__(self, supabase_client, openalex_key: str = None, batch_size: int = 50):
         self.supabase = supabase_client
         pyalex.config.api_key = openalex_key
+        self.openalex_key = openalex_key
         self.task_id = self._get_paper_processing_task_id()
         self.cursor = self._get_main_cursor()
         self.current_cursor = self._get_current_cursor()
         # Store climate relevant topics as set for O(1) lookup
         self.climate_relevant_topics = set(self._get_climate_relevant_topics())
+        self.batch_size = batch_size  # Number of concurrent requests
+        self.rate_limit = 1  # Wait 1 second between batches
         print("number of climate relevant topics")
         print(len(self.climate_relevant_topics))
 
@@ -85,9 +91,31 @@ class PyAlexFetcher(PaperFetcher):
             .eq('id', self.task_id) \
             .execute()
 
+    async def _get_paper_from_openalex_async(self, session: aiohttp.ClientSession, openalex_id: str) -> Dict[str, Any]:
+        """Fetch single paper directly from OpenAlex asynchronously"""
+        # Extract the ID from the full URL if needed
+        paper_id = openalex_id.split('/')[-1] if '/' in openalex_id else openalex_id
+        url = f"https://api.openalex.org/works/{paper_id}"
+        
+        # Add email authentication header if premium key is available
+        headers = {}
+        if self.openalex_key:
+            headers['Authorization'] = f'Bearer {self.openalex_key}'
+            
+        async with session.get(url, headers=headers) as response:
+            return await response.json()
+
+    async def _fetch_papers_batch_async(self, paper_ids: List[str]) -> List[Dict[str, Any]]:
+        """Fetch a batch of papers concurrently"""
+        async with aiohttp.ClientSession() as session:
+            tasks = []
+            for paper_id in paper_ids:
+                tasks.append(self._get_paper_from_openalex_async(session, paper_id))
+            return await asyncio.gather(*tasks, return_exceptions=True)
+
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def _get_failed_papers(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
-        """Fetch and yield papers that failed to process previously"""
+    def _get_failed_papers(self) -> Generator[Tuple[str, Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]]], None, None]:
+        """Fetch and yield papers that failed to process previously, using async batch processing"""
         # Get all paper IDs from processing logs for this task
         response = self.supabase.table('process_progress_logs') \
             .select('reference_id') \
@@ -97,28 +125,50 @@ class PyAlexFetcher(PaperFetcher):
         if not response.data:
             return
         
-        print("The number of failed papers retrieved: ", len(response.data))
-        for record in response.data:
-            openalex_id = record['reference_id']
-            # Fetch the specific paper from OpenAlex
-            work = Works()[openalex_id]
-            print("Re Yielding this work: ", work.get('id'))
-            if work:
-                abstract = self._get_abstract(work)
-                if abstract:
-                    primary_topic = work.get('primary_topic', {})
-                    if primary_topic is not None:
-                        primary_topic_id = primary_topic.get('id')
-                        if primary_topic_id and primary_topic_id in self.climate_relevant_topics:
-                            metadata = {
-                                'id': work.get('id'),
-                                'doi': work.get('doi'),
-                                'title': work.get('title')
-                            }
-                            yield abstract, metadata
-                    else:
-                        print("primary topic is null: here are topics: ")
-                        print(work.get('topics', "No topics"))
+        paper_ids = [record['reference_id'] for record in response.data]
+        print(f"The number of failed papers retrieved: {len(paper_ids)}")
+        
+        # Process papers in batches
+        for i in range(0, len(paper_ids), self.batch_size):
+            batch_ids = paper_ids[i:i + self.batch_size]
+            
+            # Fetch batch concurrently
+            results = asyncio.run(self._fetch_papers_batch_async(batch_ids))
+            print(f"Fetched {len(results)} papers in batch")
+            
+            # Process results
+            for paper_id, work in zip(batch_ids, results):
+                if isinstance(work, Exception):
+                    print(f"Error fetching paper {paper_id}: {type(work).__name__} - {str(work)}")
+                    continue
+                    
+                try:
+                    abstract = self._get_abstract(work)
+                    if abstract:
+                        primary_topic = work.get('primary_topic', {})
+                        if primary_topic is not None:
+                            primary_topic_id = primary_topic.get('id')
+                            if primary_topic_id and primary_topic_id in self.climate_relevant_topics:
+                                metadata = {
+                                    'id': work.get('id'),
+                                    'doi': work.get('doi'),
+                                    'title': work.get('title'),
+                                    'publication_year': work.get('publication_year'),
+                                    'publication_date': work.get('publication_date'),
+                                    'cited_by_count': work.get('cited_by_count')
+                                }
+                                authors = self._get_relevant_authors(work)
+                                topics = work.get('topics', [])
+                                yield abstract, metadata, authors, topics
+                        else:
+                            print("primary topic is null: here are topics: ")
+                            print(work.get('topics', "No topics"))
+                except Exception as e:
+                    print(f"Error processing paper {paper_id}: {type(e).__name__} - {str(e)}")
+                    continue
+            
+            # Rate limiting between batches
+            time.sleep(self.rate_limit)
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def _get_climate_relevant_topics(self) -> List[str]:
@@ -180,7 +230,7 @@ class PyAlexFetcher(PaperFetcher):
                 - topics (List[Dict]): List of topics associated with the paper
         """
         # First yield any failed papers
-        #yield from self._get_failed_papers()
+        yield from self._get_failed_papers()
 
         # Continue with normal fetching process
         query = Works() \

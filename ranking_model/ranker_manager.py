@@ -4,7 +4,8 @@ import json
 import pickle
 import logging
 
-from backend_server.gatherers import OpenAlexInformationGatherer, authors_from_doi, build_author_object
+from backend_server.author_building import authors_from_doi, build_author_object
+from backend_server.gatherers.OpenAlexInformationGatherer import OpenAlexInformationGatherer
 from .RegressionRanker import RegressionRanker
 from .OnlineSVMRanker import OnlineSVMRanker
 from .ranker import Ranker

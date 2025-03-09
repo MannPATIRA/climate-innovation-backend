@@ -18,11 +18,14 @@ def test_paper_ingestion():
     pinecone_store = PineconeStore(index_name="climate-index")
     
     # Initialize components
-    fetcher = PyAlexFetcher(supabase, openalex_key=openalex_key)
+    fetcher = PyAlexFetcher(supabase, openalex_key=openalex_key, batch_size=50)
     neo4j_client = Neo4jClient(
         uri=os.getenv("NEO4J_URI"),
         user=os.getenv("NEO4J_USER"),
-        password=os.getenv("NEO4J_PASSWORD")
+        password=os.getenv("NEO4J_PASSWORD"),
+        ssh_host=os.getenv("REMOTE_SERVER_HOST"),
+        ssh_user=os.getenv("REMOTE_SERVER_USER"),
+        ssh_password=os.getenv("REMOTE_SERVER_PASSWORD")
     )
     processor = PaperProcessor(
         supabase, 
