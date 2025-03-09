@@ -1,4 +1,7 @@
 from pyalex import Works, Authors
+import pyalex
+import os
+pyalex.config.api_key = os.getenv("OPENALEX_API_KEY")
 
 from backend_server.gatherers.InformationGatherer import InformationGatherer
 
