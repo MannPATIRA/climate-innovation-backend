@@ -82,7 +82,7 @@ async def lifespan(app: FastAPI):
     print("Neo4j client initialized")
     
     # Start background worker
-    #asyncio.create_task(background_worker())
+    asyncio.create_task(background_worker())
     print("Background worker started")
     
     yield  # This is where FastAPI serves requests
