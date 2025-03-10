@@ -3,6 +3,7 @@ import json
 import os
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
+import pyalex
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -48,6 +49,8 @@ from .models import (
 )
 from .query_processors import QueryProcessor
 from common.async_neo4j_client import AsyncNeo4jClient
+
+pyalex.config.api_key = os.getenv("OPENALEX_API_KEY")
 
 # Replace the sync client initialization with async
 supabase = None  # Will be initialized in startup event
@@ -602,33 +605,30 @@ def compute_author_connections(authorid: str, paperid: str) -> dict:
     return result
 
 
-# Background worker to precompute queued author connections.
 async def background_worker():
-    """
-    Background worker to precompute queued author connections.
-
-    This function continuously iterates over the precomputation store, checks if the computation
-    for each author is done, and if not, runs the computation in an executor. The result is then
-    stored in the computed store and removed from the precomputation store.
-
-    Returns
-    -------
-    None
-    """
     while True:
-        # Iterate over a snapshot of keys in the precomputation store.
-        for authorid in list(precomputation_store.keys()):
-            record = precomputation_store.get(authorid)
-            if record and not record["computed"]:
-                result = await asyncio.get_event_loop().run_in_executor(
-                    executor, compute_author_connections, authorid, record["paperid"]
-                )
-                record["result"] = result
-                record["computed"] = True
-            if record and record["computed"]:
-                # Move the computed result into the computed_store.
-                computed_store[authorid] = record["result"]
-                del precomputation_store[authorid]
+        # Fetch rows that have not been computed
+        res = await supabase.table('precomputation_store')\
+            .select("*")\
+            .eq('computed', False)\
+            .execute()
+        records = res.data if res.data else []
+
+        for record in records:
+            authorid = record["author_id"]
+            paperid = record["paper_id"]
+            # Run the blocking computation in the executor
+            computed_result = await asyncio.get_event_loop().run_in_executor(
+                executor, compute_author_connections, authorid, paperid
+            )
+            # Update the record to mark it as computed and store the result
+            await supabase.table('precomputation_store')\
+                .update({
+                    "computed": True,
+                    "result": computed_result
+                })\
+                .eq("id", record["id"])\
+                .execute()
         await asyncio.sleep(2)
 
 
@@ -659,20 +659,6 @@ async def get_auth_info(data: AuthQuery):
 
 @app.post('/api/graph/get_initial_connections')
 async def get_initial_connections(data: GraphQuery):
-    """
-    Retrieve initial connections for a given author and paper.
-
-    Parameters
-    ----------
-    data : GraphQuery
-        The query details containing the author ID and paper ID.
-
-    Returns
-    -------
-    dict
-        A dictionary containing the initial connections.
-        If there is an internal server error, raises an HTTPException with status code 500.
-    """
     try:
         authorid = data.authorid
         paperid = data.paperid
@@ -682,99 +668,73 @@ async def get_initial_connections(data: GraphQuery):
         # Synchronously compute immediate connections.
         immediate_connections = climate_graph.graph.get_relevant_authors(author_id=authorid, paper_id=paperid)
 
-        # Queue each connected author for background precomputation,
-        # if not already computed.
+        # For each connection, insert a new row into precomputation_store if not already present.
         for author in immediate_connections:
             aid = author.get('authorId')
-            if aid and aid not in computed_store and aid not in precomputation_store:
-                precomputation_store[aid] = {
-                    "paperid": paperid,
-                    "computed": False,
-                    "result": None
-                }
-        print("PRECOMP: ", precomputation_store)
-        print("COMP: ", computed_store)
+            if aid:
+                # Check if already queued/computed
+                res = await supabase.table('precomputation_store')\
+                    .select("*")\
+                    .eq('author_id', aid)\
+                    .execute()
+                if not res.data:
+                    await supabase.table('precomputation_store').insert({
+                        "author_id": aid,
+                        "paper_id": paperid,
+                        "computed": False,
+                        "result": None
+                    }).execute()
         return {'connections': immediate_connections}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
+        
 
 @app.post('/api/graph/get_next_connections')
 async def get_next_connections(gnq: GraphNextQuery):
-    """
-    Retrieve the next set of connections for a given author.
-
-    Parameters
-    ----------
-    gnq : GraphNextQuery
-        The query details containing the author ID.
-
-    Returns
-    -------
-    dict
-        A dictionary containing the next set of connections.
-        If there is an internal server error, raises an HTTPException with status code 500.
-    """
     try:
-        print("ENTERING GNC")
         authorid = gnq.authorid
-        if authorid in computed_store:
-            print("Authpr In Computed Store")
+        # Query Supabase for the record with the given author_id
+        res = await supabase.table('precomputation_store')\
+            .select("*")\
+            .eq('author_id', authorid)\
+            .execute()
+        record = res.data[0] if res.data else None
 
-            for connection in computed_store[authorid]:
-                precomputation_store[connection['authorId']] = {
-                    "paperid": global_paperid,
-                    "computed": False,
-                    "result": None
-                }
-
-            print("PRECOMP: ", precomputation_store)
-            print("COMP: ", computed_store)
-            return {"connections": computed_store[authorid]}
-        elif authorid in precomputation_store:
-            print("Authpr In PRECOMP Store")
-
-            # Prioritize this author: compute immediately.
-            result = await asyncio.get_event_loop().run_in_executor(
-                executor, compute_author_connections, authorid, global_paperid
-            )
-
-            print("Authpr has been computed")
-
-            computed_store[authorid] = result
-            del precomputation_store[authorid]
-
-            print("deleted from precomp and returning")
-
-            precomputation_store[authorid] = {
-                "paperid": global_paperid,
-                "computed": False,
-                "result": None
-            }
-
-            print("PRECOMP: ", precomputation_store)
-            print("COMP: ", computed_store)
-            return {"connections": result}
+        if record:
+            if record["computed"]:
+                # Optionally, queue further precomputations for connected authors if needed
+                connections = record["result"]
+                # Example: For each connection, you could check/insert a new record
+                # (This logic will depend on your specific requirements)
+                return {"connections": connections}
+            else:
+                # If not computed, compute immediately and update
+                computed_result = await asyncio.get_event_loop().run_in_executor(
+                    executor, compute_author_connections, authorid, global_paperid
+                )
+                await supabase.table('precomputation_store')\
+                    .update({
+                        "computed": True,
+                        "result": computed_result
+                    })\
+                    .eq("author_id", authorid)\
+                    .execute()
+                return {"connections": computed_result}
         else:
-            print("Author not queued")
-
-            # Not queued; compute on demand and store.
-            result = await asyncio.get_event_loop().run_in_executor(
+            # If record is not found, compute and insert new record
+            computed_result = await asyncio.get_event_loop().run_in_executor(
                 executor, compute_author_connections, authorid, global_paperid
             )
-            computed_store[authorid] = result
-            print("Has been computed")
-
-            precomputation_store[authorid] = {
-                "paperid": global_paperid,
-                "computed": False,
-                "result": None
-            }
-            print("PRECOMP: ", precomputation_store)
-            print("COMP: ", computed_store)
-            return {"connections": result}
+            await supabase.table('precomputation_store').insert({
+                "author_id": authorid,
+                "paper_id": global_paperid,
+                "computed": True,
+                "result": computed_result
+            }).execute()
+            return {"connections": computed_result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @app.post("/api/crm/authors")
