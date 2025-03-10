@@ -13,4 +13,4 @@ RUN poetry install --no-interaction --no-ansi --no-root
 RUN ls
 
 # Run the app with Gunicorn
-CMD ["poetry", "run", "gunicorn", "backend_server.main:app", "--workers", "3", "--worker-class", "uvicorn.workers.UvicornWorker", "--preload", "--bind", "0.0.0.0:8000", "--timeout", "120"]
+CMD ["poetry", "run", "gunicorn", "backend_server.main:app", "--workers", "8", "--worker-class", "uvicorn.workers.UvicornWorker", "--preload", "--bind", "0.0.0.0:8000", "--timeout", "120"]
