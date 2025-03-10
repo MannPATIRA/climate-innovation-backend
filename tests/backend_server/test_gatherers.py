@@ -2,10 +2,8 @@ import pytest
 import requests
 from unittest.mock import Mock, patch
 
-from backend_server.gatherers import (
-    SemanticScholarInformationGatherer,
-    OpenAlexInformationGatherer
-)
+from backend_server.gatherers.SemanticScholarInformationGatherer import SemanticScholarInformationGatherer
+from backend_server.gatherers.OpenAlexInformationGatherer import OpenAlexInformationGatherer
 
 # Test data
 MOCK_ARXIV_DOI = "2303.11366"
@@ -92,20 +90,21 @@ class TestSemanticScholarInformationGatherer:
 
 class TestOpenAlexInformationGatherer:
     @patch('backend_server.gatherers.Works')
-    def test_get_authors_from_doi(self, mock_works):
+    def test_get_UK_authors_from_doi(self, mock_works):
         mock_work = Mock()
         mock_work.filter.return_value.get.return_value = [{
             'authorships': [
-                {'author': {'id': 'author1', 'display_name': 'John Doe'}},
-                {'author': {'id': 'author2', 'display_name': 'Jane Smith'}}
+                {'author': {'id': 'author1', 'display_name': 'John Doe'}, 'institutions': [{'country_code': 'GB'}]},
+                {'author': {'id': 'author2', 'display_name': 'Jane Smith'}, 'institutions': [{'country_code': 'US'}]},
+                {'author': {'id': 'author3', 'display_name': 'Peter Pan'}, 'institutions': [{'country_code': 'GB'}, {'country_code': 'CA'}]}
             ]
         }]
         mock_works.return_value = mock_work
         
-        result = OpenAlexInformationGatherer.get_authors_from_doi(MOCK_REGULAR_DOI)
+        result = OpenAlexInformationGatherer.get_UK_authors_from_doi(MOCK_REGULAR_DOI)
         expected = [
             {'authorId': 'author1', 'name': 'John Doe'},
-            {'authorId': 'author2', 'name': 'Jane Smith'}
+            {'authorId': 'author3', 'name': 'Peter Pan'}
         ]
         assert result == expected
 
@@ -200,7 +199,7 @@ class TestErrorCases:
     def test_openalex_invalid_doi(self, mock_works):
         mock_works.return_value.filter.return_value.get.return_value = None
         
-        result = OpenAlexInformationGatherer.get_authors_from_doi("invalid_doi")
+        result = OpenAlexInformationGatherer.get_UK_authors_from_doi("invalid_doi")
         assert result == []
 
     @patch('backend_server.gatherers.Works')

@@ -1,7 +1,7 @@
 import os
 
 import openai
-from backend_server.gatherers import OpenAlexInformationGatherer
+from backend_server.gatherers.OpenAlexInformationGatherer import OpenAlexInformationGatherer
 from openai import OpenAI
 import numpy as np
 from collections import Counter
@@ -95,5 +95,3 @@ def embed_content(work):
     
     embeddings = [item.embedding for item in response.data]
     return embeddings
-
-print(get_relevant_authors(sample_author_id, sample_paper_id))

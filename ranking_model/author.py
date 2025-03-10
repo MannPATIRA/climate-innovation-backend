@@ -1,30 +1,25 @@
-import numpy as np
+from pydantic import BaseModel
+from typing import List, Optional, Union, Any, Dict
+from .grant import Grant
 
-class Author:
-    def __init__(self, name=None, citations=None, dob=None, organisation_history=None, orcid=None, hindex=None, grants=None, grant_org_name=None, website=None, openAlexid=None, works_count=None):
-        """
-        Represents an author.
-        :param name: Author's name.
-        :param citations: Number of citations.
-        :param dob: Date of birth.
-        :param hindex: h-index.
-        """
-        self.works_count = works_count
-        self.openAlexid = openAlexid
-        self.organisation_history = organisation_history
-        self.website = website
-        self.name = name
-        self.citations = citations
-        self.dob = dob
-        self.hindex = hindex
-        self.score = None  # This will be computed by the Ranker
-        self.grants = grants if grants else []
-        self.orcid = orcid
-        self.grant_org_name = grant_org_name
+class Author(BaseModel):
+    name: Optional[str] = None
+    citations: Optional[int] = None
+    dob: Optional[str] = None
+    organisation_history: Optional[Union[str, List[str], List[Any]]] = None  # Allow both string and list formats
+    website: Optional[str] = None
+    orcid: Optional[str] = None
+    hindex: Optional[int] = None
+    grants: List[Grant] = []
+    grant_org_name: Optional[str] = None
+    openAlexid: Optional[str] = None
+    works_count: Optional[Union[int, str]] = None  # Allow both int and string formats
+    score: Optional[float] = None  # This will be computed by the Ranker
+    profile: Optional[Dict] = None
+    employment: Optional[Dict] = None
 
-    def get_feature_vector(self):
-        """Return a numpy array of features used for ranking (order: citations, hindex)."""
-        return np.array([self.citations, self.hindex], dtype=float)
+    class Config:
+        arbitrary_types_allowed = True
 
     def __repr__(self):
         return f"Author(name={self.name}, score={self.score:.3f})" if self.score is not None else f"Author(name={self.name})"

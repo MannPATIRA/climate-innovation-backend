@@ -3,10 +3,12 @@ from langchain_openai import ChatOpenAI
 from background_process.prompts import CLIMATE_RELEVANCE_PROMPT, TopicAssessment
 from .base import Processor, ProcessingTask
 import asyncio
+from background_process.utils.process_log_manager import ProcessLogManager
 
 class TopicProcessor(Processor):
     def __init__(self, supabase_client, model_name: str = "gpt-4o-mini"):
-        super().__init__(supabase_client, None)  # No pinecone store needed
+        super().__init__(ProcessLogManager(supabase_client), None)  # No pinecone store needed
+        self.supabase = supabase_client
         self.evaluator = ChatOpenAI(
             model=model_name,
             temperature=0.2
