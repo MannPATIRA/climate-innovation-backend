@@ -421,6 +421,7 @@ async def stream_query(query: Query):
     except ChatNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
+        print(f"Error in stream_query: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -452,27 +453,25 @@ async def search_papers(query: PaperQuery):
         )
 
         async def generate_events():
-            # Format the results
-            paper_results = []
             seen_paper_ids = set()  # To avoid duplicates
+            all_authors = {}  # Track all authors that need details
 
-            # First event: papers with basic author info
+            # Stream papers one at a time
             for match in results:
                 metadata = match.metadata
                 paper_id = metadata.get("paper_id")
-                print(f"Paper ID: {paper_id}")
                 if paper_id in seen_paper_ids:
                     continue
                 seen_paper_ids.add(paper_id)
 
-                # Get paper details from database instead of OpenAlex
+                # Get paper details from database
                 paper_records = await supabase.table('papers') \
                     .select('*') \
                     .eq('id', int(float(paper_id))) \
                     .execute()
 
                 if not paper_records.data:
-                    continue  # Skip if paper not found in database
+                    continue
 
                 details = paper_records.data[0]
 
@@ -481,7 +480,6 @@ async def search_papers(query: PaperQuery):
                     .select('authors(*)') \
                     .eq('paper_id', int(float(paper_id))) \
                     .execute()
-                print(f"Number of author records: {len(author_records.data)}")
 
                 authors = [Author(
                     name=author['authors']['display_name'],
@@ -491,11 +489,16 @@ async def search_papers(query: PaperQuery):
                     orcid=author['authors'].get('orcid'),
                     works_count=author['authors'].get('works_count', 0),
                     openAlexid=author['authors'].get('openalex_id'),
-                    dob=None,  # Will be updated in second event
-                    grants=[],  # Will be updated in second event
-                    grant_org_name=None,  # Will be updated in second event
-                    website=None  # Will be updated in second event
+                    dob=None,
+                    grants=[],
+                    grant_org_name=None,
+                    website=None
                 ) for author in author_records.data]
+
+                # Track authors that need additional details
+                for author in authors:
+                    if author.openAlexid:
+                        all_authors[author.openAlexid] = True
 
                 paper = Paper(
                     paper_id=str(paper_id),
@@ -508,27 +511,23 @@ async def search_papers(query: PaperQuery):
                     citations=details.get("cited_by_count", 0),
                     authors=authors
                 )
-                paper_results.append(paper)
 
-            ranked_papers = paper_results
-            yield f"data: {json.dumps({'type': 'initial', 'papers': [p.model_dump() for p in ranked_papers]})}\n\n"
-            print("Should have yielded first all papers ")
+                # Stream each paper individually
+                yield f"data: {json.dumps({'type': 'paper', 'paper': paper.model_dump()})}\n\n"
 
-            # Second event: additional author details
-            author_updates = {}
-            for paper in ranked_papers:
-                for author in paper.authors:
-                    if author.openAlexid not in author_updates:
-                        # Get additional author info
-                        author_info = get_all_author_info(author.openAlexid)
-                        author_updates[author.openAlexid] = {
-                            'dob': author_info.dob,
-                            'grants': [g.model_dump() for g in author_info.grants],
-                            'grant_org_name': author_info.grant_org_name,
-                            'website': author_info.website
-                        }
-
-            yield f"data: {json.dumps({'type': 'author_details', 'updates': author_updates})}\n\n"
+            # After all papers are streamed, compute and stream author details one by one
+            for author_id in all_authors:
+                author_info = get_all_author_info(author_id)
+                author_update = {
+                    author_id: {
+                        'dob': author_info.dob,
+                        'grants': [g.model_dump() for g in author_info.grants],
+                        'grant_org_name': author_info.grant_org_name,
+                        'website': author_info.website
+                    }
+                }
+                # Stream each author's details individually
+                yield f"data: {json.dumps({'type': 'author_details', 'updates': author_update})}\n\n"
 
         return StreamingResponse(generate_events(), media_type="text/event-stream")
 

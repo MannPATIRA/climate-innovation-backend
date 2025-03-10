@@ -130,7 +130,6 @@ class QueryProcessor:
             "chat_history": chat_history
         }):
             full_response += chunk
-            # print(chunk)
             yield chunk
         
         # After the stream is complete, call the completion callback
