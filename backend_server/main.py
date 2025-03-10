@@ -446,8 +446,9 @@ async def search_papers(query: PaperQuery):
         pinecone_store = PineconeStore(index_name="climate-index")
 
         # Query the papers namespace
+        query_text = query.query + "technical solution prototype implementation"
         results = pinecone_store.query_chunk(
-            query_text=query.query,
+            query_text=query_text,
             top_k=query.top_k,
             namespace="papers"
         )
