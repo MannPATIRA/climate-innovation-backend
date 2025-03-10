@@ -38,14 +38,24 @@ def supabase_operation_with_retry(max_retries=3, retry_delay=120):
                         ReadTimeout, ConnectTimeout, TimeoutError) as e:
                     # Check if it's an APIError but not the specific connection pool timeout
                     if isinstance(e, postgrest.exceptions.APIError):
-                        # Check if it's not the connection pool timeout error
-                        if not (hasattr(e, 'code') and e.code == 'PGRST003' and 
-                                'connection pool' in str(e)):
+                        # Check if it's a retryable error
+                        error_code = getattr(e, 'code', None)
+                        error_message = str(e).lower()
+                        
+                        # List of retryable error codes
+                        retryable_codes = ['PGRST002', 'PGRST003', '57014', '25P02']
+                        
+                        # Check if it's not a retryable error
+                        if (error_code not in retryable_codes and
+                            'connection pool' not in error_message and
+                            'statement timeout' not in error_message and
+                            'transaction is aborted' not in error_message and
+                            'timing out' not in error_message):
                             # It's a different API error, so raise it immediately
                             raise
                     
                     retries += 1
-                    print(f"Supabase service timeout: {str(e)}")
+                    print(f"Supabase service error: {str(e)}")
                     print(f"Retry attempt {retries}/{max_retries}")
                     
                     if retries < max_retries:
